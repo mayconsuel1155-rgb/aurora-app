@@ -65,8 +65,9 @@ export default function Agenda() {
             await adicionarEvento({ titulo, data: dt, is_all_day: isAllDay });
         }
         setIsModalOpen(false);
-    } catch (err) {
-        alert("Erro ao salvar o evento. Lembre-se de reconectar sua conta do Google!");
+    } catch (err: any) {
+        const msg = err.response?.data?.detail || err.message || "Erro desconhecido";
+        alert(`Erro ao salvar o evento: ${msg}\n\nLembre-se de reconectar sua conta do Google se ainda não fez isso!`);
     } finally {
         setLoadingAction(false);
     }
@@ -76,8 +77,9 @@ export default function Agenda() {
       if (confirm("Tem certeza que deseja excluir este compromisso?")) {
           try {
              await excluirEvento(id);
-          } catch (err) {
-             alert("Erro ao excluir. Lembre-se de reconectar sua conta do Google!");
+          } catch (err: any) {
+             const msg = err.response?.data?.detail || err.message || "Erro desconhecido";
+             alert(`Erro ao excluir: ${msg}`);
           }
       }
   };
@@ -86,8 +88,9 @@ export default function Agenda() {
       if (tituloAtual.startsWith('[Concluído]')) return;
       try {
           await concluirEvento(id, tituloAtual);
-      } catch (err) {
-          alert("Erro ao concluir. Lembre-se de reconectar sua conta do Google!");
+      } catch (err: any) {
+          const msg = err.response?.data?.detail || err.message || "Erro desconhecido";
+          alert(`Erro ao concluir: ${msg}`);
       }
   };
 
