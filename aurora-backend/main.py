@@ -38,6 +38,10 @@ app.add_middleware(
 # Secret key para assinar os cookies de sessão do OAuth
 app.add_middleware(SessionMiddleware, secret_key=os.getenv("SECRET_KEY", "uma_chave_muito_secreta_para_sessoes_locais"))
 
+# Garante que request.url_for() gere HTTPS em produção (por trás de proxies como Render/Railway)
+from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
+app.add_middleware(ProxyHeadersMiddleware, trusted_hosts="*")
+
 app.include_router(produtos.router)
 app.include_router(ai.router)
 app.include_router(ambientes.router)
