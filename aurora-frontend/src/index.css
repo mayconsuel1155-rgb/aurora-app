@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter', system-ui, sans-serif;
+  
+  /* Cores Aurora */
+  --color-aurora-bg: #F4F6FB;
+  --color-aurora-primary: #526AE4;
+  --color-aurora-primary-hover: #4055C4;
+  --color-aurora-surface: rgba(255, 255, 255, 0.7);
+  --color-aurora-surface-solid: #FFFFFF;
+  --color-aurora-text: #1E243A;
+  --color-aurora-text-muted: #64748B;
+  
+  --color-aurora-success: #10B981;
+  --color-aurora-success-bg: #ECFDF5;
+  --color-aurora-warning: #F59E0B;
+  --color-aurora-warning-bg: #FFFBEB;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background-color: var(--color-aurora-bg);
+  background-image: 
+    radial-gradient(at 0% 0%, hsla(253,16%,7%,0.02) 0, transparent 50%), 
+    radial-gradient(at 50% 0%, hsla(225,39%,30%,0.03) 0, transparent 50%), 
+    radial-gradient(at 100% 0%, hsla(339,49%,30%,0.02) 0, transparent 50%);
+  color: var(--color-aurora-text);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+/* Utilitário de animação suave para hover */
+.transition-smooth {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}
+
+/* Utilitário para cards premium com glassmorphism */
+.aurora-card {
+  background-color: var(--color-aurora-surface);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 2rem;
+  box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.03), 0 0 1px 0 rgba(0,0,0,0.05);
+}
