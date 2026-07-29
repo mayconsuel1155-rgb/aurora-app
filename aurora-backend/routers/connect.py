@@ -57,7 +57,8 @@ async def auth_callback(provider: str, request: Request, db: Session = Depends(g
     user_id = request.session.get('user_id')
     if not user_id:
         # Se a sessão foi perdida ou não existe
-        return RedirectResponse("http://localhost:5173/integracoes?status=session_error")
+        frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
+        return RedirectResponse(f"{frontend_url}/integracoes?status=session_error")
 
     if provider == 'google':
         token_data = await oauth.google.authorize_access_token(request)
@@ -91,10 +92,12 @@ async def auth_callback(provider: str, request: Request, db: Session = Depends(g
         # Limpar sessão para segurança
         request.session.pop('user_id', None)
         
-        # Redirecionar de volta para o frontend (configurável no futuro para a url de prod)
-        return RedirectResponse("http://localhost:5173/integracoes?status=success")
+        # Redirecionar de volta para o frontend
+        frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
+        return RedirectResponse(f"{frontend_url}/integracoes?status=success")
         
-    return RedirectResponse("http://localhost:5173/integracoes?status=provider_error")
+    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
+    return RedirectResponse(f"{frontend_url}/integracoes?status=provider_error")
 
 @router.get("/status")
 def check_connections(db: Session = Depends(get_db), current_user: models.Usuario = Depends(security.get_current_user)):
