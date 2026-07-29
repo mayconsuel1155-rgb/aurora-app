@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Outlet, NavLink } from 'react-router-dom';
-import { Home, Package, ShoppingCart, Sparkles, LogOut, User, Users, Network } from 'lucide-react';
+import { Home, Package, ShoppingCart, Sparkles, LogOut, User, Users, Network, Mail } from 'lucide-react';
 import AIChatModal from './AIChatModal';
 import { useStore } from '../store/useStore';
 
@@ -20,6 +20,7 @@ export default function Layout() {
           <NavItem to="/estoque" icon={<Package size={22} strokeWidth={1.5} />} label="Inventário" />
           <NavItem to="/compras" icon={<ShoppingCart size={22} strokeWidth={1.5} />} label="Lista de Compras" />
           <NavItem to="/familia" icon={<Users size={22} strokeWidth={1.5} />} label="Minha Família" />
+          <NavItem to="/inbox" icon={<Mail size={22} strokeWidth={1.5} />} label="Inbox" />
           <NavItem to="/integracoes" icon={<Network size={22} strokeWidth={1.5} />} label="Aurora Connect" />
         </nav>
 
@@ -74,7 +75,7 @@ export default function Layout() {
           <MobileNavItem to="/" icon={<Home size={24} strokeWidth={1.5} />} label="Resumo" />
           <MobileNavItem to="/estoque" icon={<Package size={24} strokeWidth={1.5} />} label="Estoque" />
           <MobileNavItem to="/compras" icon={<ShoppingCart size={24} strokeWidth={1.5} />} label="Compras" />
-          <MobileNavItem to="/familia" icon={<Users size={24} strokeWidth={1.5} />} label="Família" />
+          <MobileNavItem to="/inbox" icon={<Mail size={24} strokeWidth={1.5} />} label="Inbox" />
           <MobileNavItem to="/integracoes" icon={<Network size={24} strokeWidth={1.5} />} label="Connect" />
       </nav>
     </div>

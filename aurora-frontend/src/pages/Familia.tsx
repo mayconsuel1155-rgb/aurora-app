@@ -67,11 +67,11 @@ export default function Familia() {
                   <li key={membro.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100 hover:border-slate-200 transition-colors">
                     <div className="flex items-center">
                       <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-white ${membro.permissao === 'admin' ? 'bg-gradient-to-tr from-[var(--color-aurora-primary)] to-purple-400 shadow-md shadow-indigo-200' : 'bg-slate-300'}`}>
-                        {membro.usuario?.nome?.charAt(0).toUpperCase() || '?'}
+                        {membro.nome?.charAt(0).toUpperCase() || '?'}
                       </div>
                       <div className="ml-4">
-                        <p className="font-semibold text-slate-800">{membro.usuario?.nome} {membro.usuario_id === user?.id ? '(Você)' : ''}</p>
-                        <p className="text-xs text-slate-500">{membro.usuario?.email}</p>
+                        <p className="font-semibold text-slate-800">{membro.nome} {membro.id === user?.id ? '(Você)' : ''}</p>
+                        <p className="text-xs text-slate-500">{membro.email}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">

@@ -208,3 +208,55 @@ def conversar_com_aurora(db: Session, casa_id: int, mensagem_usuario: str, histo
         print("[AI Aurora Chat] Erro ao conectar ao LLM:", e)
         return conversar_com_aurora_mock(produtos, mensagem_usuario)
 
+def extrair_eventos_de_email(texto_email: str):
+    """
+    Analisa um e-mail com a IA e retorna um dicionário com os eventos encontrados,
+    ou None se não for relevante (ex: newsletter).
+    """
+    prompt_sistema = (
+        "Você é a IA do Aurora Inbox. Seu objetivo é ler o texto de um e-mail e extrair informações úteis ou compromissos.\n"
+        "Se o e-mail contiver uma informação importante (ex: aviso escolar, conta a pagar, entrega de pedido) ou um compromisso (voo, consulta, reunião), "
+        "retorne um JSON extrito no formato:\n"
+        '{"titulo": "Resumo do Assunto", "data": "YYYY-MM-DDTHH:MM:SS" (ou null se não houver data), "tipo": "voo|consulta|reuniao|reserva|geral", "detalhes": "Breve resumo do contexto"}\n'
+        "Se o e-mail for spam inútil ou propaganda irrelevante, retorne APENAS um JSON vazio: {}\n"
+        "Não inclua nenhum texto antes ou depois do JSON."
+    )
+    
+    headers = {
+        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+        "Content-Type": "application/json; charset=utf-8",
+        "HTTP-Referer": "http://localhost:5173",
+        "X-Title": "Aurora Home"
+    }
+    
+    payload = {
+        "model": PREFERRED_MODEL,
+        "messages": [
+            {"role": "system", "content": prompt_sistema},
+            {"role": "user", "content": f"E-mail:\n{texto_email}"}
+        ],
+        "temperature": 0.1,
+        "max_tokens": 200
+    }
+    
+    try:
+        data = _make_openrouter_request(payload, headers)
+        if "choices" not in data:
+            return None
+            
+        content = data["choices"][0]["message"]["content"].strip()
+        
+        # Limpar crases
+        if "```" in content:
+            match = re.search(r"\{.*\}", content, re.DOTALL)
+            if match:
+                content = match.group(0)
+                
+        parsed = json.loads(content)
+        if isinstance(parsed, dict) and "titulo" in parsed:
+            return parsed
+        return None
+    except Exception as e:
+        print(f"[AI Aurora Inbox] Erro ao analisar e-mail: {e}")
+        return None
+

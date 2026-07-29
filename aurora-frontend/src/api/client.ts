@@ -157,13 +157,10 @@ export const sendChatMessage = async (mensagem: string, historico: ChatMessage[]
 
 export interface Membro {
   id: number;
-  usuario_id: number;
-  casa_id: number;
+  nome: string;
+  email: string;
   permissao: string;
-  usuario: {
-    nome: string;
-    email: string;
-  }
+  usuario_id?: number;
 }
 
 export interface Convite {
@@ -208,3 +205,26 @@ export const entrarEmCasa = async (codigo: string): Promise<any> => {
   const response = await api.post('/casas/entrar', { codigo });
   return response.data;
 };
+
+export interface InboxEvent {
+  id: string;
+  email_assunto: string;
+  email_remetente: string;
+  insight: {
+    titulo: string;
+    data?: string;
+    tipo: 'voo' | 'consulta' | 'reuniao' | 'reserva' | 'geral';
+    detalhes: string;
+  }
+}
+
+export const getInboxEvents = async (): Promise<InboxEvent[]> => {
+  try {
+    const response = await api.get<{eventos_inbox: InboxEvent[]}>('/connect/google/emails');
+    return Array.isArray(response.data.eventos_inbox) ? response.data.eventos_inbox : [];
+  } catch (error) {
+    console.error('Error fetching inbox events:', error);
+    return [];
+  }
+};
+

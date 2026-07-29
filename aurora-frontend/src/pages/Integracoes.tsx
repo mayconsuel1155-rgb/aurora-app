@@ -41,7 +41,8 @@ export default function Integracoes() {
     setGoogleStatus('connecting');
     // Redireciona o browser inteiro para o backend FastAPI iniciar o OAuth
     // Precisamos enviar o token na URL para que o backend saiba QUEM é o usuário
-    window.location.href = `http://localhost:8000/connect/google/login?token=${token}`;
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+    window.location.href = `${apiUrl}/connect/google/login?token=${token}`;
   };
 
   return (

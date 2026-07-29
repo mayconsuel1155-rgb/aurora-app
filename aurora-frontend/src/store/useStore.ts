@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { getProdutos, getInsights, updateProduto, createProduto, deleteProduto, getAmbientes, createAmbiente, deleteAmbiente, getMembros, getEventos, type Produto, type Insight, type Ambiente, type Usuario, type Membro, type Evento } from '../api/client';
+import { getProdutos, getInsights, updateProduto, createProduto, deleteProduto, getAmbientes, createAmbiente, deleteAmbiente, getMembros, getEventos, getInboxEvents, type Produto, type Insight, type Ambiente, type Usuario, type Membro, type Evento, type InboxEvent } from '../api/client';
 import { NotificationService } from '../services/NotificationService';
 
 interface StoreState {
@@ -9,8 +9,10 @@ interface StoreState {
   ambientes: Ambiente[];
   membros: Membro[];
   eventos: Evento[];
+  inboxEvents: InboxEvent[];
   insight: Insight | null;
   loading: boolean;
+  loadingInbox: boolean;
   
   setAuth: (token: string, user: Usuario) => void;
   logout: () => void;
@@ -18,6 +20,7 @@ interface StoreState {
   fetchAmbientes: () => Promise<void>;
   fetchMembros: () => Promise<void>;
   fetchEventos: () => Promise<void>;
+  fetchInboxEvents: () => Promise<void>;
   fetchInsight: () => Promise<void>;
   alterarQuantidade: (produtoId: number, delta: number) => Promise<void>;
   adicionarProduto: (produto: Omit<Produto, 'id' | 'casa_id'>) => Promise<void>;
@@ -34,8 +37,10 @@ export const useStore = create<StoreState>((set, get) => ({
   ambientes: [],
   membros: [],
   eventos: [],
+  inboxEvents: [],
   insight: null,
   loading: false,
+  loadingInbox: false,
 
   setAuth: (token, user) => {
     localStorage.setItem('aurora-token', token);
@@ -51,7 +56,7 @@ export const useStore = create<StoreState>((set, get) => ({
   logout: () => {
     localStorage.removeItem('aurora-token');
     localStorage.removeItem('aurora-user');
-    set({ token: null, user: null, produtos: [], ambientes: [], membros: [], eventos: [], insight: null });
+    set({ token: null, user: null, produtos: [], ambientes: [], membros: [], eventos: [], inboxEvents: [], insight: null });
   },
 
   fetchProdutos: async () => {
@@ -96,6 +101,16 @@ export const useStore = create<StoreState>((set, get) => ({
     } catch (e) {
       console.error(e);
       set({ eventos: [] });
+    }
+  },
+  fetchInboxEvents: async () => {
+    set({ loadingInbox: true });
+    try {
+      const data = await getInboxEvents();
+      set({ inboxEvents: Array.isArray(data) ? data : [], loadingInbox: false });
+    } catch (e) {
+      console.error(e);
+      set({ inboxEvents: [], loadingInbox: false });
     }
   },
   fetchInsight: async () => {

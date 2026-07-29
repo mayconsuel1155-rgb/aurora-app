@@ -7,6 +7,7 @@ import Familia from './pages/Familia';
 import Integracoes from './pages/Integracoes';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Inbox from './pages/Inbox';
 import { useStore } from './store/useStore';
 import { NotificationService } from './services/NotificationService';
 import { useState, useEffect } from 'react';
@@ -71,6 +72,7 @@ function App() {
           <Route index element={<Dashboard />} />
           <Route path="estoque" element={<Estoque />} />
           <Route path="compras" element={<Compras />} />
+          <Route path="inbox" element={<Inbox />} />
           <Route path="familia" element={<Familia />} />
           <Route path="integracoes" element={<Integracoes />} />
         </Route>
