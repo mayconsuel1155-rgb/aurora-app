@@ -11,7 +11,7 @@ OPENROUTER_API_KEY = os.getenv(
     "OPENROUTER_API_KEY", 
     "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"
 )
-PREFERRED_MODEL = os.getenv("OPENROUTER_MODEL", "openrouter/free")
+PREFERRED_MODEL = os.getenv("OPENROUTER_MODEL", "google/gemma-2-9b-it:free")
 
 def _make_openrouter_request(payload, headers, max_retries=3):
     url = "https://openrouter.ai/api/v1/chat/completions"
@@ -54,20 +54,32 @@ def gerar_insight_mock(produtos):
         "mensagem": f"Você tem {len(em_falta)} itens aguardando reposição na Lista de Compras. Recomendo reposição em breve."
     }
 
-def conversar_com_aurora_mock(produtos, mensagem_usuario):
+def conversar_com_aurora_mock(produtos, mensagem_usuario, eventos_agenda=None):
+    if eventos_agenda is None:
+        eventos_agenda = []
+        
     em_falta = [p for p in produtos if p.quantidade <= p.quantidade_minima]
     mensagem_lower = mensagem_usuario.lower()
     
     if "falta" in mensagem_lower or "comprar" in mensagem_lower or "acabando" in mensagem_lower or "preciso" in mensagem_lower:
         if not em_falta:
-            return {"resposta": "Não há nada em falta no momento. Seu estoque está em níveis adequados!"}
+            return {"resposta": "[Modo Offline] Não há nada em falta no momento. Seu estoque está em níveis adequados!"}
         nomes = [p.nome for p in em_falta]
-        return {"resposta": f"Os seguintes itens estão em falta ou no limite mínimo: {', '.join(nomes)}."}
+        return {"resposta": f"[Modo Offline] Os seguintes itens estão em falta ou no limite mínimo: {', '.join(nomes)}."}
         
     if "estoque" in mensagem_lower or "inventário" in mensagem_lower or "produtos" in mensagem_lower or "temos" in mensagem_lower:
-        return {"resposta": f"Você possui {len(produtos)} produtos cadastrados no total. Destes, {len(em_falta)} precisam de reposição."}
+        if not em_falta:
+            return {"resposta": f"[Modo Offline] Você possui {len(produtos)} produtos cadastrados. Nenhum precisa de reposição."}
+        nomes = [p.nome for p in em_falta]
+        return {"resposta": f"[Modo Offline] Você possui {len(produtos)} produtos cadastrados. Precisam de reposição: {', '.join(nomes)}."}
         
-    return {"resposta": f"Olá! Sou a Aurora. Estou operando no modo de contingência devido à alta demanda nos servidores da IA, mas posso confirmar que você tem {len(produtos)} produtos no seu inventário. Como posso ajudar com eles?"}
+    if "agenda" in mensagem_lower or "reunião" in mensagem_lower or "compromisso" in mensagem_lower or "hoje" in mensagem_lower or "amanhã" in mensagem_lower:
+        if not eventos_agenda:
+            return {"resposta": "[Modo Offline] Você não possui compromissos agendados próximos."}
+        titulos = [e.get("titulo", "") for e in eventos_agenda]
+        return {"resposta": f"[Modo Offline] Seus próximos compromissos são: {', '.join(titulos)}."}
+        
+    return {"resposta": f"[Modo Offline] Sou a Aurora. Meus servidores principais estão sobrecarregados (Erro 429), então estou respondendo localmente. Você tem {len(produtos)} produtos e {len(eventos_agenda)} compromissos. Como posso ajudar?"}
 
 def gerar_insight_llm(produtos):
     if not produtos:
@@ -218,7 +230,7 @@ def conversar_com_aurora(db: Session, casa_id: int, mensagem_usuario: str, histo
         return {"resposta": content}
     except Exception as e:
         print("[AI Aurora Chat] Erro ao conectar ao LLM:", e)
-        return conversar_com_aurora_mock(produtos, mensagem_usuario)
+        return conversar_com_aurora_mock(produtos, mensagem_usuario, eventos_agenda)
 
 def extrair_eventos_de_email(texto_email: str):
     """
