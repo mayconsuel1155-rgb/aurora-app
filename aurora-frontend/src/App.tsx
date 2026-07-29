@@ -7,8 +7,8 @@ import Familia from './pages/Familia';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import { useStore } from './store/useStore';
-import { GestaoCasasModal } from './components/GestaoCasasModal';
 import { NotificationService } from './services/NotificationService';
+import { useState, useEffect } from 'react';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const token = useStore(state => state.token);

@@ -1,4 +1,4 @@
-import { Produto } from '../api/client';
+import type { Produto } from '../api/client';
 
 export class NotificationService {
   static async requestPermission(): Promise<boolean> {
@@ -73,7 +73,6 @@ export class NotificationService {
         await registration.showNotification(title, {
           body,
           icon: '/pwa-192x192.png',
-          vibrate: [200, 100, 200, 100, 200],
           tag: 'aurora-vencimentos',
         });
       } else {
