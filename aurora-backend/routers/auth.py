@@ -67,16 +67,24 @@ def register(user_in: schemas.UsuarioCreate, db: Session = Depends(get_db)):
 
 @router.post("/login", response_model=schemas.Token)
 def login(login_data: schemas.LoginRequest, db: Session = Depends(get_db)):
-    user = db.query(models.Usuario).filter(models.Usuario.email == login_data.email).first()
-    if not user or not security.verify_password(login_data.senha, user.hash_senha):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Email ou senha incorretos",
-            headers={"WWW-Authenticate": "Bearer"},
+    try:
+        user = db.query(models.Usuario).filter(models.Usuario.email == login_data.email).first()
+        if not user or not security.verify_password(login_data.senha, user.hash_senha):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Email ou senha incorretos",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        
+        access_token_expires = timedelta(minutes=security.ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token = security.create_access_token(
+            data={"sub": str(user.id)}, expires_delta=access_token_expires
         )
-    
-    access_token_expires = timedelta(minutes=security.ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = security.create_access_token(
-        data={"sub": str(user.id)}, expires_delta=access_token_expires
-    )
-    return {"access_token": access_token, "token_type": "bearer"}
+        return {"access_token": access_token, "token_type": "bearer"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        import traceback
+        error_msg = "".join(traceback.format_exception(type(e), e, e.__traceback__))
+        print(error_msg)
+        raise HTTPException(status_code=500, detail=error_msg)
