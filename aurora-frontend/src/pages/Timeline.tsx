@@ -109,8 +109,8 @@ export default function Timeline() {
                         )}
                       </div>
                       <div className="mt-4">
-                         <Link to="/despensa" className="text-sm font-bold text-rose-700 hover:text-rose-800 flex items-center gap-1 group">
-                           Ir para Despensa <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                         <Link to="/estoque" className="text-sm font-bold text-rose-700 hover:text-rose-800 flex items-center gap-1 group">
+                           Ir para Estoque <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                          </Link>
                       </div>
                     </div>
