@@ -265,6 +265,9 @@ async def get_google_emails(db: Session = Depends(get_db), current_user: models.
                             "email_remetente": remetente,
                             "insight": resultado_ia
                         })
+                    # Pausa estratégica para evitar Rate Limit (429) na IA gratuita
+                    import asyncio
+                    await asyncio.sleep(2)
                 except Exception as e:
                     print(f"Erro na extração IA do email {msg_id}: {e}")
                     
