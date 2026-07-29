@@ -111,7 +111,7 @@ def gerar_insight_llm(produtos):
         ],
         "generationConfig": {
             "temperature": 0.7,
-            "maxOutputTokens": 150,
+            "maxOutputTokens": 1024,
             "responseMimeType": "application/json"
         }
     }
@@ -199,7 +199,7 @@ def conversar_com_aurora(db: Session, casa_id: int, mensagem_usuario: str, histo
         ],
         "generationConfig": {
             "temperature": 0.7,
-            "maxOutputTokens": 400
+            "maxOutputTokens": 4096
         }
     }
     
@@ -234,7 +234,7 @@ def extrair_eventos_de_email(texto_email: str):
         ],
         "generationConfig": {
             "temperature": 0.1,
-            "maxOutputTokens": 200,
+            "maxOutputTokens": 1024,
             "responseMimeType": "application/json"
         }
     }
