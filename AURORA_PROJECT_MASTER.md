@@ -2,8 +2,8 @@
 # Documento Mestre do Projeto
 ## Contexto Estratégico, Produto e Desenvolvimento
 
-Versão: 1.1  
-Status: MVP 1.0 Funcional (Sprint 01 Concluída - Estado Reativo & IA Integrada)  
+Versão: 1.2
+Status: MVP 1.0 Concluído (Pronto para Beta Testing no Mundo Real)
 Tipo: Documento Base para IA Parceira
 
 ---
@@ -189,6 +189,16 @@ Objetivo: Criar a fundação e experiência fluida do MVP.
 
 ---
 
+# 17.1. SEGUNDA ENTREGA TÉCNICA (Sprint 02 - CONCLUÍDA ✅)
+
+Objetivo: Fechar o escopo do MVP, tornando o Aurora utilizável por múltiplas pessoas na nuvem.
+- **Autenticação & Segurança:** Registro e login funcionais. Banco de dados escalado para a nuvem (Neon Postgres).
+- **PWA (Progressive Web App):** Aplicativo instalável no celular com interface nativa.
+- **Casa Digital Compartilhada:** Criação e entrada via "Código de Convite", permitindo que moradores compartilhem a mesma geladeira/despensa.
+- **Notificações Inteligentes:** O celular alerta nativamente (vibração e pop-up) quando itens estão prestes a vencer.
+
+---
+
 # 18. MÉTRICAS IMPORTANTES
 
 Medir: usuários ativos, casas criadas, produtos cadastrados, listas utilizadas, retorno após 30 dias, percepção de tranquilidade.
@@ -225,6 +235,15 @@ Nunca: criar funcionalidades sem propósito, adicionar complexidade sem necessid
 12. [x] Sprint 02: Compartilhamento Familiar da Casa Digital. (Compartilhar login ou multi-user linkado na mesma "Casa").
 
 ---
+
+# 22. PRÓXIMOS PASSOS (Fase de Validação e Testes Reais)
+
+O desenvolvimento de novas "features" está congelado. O foco agora é validar a hipótese humana.
+1. [ ] **Onboarding dos Primeiros Usuários (Beta):** Distribuir o aplicativo para a casa fundadora e família.
+2. [ ] **Coleta de Dados Reais:** Observar quantos itens são registrados e se a lista de compras está sendo preenchida sem intervenção humana manual.
+3. [ ] **Medição de HVD (Horas de Vida Devolvidas):** Fazer a primeira entrevista após 7 dias de uso real para validar se a "Carga Mental" diminuiu.
+4. [ ] **Ajustes de Atrito (Polimento):** Identificar o que está chato/difícil de usar no dia a dia (ex: muitos cliques para adicionar um feijão) e simplificar o fluxo de usabilidade.
+5. [ ] **Sprint 03 (Futuro):** Desenvolver apenas o que for comprovadamente requisitado pela família/usuários reais durante a fase Beta.
 
 # DECLARAÇÃO FINAL
 O Projeto Aurora não existe para criar mais uma ferramenta. Existe para construir uma nova relação entre pessoas e tecnologia.
