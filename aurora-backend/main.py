@@ -14,16 +14,10 @@ app = FastAPI(
 
 import os
 
-origins = ["http://localhost:5173", "http://127.0.0.1:5173"]
-if os.getenv("FRONTEND_URL"):
-    origins.append(os.getenv("FRONTEND_URL"))
-
-# Em produção gratuita, podemos até aceitar todos '*' se não houver um FRONTEND_URL fixo,
-# mas para segurança vamos permitir os configurados, ou aceitar origens específicas da Vercel.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"] if os.getenv("ALLOW_ALL_CORS") else origins,
-    allow_credentials=True if not os.getenv("ALLOW_ALL_CORS") else False,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
