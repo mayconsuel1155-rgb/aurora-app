@@ -6,11 +6,20 @@ from routers import produtos, ai, ambientes, auth, casas
 # Em modo dev, criamos as tabelas direto. No futuro usaremos Alembic.
 Base.metadata.create_all(bind=engine)
 
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
+import traceback
+
 app = FastAPI(
     title="Aurora Home API",
     description="API para o MVP da plataforma Aurora",
     version="1.0.0"
 )
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    error_msg = "".join(traceback.format_exception(type(exc), exc, exc.__traceback__))
+    return JSONResponse(status_code=500, content={"detail": error_msg})
 
 import os
 
