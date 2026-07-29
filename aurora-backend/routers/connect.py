@@ -11,6 +11,7 @@ import models
 from database import get_db
 import base64
 from services.ai_service import extrair_eventos_de_email
+import schemas
 
 router = APIRouter(
     prefix="/connect",
@@ -25,7 +26,7 @@ oauth.register(
     name='google',
     server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
     client_kwargs={
-        'scope': 'openid email profile https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/gmail.readonly'
+        'scope': 'openid email profile https://www.googleapis.com/auth/calendar.events'
     }
 )
 
@@ -167,4 +168,142 @@ async def get_google_events(db: Session = Depends(get_db), current_user: models.
         
         
     return {"eventos": eventos_limpos}
+
+@router.post("/google/events")
+async def create_google_event(evento: schemas.GoogleEventCreate, db: Session = Depends(get_db), current_user: models.Usuario = Depends(security.get_current_user)):
+    conexao = db.query(models.ConexaoExterna).filter(
+        models.ConexaoExterna.usuario_id == current_user.id,
+        models.ConexaoExterna.provedor == "google"
+    ).first()
+    
+    if not conexao or not conexao.access_token:
+        raise HTTPException(status_code=401, detail="Google Calendar não conectado")
+        
+    url = f"https://www.googleapis.com/calendar/v3/calendars/primary/events"
+    headers = {
+        "Authorization": f"Bearer {conexao.access_token}",
+        "Content-Type": "application/json"
+    }
+    
+    # Determinar formato da data
+    start = {}
+    end = {}
+    if evento.is_all_day:
+        # Pega só YYYY-MM-DD
+        dt_str = evento.data.split('T')[0] if 'T' in evento.data else evento.data
+        start["date"] = dt_str
+        end["date"] = dt_str
+    else:
+        # Precisamos de datetime ISO. Se a string só tiver data, forçamos um tempo
+        dt_str = evento.data
+        if 'T' not in dt_str:
+            dt_str += "T09:00:00-03:00" # fallback timezone Brasil
+        
+        # O Google precisa de start e end. Para simplificar, o end é 1 hora depois do start.
+        try:
+            start_dt = datetime.fromisoformat(dt_str.replace('Z', '+00:00'))
+            end_dt = start_dt + timedelta(hours=1)
+            start["dateTime"] = start_dt.isoformat()
+            end["dateTime"] = end_dt.isoformat()
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Formato de data inválido. Use ISO 8601.")
+
+    body = {
+        "summary": evento.titulo,
+        "start": start,
+        "end": end
+    }
+    
+    async with httpx.AsyncClient() as client:
+        response = await client.post(url, json=body, headers=headers)
+        if response.status_code == 401:
+            db.delete(conexao)
+            db.commit()
+            raise HTTPException(status_code=401, detail="Token expirado. Reconecte.")
+        if response.status_code not in (200, 201):
+            raise HTTPException(status_code=response.status_code, detail=f"Erro ao criar evento: {response.text}")
+            
+    return {"status": "success", "data": response.json()}
+
+
+@router.patch("/google/events/{event_id}")
+async def update_google_event(event_id: str, evento: schemas.GoogleEventUpdate, db: Session = Depends(get_db), current_user: models.Usuario = Depends(security.get_current_user)):
+    conexao = db.query(models.ConexaoExterna).filter(
+        models.ConexaoExterna.usuario_id == current_user.id,
+        models.ConexaoExterna.provedor == "google"
+    ).first()
+    
+    if not conexao or not conexao.access_token:
+        raise HTTPException(status_code=401, detail="Google Calendar não conectado")
+        
+    url = f"https://www.googleapis.com/calendar/v3/calendars/primary/events/{event_id}"
+    headers = {
+        "Authorization": f"Bearer {conexao.access_token}",
+        "Content-Type": "application/json"
+    }
+    
+    body = {}
+    if evento.titulo is not None:
+        body["summary"] = evento.titulo
+        
+    if evento.data is not None:
+        start = {}
+        end = {}
+        if evento.is_all_day:
+            dt_str = evento.data.split('T')[0] if 'T' in evento.data else evento.data
+            start["date"] = dt_str
+            end["date"] = dt_str
+        else:
+            dt_str = evento.data
+            if 'T' not in dt_str:
+                dt_str += "T09:00:00-03:00"
+            try:
+                start_dt = datetime.fromisoformat(dt_str.replace('Z', '+00:00'))
+                end_dt = start_dt + timedelta(hours=1)
+                start["dateTime"] = start_dt.isoformat()
+                end["dateTime"] = end_dt.isoformat()
+            except ValueError:
+                pass
+        
+        if start and end:
+            body["start"] = start
+            body["end"] = end
+    
+    async with httpx.AsyncClient() as client:
+        response = await client.patch(url, json=body, headers=headers)
+        if response.status_code == 401:
+            db.delete(conexao)
+            db.commit()
+            raise HTTPException(status_code=401, detail="Token expirado. Reconecte.")
+        if response.status_code not in (200, 201):
+            raise HTTPException(status_code=response.status_code, detail=f"Erro ao atualizar evento: {response.text}")
+            
+    return {"status": "success"}
+
+
+@router.delete("/google/events/{event_id}")
+async def delete_google_event(event_id: str, db: Session = Depends(get_db), current_user: models.Usuario = Depends(security.get_current_user)):
+    conexao = db.query(models.ConexaoExterna).filter(
+        models.ConexaoExterna.usuario_id == current_user.id,
+        models.ConexaoExterna.provedor == "google"
+    ).first()
+    
+    if not conexao or not conexao.access_token:
+        raise HTTPException(status_code=401, detail="Google Calendar não conectado")
+        
+    url = f"https://www.googleapis.com/calendar/v3/calendars/primary/events/{event_id}"
+    headers = {
+        "Authorization": f"Bearer {conexao.access_token}"
+    }
+    
+    async with httpx.AsyncClient() as client:
+        response = await client.delete(url, headers=headers)
+        if response.status_code == 401:
+            db.delete(conexao)
+            db.commit()
+            raise HTTPException(status_code=401, detail="Token expirado. Reconecte.")
+        if response.status_code not in (200, 204):
+            raise HTTPException(status_code=response.status_code, detail="Erro ao deletar evento")
+            
+    return {"status": "success"}
 

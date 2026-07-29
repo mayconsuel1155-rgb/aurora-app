@@ -186,6 +186,18 @@ export const getEventos = async (): Promise<Evento[]> => {
   }
 };
 
+export const createGoogleEvent = async (evento: { titulo: string, data: string, is_all_day?: boolean }): Promise<void> => {
+  await api.post('/connect/google/events', evento);
+};
+
+export const updateGoogleEvent = async (id: string, evento: { titulo?: string, data?: string, is_all_day?: boolean }): Promise<void> => {
+  await api.patch(`/connect/google/events/${id}`, evento);
+};
+
+export const deleteGoogleEvent = async (id: string): Promise<void> => {
+  await api.delete(`/connect/google/events/${id}`);
+};
+
 export const getMembros = async (): Promise<Membro[]> => {
   try {
     const response = await api.get<Membro[]>('/casas/membros');

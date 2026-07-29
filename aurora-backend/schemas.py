@@ -100,3 +100,13 @@ class ConviteResponse(BaseModel):
 
 class EntrarCasaRequest(BaseModel):
     codigo: str
+
+class GoogleEventCreate(BaseModel):
+    titulo: str
+    data: str
+    is_all_day: bool = False
+
+class GoogleEventUpdate(BaseModel):
+    titulo: Optional[str] = None
+    data: Optional[str] = None
+    is_all_day: Optional[bool] = None

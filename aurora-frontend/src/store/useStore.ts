@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { getProdutos, getInsights, updateProduto, createProduto, deleteProduto, getAmbientes, createAmbiente, deleteAmbiente, getMembros, getEventos, getInboxEvents, type Produto, type Insight, type Ambiente, type Usuario, type Membro, type Evento, type InboxEvent } from '../api/client';
+import { getProdutos, getInsights, updateProduto, createProduto, deleteProduto, getAmbientes, createAmbiente, deleteAmbiente, getMembros, getEventos, createGoogleEvent, updateGoogleEvent, deleteGoogleEvent, getInboxEvents, type Produto, type Insight, type Ambiente, type Usuario, type Membro, type Evento, type InboxEvent } from '../api/client';
 import { NotificationService } from '../services/NotificationService';
 
 interface StoreState {
@@ -28,6 +28,10 @@ interface StoreState {
   marcarComoComprado: (produto: Produto) => Promise<void>;
   adicionarAmbiente: (ambiente: Omit<Ambiente, 'id' | 'casa_id'>) => Promise<void>;
   removerAmbiente: (ambienteId: number) => Promise<void>;
+  adicionarEvento: (evento: { titulo: string, data: string, is_all_day?: boolean }) => Promise<void>;
+  editarEvento: (id: string, evento: { titulo?: string, data?: string, is_all_day?: boolean }) => Promise<void>;
+  excluirEvento: (id: string) => Promise<void>;
+  concluirEvento: (id: string, tituloAtual: string) => Promise<void>;
 }
 
 export const useStore = create<StoreState>((set, get) => ({
@@ -201,6 +205,44 @@ export const useStore = create<StoreState>((set, get) => ({
     } catch (e) {
       console.error('Erro ao remover ambiente:', e);
       get().fetchAmbientes();
+    }
+  },
+  adicionarEvento: async (evento) => {
+    try {
+      await createGoogleEvent(evento);
+      await get().fetchEventos();
+    } catch (e) {
+      console.error('Erro ao adicionar evento:', e);
+      throw e;
+    }
+  },
+  editarEvento: async (id, evento) => {
+    try {
+      await updateGoogleEvent(id, evento);
+      await get().fetchEventos();
+    } catch (e) {
+      console.error('Erro ao editar evento:', e);
+      throw e;
+    }
+  },
+  excluirEvento: async (id) => {
+    const { eventos } = get();
+    set({ eventos: eventos.filter(e => e.id !== id) });
+    try {
+      await deleteGoogleEvent(id);
+    } catch (e) {
+      console.error('Erro ao excluir evento:', e);
+      get().fetchEventos();
+      throw e;
+    }
+  },
+  concluirEvento: async (id, tituloAtual) => {
+    try {
+      await updateGoogleEvent(id, { titulo: `[Concluído] ${tituloAtual}` });
+      await get().fetchEventos();
+    } catch (e) {
+      console.error('Erro ao concluir evento:', e);
+      throw e;
     }
   }
 }));
