@@ -1,7 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database import engine, Base
-from routers import produtos, ai, ambientes, auth, casas
+from routers import produtos, ai, ambientes, auth, casas, connect
+from starlette.middleware.sessions import SessionMiddleware
+import os
 
 # Em modo dev, criamos as tabelas direto. No futuro usaremos Alembic.
 Base.metadata.create_all(bind=engine)
@@ -23,19 +25,25 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 import os
 
+origins = ["*"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=False,
+    allow_origins=origins,
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Secret key para assinar os cookies de sessão do OAuth
+app.add_middleware(SessionMiddleware, secret_key=os.getenv("SECRET_KEY", "uma_chave_muito_secreta_para_sessoes_locais"))
 
 app.include_router(produtos.router)
 app.include_router(ai.router)
 app.include_router(ambientes.router)
 app.include_router(auth.router)
 app.include_router(casas.router)
+app.include_router(connect.router)
 
 @app.get("/")
 def read_root():

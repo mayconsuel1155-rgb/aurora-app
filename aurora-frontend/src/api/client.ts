@@ -157,15 +157,37 @@ export const sendChatMessage = async (mensagem: string, historico: ChatMessage[]
 
 export interface Membro {
   id: number;
-  nome: string;
-  email: string;
+  usuario_id: number;
+  casa_id: number;
   permissao: string;
+  usuario: {
+    nome: string;
+    email: string;
+  }
 }
 
 export interface Convite {
   codigo: string;
   expiracao: string;
 }
+
+export interface Evento {
+  id: string;
+  titulo: string;
+  data: string;
+  link_meet?: string;
+  origem: string;
+}
+
+export const getEventos = async (): Promise<Evento[]> => {
+  try {
+    const response = await api.get<{eventos: Evento[]}>('/connect/google/events');
+    return Array.isArray(response.data.eventos) ? response.data.eventos : [];
+  } catch (error) {
+    console.error('Error fetching eventos:', error);
+    return [];
+  }
+};
 
 export const getMembros = async (): Promise<Membro[]> => {
   try {

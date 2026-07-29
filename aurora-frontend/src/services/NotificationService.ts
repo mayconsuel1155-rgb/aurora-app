@@ -1,6 +1,7 @@
-import type { Produto } from '../api/client';
+import type { Produto, Evento } from '../api/client';
 
 export class NotificationService {
+  private static eventMonitorInterval: number | null = null;
   static async requestPermission(): Promise<boolean> {
     if (!('Notification' in window)) {
       console.warn('Este navegador não suporta notificações de desktop.');
@@ -90,5 +91,68 @@ export class NotificationService {
         icon: '/pwa-192x192.png',
       });
     }
+  }
+
+  // --- Aurora Reminder (Eventos) ---
+
+  static startEventMonitor(eventos: Evento[]) {
+    if (this.eventMonitorInterval) {
+      window.clearInterval(this.eventMonitorInterval);
+    }
+
+    // Roda a cada 1 minuto (60000 ms)
+    this.eventMonitorInterval = window.setInterval(() => {
+      this.checkUpcomingEvents(eventos);
+    }, 60000);
+
+    // Checa imediatamente na primeira vez
+    this.checkUpcomingEvents(eventos);
+  }
+
+  static stopEventMonitor() {
+    if (this.eventMonitorInterval) {
+      window.clearInterval(this.eventMonitorInterval);
+      this.eventMonitorInterval = null;
+    }
+  }
+
+  private static checkUpcomingEvents(eventos: Evento[]) {
+    if (!this.hasPermission()) return;
+    if (!Array.isArray(eventos)) return;
+
+    const agora = new Date();
+    
+    eventos.forEach(evento => {
+      if (!evento.data) return;
+      // Pula eventos de dia inteiro que não têm 'T' (ex: "2023-10-15")
+      if (!evento.data.includes('T')) return;
+
+      const horaEvento = new Date(evento.data);
+      const diffMs = horaEvento.getTime() - agora.getTime();
+      
+      // Ignorar eventos que já passaram
+      if (diffMs < 0) return;
+
+      const diffMinutos = Math.round(diffMs / 60000);
+
+      // Se faltam exatamente 30 minutos (ou na janela de 1 minuto)
+      if (diffMinutos === 30) {
+        // Usa localStorage para garantir que não mande a mesma notificação repetida no mesmo minuto
+        const notificacaoId = `notified-event-${evento.id}`;
+        if (!localStorage.getItem(notificacaoId)) {
+          const horaStr = horaEvento.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+          this.sendNotification(
+            '⏰ Compromisso em 30 minutos',
+            `${evento.titulo} começa às ${horaStr}`
+          );
+          localStorage.setItem(notificacaoId, 'true');
+          
+          // Limpa a flag depois de 1 hora para não poluir o localStorage
+          setTimeout(() => {
+            localStorage.removeItem(notificacaoId);
+          }, 60 * 60 * 1000);
+        }
+      }
+    });
   }
 }

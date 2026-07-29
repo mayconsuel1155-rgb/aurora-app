@@ -4,6 +4,7 @@ import Dashboard from './pages/Dashboard';
 import Estoque from './pages/Estoque';
 import Compras from './pages/Compras';
 import Familia from './pages/Familia';
+import Integracoes from './pages/Integracoes';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import { useStore } from './store/useStore';
@@ -13,6 +14,7 @@ import { useState, useEffect } from 'react';
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const token = useStore(state => state.token);
   const produtos = useStore(state => state.produtos);
+  const eventos = useStore(state => state.eventos);
   const [showNotificationBanner, setShowNotificationBanner] = useState(false);
 
   useEffect(() => {
@@ -20,6 +22,15 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
       setShowNotificationBanner(true);
     }
   }, []);
+
+  useEffect(() => {
+    if (token && eventos.length > 0) {
+      NotificationService.startEventMonitor(eventos);
+    }
+    return () => {
+      NotificationService.stopEventMonitor();
+    };
+  }, [eventos, token]);
 
   const handleEnableNotifications = async () => {
     const granted = await NotificationService.requestPermission();
@@ -61,6 +72,7 @@ function App() {
           <Route path="estoque" element={<Estoque />} />
           <Route path="compras" element={<Compras />} />
           <Route path="familia" element={<Familia />} />
+          <Route path="integracoes" element={<Integracoes />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { getProdutos, getInsights, updateProduto, createProduto, deleteProduto, getAmbientes, createAmbiente, deleteAmbiente, getMembros, type Produto, type Insight, type Ambiente, type Usuario, type Membro } from '../api/client';
+import { getProdutos, getInsights, updateProduto, createProduto, deleteProduto, getAmbientes, createAmbiente, deleteAmbiente, getMembros, getEventos, type Produto, type Insight, type Ambiente, type Usuario, type Membro, type Evento } from '../api/client';
 import { NotificationService } from '../services/NotificationService';
 
 interface StoreState {
@@ -8,6 +8,7 @@ interface StoreState {
   produtos: Produto[];
   ambientes: Ambiente[];
   membros: Membro[];
+  eventos: Evento[];
   insight: Insight | null;
   loading: boolean;
   
@@ -16,6 +17,7 @@ interface StoreState {
   fetchProdutos: () => Promise<void>;
   fetchAmbientes: () => Promise<void>;
   fetchMembros: () => Promise<void>;
+  fetchEventos: () => Promise<void>;
   fetchInsight: () => Promise<void>;
   alterarQuantidade: (produtoId: number, delta: number) => Promise<void>;
   adicionarProduto: (produto: Omit<Produto, 'id' | 'casa_id'>) => Promise<void>;
@@ -31,6 +33,7 @@ export const useStore = create<StoreState>((set, get) => ({
   produtos: [],
   ambientes: [],
   membros: [],
+  eventos: [],
   insight: null,
   loading: false,
 
@@ -41,13 +44,14 @@ export const useStore = create<StoreState>((set, get) => ({
     get().fetchProdutos();
     get().fetchAmbientes();
     get().fetchMembros();
+    get().fetchEventos();
     get().fetchInsight();
   },
 
   logout: () => {
     localStorage.removeItem('aurora-token');
     localStorage.removeItem('aurora-user');
-    set({ token: null, user: null, produtos: [], ambientes: [], membros: [], insight: null });
+    set({ token: null, user: null, produtos: [], ambientes: [], membros: [], eventos: [], insight: null });
   },
 
   fetchProdutos: async () => {
@@ -83,6 +87,15 @@ export const useStore = create<StoreState>((set, get) => ({
     } catch (e) {
       console.error(e);
       set({ membros: [] });
+    }
+  },
+  fetchEventos: async () => {
+    try {
+      const data = await getEventos();
+      set({ eventos: Array.isArray(data) ? data : [] });
+    } catch (e) {
+      console.error(e);
+      set({ eventos: [] });
     }
   },
   fetchInsight: async () => {

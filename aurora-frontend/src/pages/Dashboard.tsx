@@ -2,14 +2,17 @@ import { useEffect } from 'react';
 import { useStore } from '../store/useStore';
 import { PackageX, CheckCircle2, ArrowRight, Sparkles, AlertTriangle, Info, Package, Plus, Minus, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import TimelineCard from '../components/TimelineCard';
+import MorningBriefingModal from '../components/MorningBriefingModal';
 
 export default function Dashboard() {
-  const { produtos, insight, loading, fetchProdutos, fetchInsight, alterarQuantidade } = useStore();
+  const { produtos, insight, loading, fetchProdutos, fetchInsight, alterarQuantidade, fetchEventos, eventos } = useStore();
 
   useEffect(() => {
     fetchProdutos();
     fetchInsight();
-  }, [fetchProdutos, fetchInsight]);
+    fetchEventos();
+  }, [fetchProdutos, fetchInsight, fetchEventos]);
 
   if (loading && produtos.length === 0) return (
      <div className="animate-pulse space-y-8">
@@ -46,15 +49,17 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
+      <MorningBriefingModal />
+      
       <header className="space-y-2">
         <h1 className="text-3xl md:text-4xl font-bold tracking-tight">Olá, bem-vindo(a)</h1>
         <p className="text-[var(--color-aurora-text-muted)] text-lg md:text-xl font-light">Sua casa está sendo gerenciada silenciosamente.</p>
       </header>
 
       {/* Main Status Grid */}
-      <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Card 1: Status do Estoque */}
-        <div className="aurora-card p-6 md:p-8 flex flex-col justify-between transition-smooth hover:translate-y-[-2px] hover:shadow-xl">
+        <div className="aurora-card p-6 md:p-8 flex flex-col justify-between transition-smooth hover:translate-y-[-2px] hover:shadow-xl col-span-1 lg:col-span-1">
           <div>
             <div className="flex items-start justify-between mb-6">
               <div className={`p-4 rounded-3xl backdrop-blur-md ${itensEmFalta.length > 0 ? 'bg-amber-100/60 text-amber-600' : 'bg-emerald-100/60 text-emerald-600'}`}>
@@ -86,7 +91,7 @@ export default function Dashboard() {
         </div>
 
         {/* Card 2: Inteligência Aurora (Insights) */}
-        <div className="aurora-card p-6 md:p-8 flex flex-col justify-between transition-smooth hover:translate-y-[-2px] hover:shadow-xl bg-gradient-to-br from-indigo-50/40 via-white to-purple-50/30">
+        <div className="aurora-card p-6 md:p-8 flex flex-col justify-between transition-smooth hover:translate-y-[-2px] hover:shadow-xl bg-gradient-to-br from-indigo-50/40 via-white to-purple-50/30 col-span-1 lg:col-span-1">
           <div>
             <div className="flex items-center justify-between mb-6">
               <div className="p-4 rounded-3xl bg-indigo-100/70 text-[var(--color-aurora-primary)] backdrop-blur-md">
@@ -119,6 +124,11 @@ export default function Dashboard() {
           <div className="text-xs text-[var(--color-aurora-text-muted)] font-light">
             Memória digital ativa • Reduzindo carga mental
           </div>
+        </div>
+
+        {/* Card 3: Aurora Timeline (Calendar) */}
+        <div className="col-span-1 lg:col-span-1">
+          <TimelineCard eventos={eventos} />
         </div>
       </section>
 

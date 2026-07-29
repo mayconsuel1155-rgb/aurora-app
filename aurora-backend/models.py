@@ -87,3 +87,15 @@ class ConviteCasa(Base):
     expiracao = Column(DateTime)
     
     casa = relationship("Casa", back_populates="convites")
+
+class ConexaoExterna(Base):
+    __tablename__ = "conexoes_externas"
+    id = Column(Integer, primary_key=True, index=True)
+    usuario_id = Column(Integer, ForeignKey("usuarios.id"))
+    provedor = Column(String, index=True) # Ex: "google"
+    access_token = Column(String)
+    refresh_token = Column(String, nullable=True)
+    expires_at = Column(Integer, nullable=True)
+    timestamp = Column(DateTime, default=datetime.utcnow)
+    
+    usuario = relationship("Usuario")
