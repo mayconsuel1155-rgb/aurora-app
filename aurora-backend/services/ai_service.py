@@ -7,30 +7,24 @@ import re
 from sqlalchemy.orm import Session
 import models
 
-OPENROUTER_API_KEY = os.getenv(
-    "OPENROUTER_API_KEY", 
-    "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"
-)
-PREFERRED_MODEL = os.getenv("OPENROUTER_MODEL", "google/gemma-2-9b-it:free")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 
-def _make_openrouter_request(payload, headers, max_retries=3):
-    url = "https://openrouter.ai/api/v1/chat/completions"
+def _make_gemini_request(payload):
+    if not GEMINI_API_KEY:
+        raise Exception("GEMINI_API_KEY não configurada no servidor.")
+        
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
     data = json.dumps(payload).encode('utf-8')
-    req = urllib.request.Request(url, data=data, headers=headers)
+    req = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json"})
     
-    for attempt in range(max_retries):
-        try:
-            with urllib.request.urlopen(req) as resp:
-                return json.loads(resp.read().decode('utf-8'))
-        except HTTPError as e:
-            if e.code == 429:
-                if attempt < max_retries - 1:
-                    time.sleep(2 ** attempt)  # Backoff: 1s, 2s, 4s
-                    continue
-            raise e
-        except Exception as e:
-            raise e
-    raise Exception("Max retries exceeded")
+    try:
+        with urllib.request.urlopen(req) as resp:
+            return json.loads(resp.read().decode('utf-8'))
+    except HTTPError as e:
+        error_msg = e.read().decode('utf-8')
+        raise Exception(f"Gemini API Error {e.code}: {error_msg}")
+    except Exception as e:
+        raise e
 
 def gerar_insight_mock(produtos):
     em_falta = [p for p in produtos if p.quantidade <= p.quantidade_minima]
@@ -79,7 +73,7 @@ def conversar_com_aurora_mock(produtos, mensagem_usuario, eventos_agenda=None):
         titulos = [e.get("titulo", "") for e in eventos_agenda]
         return {"resposta": f"[Modo Offline] Seus próximos compromissos são: {', '.join(titulos)}."}
         
-    return {"resposta": f"[Modo Offline] Sou a Aurora. Meus servidores principais estão sobrecarregados (Erro 429), então estou respondendo localmente. Você tem {len(produtos)} produtos e {len(eventos_agenda)} compromissos. Como posso ajudar?"}
+    return {"resposta": f"[Modo Offline] Sou a Aurora. Meus servidores principais estão inacessíveis no momento, então estou respondendo localmente. Você tem {len(produtos)} produtos e {len(eventos_agenda)} compromissos. Como posso ajudar?"}
 
 def gerar_insight_llm(produtos):
     if not produtos:
@@ -108,48 +102,37 @@ def gerar_insight_llm(produtos):
         f"Gere o insight ideal para os moradores agora."
     )
     
-    headers = {
-        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-        "Content-Type": "application/json; charset=utf-8",
-        "HTTP-Referer": "http://localhost:5173",
-        "X-Title": "Aurora Home"
-    }
-    
     payload = {
-        "model": PREFERRED_MODEL,
-        "messages": [
-            {"role": "system", "content": prompt_sistema},
-            {"role": "user", "content": prompt_usuario}
+        "systemInstruction": {
+            "parts": [{"text": prompt_sistema}]
+        },
+        "contents": [
+            {"role": "user", "parts": [{"text": prompt_usuario}]}
         ],
-        "temperature": 0.7,
-        "max_tokens": 150
+        "generationConfig": {
+            "temperature": 0.7,
+            "maxOutputTokens": 150,
+            "responseMimeType": "application/json"
+        }
     }
     
     try:
-        data = _make_openrouter_request(payload, headers)
+        data = _make_gemini_request(payload)
         
-        if "choices" not in data:
-            error_msg = data.get("error", {}).get("message", str(data)) if isinstance(data, dict) else str(data)
-            raise Exception(f"Resposta inesperada da API: {error_msg}")
+        if "candidates" not in data or not data["candidates"]:
+            raise Exception(f"Resposta inesperada da API: {data}")
             
-        content = data["choices"][0]["message"]["content"].strip()
+        content = data["candidates"][0]["content"]["parts"][0]["text"].strip()
         
-        # Remover blocos ```json ... ``` se o modelo envolver
-        if "```" in content:
-            match = re.search(r"\{.*\}", content, re.DOTALL)
-            if match:
-                content = match.group(0)
-
         parsed = json.loads(content)
         if isinstance(parsed, dict) and "tipo" in parsed and "mensagem" in parsed:
             # Validar tipo permitido
             if parsed["tipo"] not in ["sucesso", "alerta", "info"]:
                 parsed["tipo"] = "info"
-            print("[AI Aurora] Insight gerado com sucesso via LLM:", parsed)
+            print("[AI Aurora] Insight gerado com sucesso via Gemini:", parsed)
             return parsed
     except Exception as e:
         print("[AI Aurora] Fallback para insight local devido ao erro na IA:", e)
-
         
     return gerar_insight_mock(produtos)
 
@@ -195,48 +178,44 @@ def conversar_com_aurora(db: Session, casa_id: int, mensagem_usuario: str, histo
         "Utilize os dados acima para responder de maneira altamente profissional, clara e concisa."
     )
     
-    messages = [{"role": "system", "content": prompt_sistema}]
-    
+    historico_str = ""
     if historico and isinstance(historico, list):
-        for item in historico[-6:]:  # Manter últimos 6 turnos para economizar contexto
-            if isinstance(item, dict) and "role" in item and "content" in item:
-                role = "assistant" if item["role"] in ["assistant", "aurora"] else "user"
-                messages.append({"role": role, "content": str(item["content"])})
-                
-    messages.append({"role": "user", "content": mensagem_usuario})
-    
-    headers = {
-        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-        "Content-Type": "application/json; charset=utf-8",
-        "HTTP-Referer": "http://localhost:5173",
-        "X-Title": "Aurora Home"
-    }
+        for item in historico[-6:]:
+            role = item.get("role", "user").upper()
+            content = str(item.get("content", ""))
+            historico_str += f"{role}: {content}\n"
+            
+    if historico_str:
+        prompt_completo = f"Histórico Recente da Conversa:\n{historico_str}\n\nNova Mensagem do Usuário:\n{mensagem_usuario}"
+    else:
+        prompt_completo = f"Mensagem do Usuário:\n{mensagem_usuario}"
     
     payload = {
-        "model": PREFERRED_MODEL,
-        "messages": messages,
-        "temperature": 0.7,
-        "max_tokens": 400
+        "systemInstruction": {
+            "parts": [{"text": prompt_sistema}]
+        },
+        "contents": [
+            {"role": "user", "parts": [{"text": prompt_completo}]}
+        ],
+        "generationConfig": {
+            "temperature": 0.7,
+            "maxOutputTokens": 400
+        }
     }
     
     try:
-        data = _make_openrouter_request(payload, headers)
+        data = _make_gemini_request(payload)
         
-        if "choices" not in data:
-            error_msg = data.get("error", {}).get("message", str(data)) if isinstance(data, dict) else str(data)
-            raise Exception(f"Resposta inesperada da API: {error_msg}")
+        if "candidates" not in data or not data["candidates"]:
+            raise Exception(f"Resposta inesperada da API: {data}")
             
-        content = data["choices"][0]["message"]["content"].strip()
+        content = data["candidates"][0]["content"]["parts"][0]["text"].strip()
         return {"resposta": content}
     except Exception as e:
-        print("[AI Aurora Chat] Erro ao conectar ao LLM:", e)
+        print("[AI Aurora Chat] Erro ao conectar ao Gemini LLM:", e)
         return conversar_com_aurora_mock(produtos, mensagem_usuario, eventos_agenda)
 
 def extrair_eventos_de_email(texto_email: str):
-    """
-    Analisa um e-mail com a IA e retorna um dicionário com os eventos encontrados,
-    ou None se não for relevante (ex: newsletter).
-    """
     prompt_sistema = (
         "Você é a IA do Aurora Inbox. Seu objetivo é ler o texto de um e-mail e extrair informações úteis ou compromissos.\n"
         "Se o e-mail contiver uma informação importante (ex: aviso escolar, conta a pagar, entrega de pedido) ou um compromisso (voo, consulta, reunião), "
@@ -246,41 +225,31 @@ def extrair_eventos_de_email(texto_email: str):
         "Não inclua nenhum texto antes ou depois do JSON."
     )
     
-    headers = {
-        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-        "Content-Type": "application/json; charset=utf-8",
-        "HTTP-Referer": "http://localhost:5173",
-        "X-Title": "Aurora Home"
-    }
-    
     payload = {
-        "model": PREFERRED_MODEL,
-        "messages": [
-            {"role": "system", "content": prompt_sistema},
-            {"role": "user", "content": f"E-mail:\n{texto_email}"}
+        "systemInstruction": {
+            "parts": [{"text": prompt_sistema}]
+        },
+        "contents": [
+            {"role": "user", "parts": [{"text": f"E-mail:\n{texto_email}"}]}
         ],
-        "temperature": 0.1,
-        "max_tokens": 200
+        "generationConfig": {
+            "temperature": 0.1,
+            "maxOutputTokens": 200,
+            "responseMimeType": "application/json"
+        }
     }
     
     try:
-        data = _make_openrouter_request(payload, headers)
-        if "choices" not in data:
+        data = _make_gemini_request(payload)
+        if "candidates" not in data or not data["candidates"]:
             return None
             
-        content = data["choices"][0]["message"]["content"].strip()
+        content = data["candidates"][0]["content"]["parts"][0]["text"].strip()
         
-        # Limpar crases
-        if "```" in content:
-            match = re.search(r"\{.*\}", content, re.DOTALL)
-            if match:
-                content = match.group(0)
-                
         parsed = json.loads(content)
         if isinstance(parsed, dict) and "titulo" in parsed:
             return parsed
         return None
     except Exception as e:
-        print(f"[AI Aurora Inbox] Erro ao analisar e-mail: {e}")
+        print(f"[AI Aurora Inbox] Erro ao analisar e-mail no Gemini: {e}")
         return None
-
