@@ -1,7 +1,8 @@
 import { useEffect, useMemo } from 'react';
 import { useStore } from '../store/useStore';
-import { Calendar, ShoppingCart, Clock, AlertTriangle, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Calendar, ShoppingCart, Clock, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import type { Evento } from '../api/client';
 
 export default function Timeline() {
   const { eventos, produtos, fetchEventos, fetchProdutos } = useStore();
@@ -22,9 +23,9 @@ export default function Timeline() {
     const dpsAmanha = new Date(hoje);
     dpsAmanha.setDate(dpsAmanha.getDate() + 2);
 
-    const eventosHoje = [];
-    const eventosAmanha = [];
-    const eventosFuturo = [];
+    const eventosHoje: Evento[] = [];
+    const eventosAmanha: Evento[] = [];
+    const eventosFuturo: Evento[] = [];
 
     // Categorizar Eventos
     eventos.forEach(evt => {
