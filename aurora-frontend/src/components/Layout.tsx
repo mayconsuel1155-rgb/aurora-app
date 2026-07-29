@@ -73,6 +73,7 @@ export default function Layout() {
           <MobileNavItem to="/" icon={<Home size={24} strokeWidth={1.5} />} label="Resumo" />
           <MobileNavItem to="/estoque" icon={<Package size={24} strokeWidth={1.5} />} label="Estoque" />
           <MobileNavItem to="/compras" icon={<ShoppingCart size={24} strokeWidth={1.5} />} label="Compras" />
+          <MobileNavItem to="/familia" icon={<Users size={24} strokeWidth={1.5} />} label="Família" />
       </nav>
     </div>
   );
