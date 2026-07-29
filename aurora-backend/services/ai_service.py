@@ -141,12 +141,15 @@ def gerar_insight_llm(produtos):
         
     return gerar_insight_mock(produtos)
 
-def gerar_insight(db: Session, casa_id: int):
+def gerar_insight(db: Session, casa_id: int, eventos_agenda: list = None):
     produtos = db.query(models.Produto).filter(models.Produto.casa_id == casa_id).all()
+    # Para o MVP da timeline/insight, passamos o mock se não houver eventos
     return gerar_insight_llm(produtos)
 
-def conversar_com_aurora(db: Session, casa_id: int, mensagem_usuario: str, historico: list = None):
+def conversar_com_aurora(db: Session, casa_id: int, mensagem_usuario: str, historico: list = None, eventos_agenda: list = None):
     produtos = db.query(models.Produto).filter(models.Produto.casa_id == casa_id).all()
+    if eventos_agenda is None:
+        eventos_agenda = []
     
     resumo_produtos = []
     for p in produtos:
@@ -156,18 +159,27 @@ def conversar_com_aurora(db: Session, casa_id: int, mensagem_usuario: str, histo
     
     lista_texto = "\n".join(resumo_produtos) if resumo_produtos else "Nenhum produto cadastrado no momento."
     
+    resumo_eventos = []
+    for e in eventos_agenda:
+        titulo = e.get("titulo", "Sem título")
+        data = e.get("data", "")
+        # Formatar a data se possível
+        resumo_eventos.append(f"- {titulo} (Data/Hora: {data})")
+    
+    lista_eventos = "\n".join(resumo_eventos) if resumo_eventos else "Não há eventos agendados ou a agenda não está conectada."
+
     prompt_sistema = (
-        "Você é a IA Aurora, uma assistente virtual profissional, objetiva e clara, especializada em gestão doméstica.\n"
-        "Sua missão é fornecer informações sobre o inventário da casa de forma direta, fácil de entender e bem estruturada.\n\n"
+        "Você é a IA Aurora, uma assistente virtual profissional, objetiva e clara, especializada em gestão doméstica e organização de rotina.\n"
+        "Sua missão é fornecer informações sobre o inventário da casa e a agenda de compromissos do usuário de forma direta e útil.\n\n"
         "REGRAS DE ESTILO E FORMATAÇÃO DE RESPOSTA:\n"
-        "1. TOM PROFISSIONAL E OBJETIVO: Vá direto ao ponto. Evite excesso de emojis, linguagem excessivamente informal ou frases prolixas.\n"
-        "2. ESTRUTURA CLARA E FÁCIL DE LER: Use formatação em tópicos e quebras de linha para listar produtos. Facilite a leitura separando itens críticos de itens regulares.\n"
-        "3. FOCO NO ESSENCIAL: Não justifique os níveis de estoque e limite-se a informar o que está abaixo do ideal ou os status gerais.\n"
-        "4. SEM ENROLAÇÃO: Responda diretamente à pergunta do usuário de maneira polida e formal.\n"
-        "5. Exemplo de boa resposta quando tudo está OK:\n"
-        "   'Olá. O estoque da sua residência encontra-se em níveis adequados. Não há necessidade de reposição no momento.'\n\n"
+        "1. TOM PROFISSIONAL E OBJETIVO: Vá direto ao ponto. Evite excesso de emojis, linguagem informal ou frases prolixas.\n"
+        "2. FOCO NO ESSENCIAL: Se o usuário perguntar sobre o dia dele, resuma os compromissos. Se perguntar sobre a casa, fale dos produtos.\n"
+        "3. SEM INVENTAR DADOS: Baseie-se ESTRITAMENTE no inventário e agenda fornecidos abaixo. Nunca invente compromissos ou produtos.\n"
+        "4. DADOS VAZIOS: Se a lista de eventos estiver vazia, avise ao usuário que não há compromissos ou que a agenda do Google precisa ser reconectada em 'Aurora Connect'.\n\n"
         f"INVENTÁRIO ATUAL DA CASA (CASA ID {casa_id}):\n"
         f"{lista_texto}\n\n"
+        f"AGENDA DO USUÁRIO (PRÓXIMOS COMPROMISSOS):\n"
+        f"{lista_eventos}\n\n"
         "Utilize os dados acima para responder de maneira altamente profissional, clara e concisa."
     )
     

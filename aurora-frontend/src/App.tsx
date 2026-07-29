@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
-import Dashboard from './pages/Dashboard';
+import Timeline from './pages/Timeline';
 import Estoque from './pages/Estoque';
 import Compras from './pages/Compras';
 import Familia from './pages/Familia';
@@ -69,7 +69,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         
         <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
-          <Route index element={<Dashboard />} />
+          <Route index element={<Timeline />} />
           <Route path="estoque" element={<Estoque />} />
           <Route path="compras" element={<Compras />} />
           <Route path="agenda" element={<Agenda />} />

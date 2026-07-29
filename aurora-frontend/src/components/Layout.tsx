@@ -16,7 +16,7 @@ export default function Layout() {
           <h1 className="text-2xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-[var(--color-aurora-primary)] to-indigo-400">Aurora Home</h1>
         </div>
         <nav className="flex-1 px-4 space-y-2 mt-4">
-          <NavItem to="/" icon={<Home size={22} strokeWidth={1.5} />} label="Resumo" />
+          <NavItem to="/" icon={<Home size={22} strokeWidth={1.5} />} label="Rotina" />
           <NavItem to="/estoque" icon={<Package size={22} strokeWidth={1.5} />} label="Inventário" />
           <NavItem to="/compras" icon={<ShoppingCart size={22} strokeWidth={1.5} />} label="Lista de Compras" />
           <NavItem to="/familia" icon={<Users size={22} strokeWidth={1.5} />} label="Minha Família" />
@@ -72,7 +72,7 @@ export default function Layout() {
 
       {/* Bottom Nav - Mobile with Glassmorphism */}
       <nav className="md:hidden fixed bottom-6 left-4 right-4 bg-white/70 backdrop-blur-xl border border-white shadow-xl rounded-3xl flex justify-around p-2 z-50">
-          <MobileNavItem to="/" icon={<Home size={24} strokeWidth={1.5} />} label="Resumo" />
+          <MobileNavItem to="/" icon={<Home size={24} strokeWidth={1.5} />} label="Rotina" />
           <MobileNavItem to="/estoque" icon={<Package size={24} strokeWidth={1.5} />} label="Estoque" />
           <MobileNavItem to="/compras" icon={<ShoppingCart size={24} strokeWidth={1.5} />} label="Compras" />
           <MobileNavItem to="/agenda" icon={<Calendar size={24} strokeWidth={1.5} />} label="Agenda" />
