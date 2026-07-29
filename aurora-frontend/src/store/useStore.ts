@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { getProdutos, getInsights, updateProduto, createProduto, deleteProduto, getAmbientes, createAmbiente, deleteAmbiente, getMembros, type Produto, type Insight, type Ambiente, type Usuario, type Membro } from '../api/client';
+import { NotificationService } from '../services/NotificationService';
 
 interface StoreState {
   token: string | null;
@@ -54,6 +55,13 @@ export const useStore = create<StoreState>((set, get) => ({
     try {
       const data = await getProdutos();
       set({ produtos: Array.isArray(data) ? data : [], loading: false });
+      
+      // Checar vencimentos silenciosamente após carregar
+      if (Array.isArray(data)) {
+        setTimeout(() => {
+          NotificationService.checkExpirations(data);
+        }, 3000);
+      }
     } catch (e) {
       console.error(e);
       set({ produtos: [], loading: false });
