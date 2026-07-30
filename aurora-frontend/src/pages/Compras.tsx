@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useStore } from '../store/useStore';
 import { Check, Sparkles, Trash2, X, DollarSign, Package } from 'lucide-react';
-import { Produto } from '../api/client';
+import type { Produto } from '../api/client';
 
 export default function Compras() {
   const { produtos, loading, fetchProdutos, marcarComoComprado, removerProduto } = useStore();
