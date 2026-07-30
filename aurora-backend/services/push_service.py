@@ -57,8 +57,10 @@ async def push_worker_loop():
     print("🚀 Aurora Push Worker iniciado...")
     while True:
         try:
-            # Roda a cada minuto
-            await asyncio.sleep(60)
+            # Calcular segundos até o início do próximo minuto para evitar pular janelas de tempo
+            agora = datetime.utcnow()
+            segundos_ate_proximo_minuto = 60 - agora.second
+            await asyncio.sleep(segundos_ate_proximo_minuto)
             
             db = SessionLocal()
             try:
