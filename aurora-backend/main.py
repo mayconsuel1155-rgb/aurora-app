@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database import engine, Base
-from routers import produtos, ai, ambientes, auth, casas, connect
+from routers import produtos, ai, ambientes, auth, casas, connect, push
+from services import push_service
 from starlette.middleware.sessions import SessionMiddleware
 import os
 
@@ -48,7 +49,16 @@ app.include_router(ambientes.router)
 app.include_router(auth.router)
 app.include_router(casas.router)
 app.include_router(connect.router)
+app.include_router(push.router)
 
 @app.get("/")
 def read_root():
     return {"message": "Bem-vindo à API do Aurora Home. Reduzindo carga mental."}
+
+@app.on_event("startup")
+async def startup_event():
+    push_service.start_push_worker()
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    push_service.stop_push_worker()

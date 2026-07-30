@@ -19,8 +19,12 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const [showNotificationBanner, setShowNotificationBanner] = useState(false);
 
   useEffect(() => {
-    if ('Notification' in window && Notification.permission === 'default') {
-      setShowNotificationBanner(true);
+    if ('Notification' in window) {
+      if (Notification.permission === 'default') {
+        setShowNotificationBanner(true);
+      } else if (Notification.permission === 'granted') {
+        NotificationService.subscribeToWebPush();
+      }
     }
   }, []);
 

@@ -99,3 +99,14 @@ class ConexaoExterna(Base):
     timestamp = Column(DateTime, default=datetime.utcnow)
     
     usuario = relationship("Usuario")
+
+class InscricaoPush(Base):
+    __tablename__ = "inscricoes_push"
+    id = Column(Integer, primary_key=True, index=True)
+    usuario_id = Column(Integer, ForeignKey("usuarios.id"))
+    endpoint = Column(String, unique=True, index=True)
+    p256dh = Column(String)
+    auth = Column(String)
+    timestamp = Column(DateTime, default=datetime.utcnow)
+    
+    usuario = relationship("Usuario")

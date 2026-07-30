@@ -155,6 +155,17 @@ export const sendChatMessage = async (mensagem: string, historico: ChatMessage[]
   }
 };
 
+export const subscribeToPush = async (subscription: PushSubscription) => {
+  const subData = JSON.parse(JSON.stringify(subscription));
+  await api.post('/push/subscribe', {
+    endpoint: subData.endpoint,
+    keys: {
+      p256dh: subData.keys.p256dh,
+      auth: subData.keys.auth
+    }
+  });
+};
+
 export interface Membro {
   id: number;
   nome: string;
