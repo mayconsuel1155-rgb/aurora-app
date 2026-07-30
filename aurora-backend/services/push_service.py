@@ -77,13 +77,25 @@ async def push_worker_loop():
                     if not user_inscricoes:
                         continue
                         
+                    # Obter a casa_id do usuário logado (dono ou membro)
+                    usuario_dono = db.query(models.Usuario).filter_by(id=uid).first()
+                    casa_id_dono = None
+                    if usuario_dono:
+                        if usuario_dono.casas:
+                            casa_id_dono = usuario_dono.casas[0].id
+                        elif usuario_dono.casas_membro:
+                            casa_id_dono = usuario_dono.casas_membro[0].casa_id
+                            
+                    if not casa_id_dono:
+                        continue
+                        
                     # 1. Resumo de Estoque (às 07:00 e às 17:00 no horário de Brasília)
                     # Hora atual de Brasília = agora - 3 horas
                     agora_br = agora - timedelta(hours=3)
                     if (agora_br.hour == 7 or agora_br.hour == 17) and agora_br.minute == 0:
                         produtos = db.query(models.Produto).filter(
-                            models.Produto.casa_id == db.query(models.Usuario).filter_by(id=uid).first().casa_id
-                        ).all()
+                            models.Produto.casa_id == casa_id_dono
+                        ).all() if casa_id_dono else []
                         
                         vencendo_em_breve = 0
                         vencidos = 0
@@ -109,10 +121,6 @@ async def push_worker_loop():
                                 send_push_notification(insc, titulo, corpo)
 
                     # 1.5. Lembretes de Remédios (Hora exata)
-                    usuario_dono = db.query(models.Usuario).filter_by(id=uid).first()
-                    membro_casa = db.query(models.MembroCasa).filter_by(usuario_id=uid).first()
-                    casa_id_dono = membro_casa.casa_id if membro_casa else None
-                    
                     if casa_id_dono:
                         remedios = db.query(models.Remedio).filter(
                             models.Remedio.casa_id == casa_id_dono,
@@ -131,12 +139,18 @@ async def push_worker_loop():
                             
                             # Notifica a família inteira (todos da casa)
                             if casa_id_dono:
+                                # Primeiro o dono da casa
+                                casa = db.query(models.Casa).filter_by(id=casa_id_dono).first()
+                                usuarios_para_notificar = [casa.usuario_id] if casa else []
+                                
+                                # Depois os membros
                                 membros = db.query(models.MembroCasa).filter_by(casa_id=casa_id_dono).all()
-                                familiares_ids = [m.usuario_id for m in membros]
+                                for m in membros:
+                                    usuarios_para_notificar.append(m.usuario_id)
                                 
                                 alvos_remedio = []
-                                for fam_id in familiares_ids:
-                                    inscs_fam = [i for i in inscricoes if i.usuario_id == fam_id]
+                                for u_id in set(usuarios_para_notificar):
+                                    inscs_fam = [i for i in inscricoes if i.usuario_id == u_id]
                                     alvos_remedio.extend(inscs_fam)
                                 
                                 inscricoes_unicas_rem = {i.id: i for i in alvos_remedio}.values()
