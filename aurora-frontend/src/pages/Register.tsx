@@ -66,7 +66,7 @@ export default function Register() {
               </div>
             )}
             <div>
-              <label htmlFor="nome" className="block text-sm font-medium text-slate-700 mb-1">
+              <label htmlFor="nome" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                 Seu Nome
               </label>
               <input
@@ -75,13 +75,13 @@ export default function Register() {
                 required
                 value={nome}
                 onChange={(e) => setNome(e.target.value)}
-                className="w-full border border-slate-200/80 rounded-2xl p-3.5 focus:outline-none focus:ring-2 focus:ring-[var(--color-aurora-primary)]/40 transition-all bg-slate-50/50"
+                className="w-full border border-slate-200 dark:border-slate-700/80 rounded-2xl p-3.5 focus:outline-none focus:ring-2 focus:ring-[var(--color-aurora-primary)]/40 transition-all bg-slate-50 dark:bg-slate-900/50/50"
                 placeholder="Ex: João da Silva"
               />
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1">
+              <label htmlFor="email" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                 Endereço de Email
               </label>
               <input
@@ -90,13 +90,13 @@ export default function Register() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full border border-slate-200/80 rounded-2xl p-3.5 focus:outline-none focus:ring-2 focus:ring-[var(--color-aurora-primary)]/40 transition-all bg-slate-50/50"
+                className="w-full border border-slate-200 dark:border-slate-700/80 rounded-2xl p-3.5 focus:outline-none focus:ring-2 focus:ring-[var(--color-aurora-primary)]/40 transition-all bg-slate-50 dark:bg-slate-900/50/50"
                 placeholder="seu@email.com"
               />
             </div>
 
             <div>
-              <label htmlFor="senha" className="block text-sm font-medium text-slate-700 mb-1">
+              <label htmlFor="senha" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                 Senha
               </label>
               <input
@@ -105,14 +105,14 @@ export default function Register() {
                 required
                 value={senha}
                 onChange={(e) => setSenha(e.target.value)}
-                className="w-full border border-slate-200/80 rounded-2xl p-3.5 focus:outline-none focus:ring-2 focus:ring-[var(--color-aurora-primary)]/40 transition-all bg-slate-50/50"
+                className="w-full border border-slate-200 dark:border-slate-700/80 rounded-2xl p-3.5 focus:outline-none focus:ring-2 focus:ring-[var(--color-aurora-primary)]/40 transition-all bg-slate-50 dark:bg-slate-900/50/50"
                 placeholder="••••••••"
                 minLength={6}
               />
             </div>
 
             <div>
-              <label htmlFor="codigo" className="block text-sm font-medium text-slate-700 mb-1">
+              <label htmlFor="codigo" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                 Código de Convite <span className="text-slate-400 font-normal">(Opcional)</span>
               </label>
               <input
@@ -120,7 +120,7 @@ export default function Register() {
                 type="text"
                 value={codigoConvite}
                 onChange={(e) => setCodigoConvite(e.target.value)}
-                className="w-full border border-slate-200/80 rounded-2xl p-3.5 focus:outline-none focus:ring-2 focus:ring-[var(--color-aurora-primary)]/40 transition-all bg-slate-50/50 uppercase font-mono"
+                className="w-full border border-slate-200 dark:border-slate-700/80 rounded-2xl p-3.5 focus:outline-none focus:ring-2 focus:ring-[var(--color-aurora-primary)]/40 transition-all bg-slate-50 dark:bg-slate-900/50/50 uppercase font-mono"
                 placeholder="Ex: AB92KX"
                 maxLength={6}
               />

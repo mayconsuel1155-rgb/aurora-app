@@ -13,6 +13,7 @@ interface StoreState {
   insight: Insight | null;
   loading: boolean;
   loadingInbox: boolean;
+  theme: 'light' | 'dark';
   
   setAuth: (token: string, user: Usuario) => void;
   logout: () => void;
@@ -22,6 +23,8 @@ interface StoreState {
   fetchEventos: () => Promise<void>;
   fetchInboxEvents: () => Promise<void>;
   fetchInsight: () => Promise<void>;
+  deletarInboxEvent: (id: number) => Promise<void>;
+  toggleTheme: () => void;
   alterarQuantidade: (produtoId: number, delta: number) => Promise<void>;
   adicionarProduto: (produto: Omit<Produto, 'id' | 'casa_id'>) => Promise<void>;
   removerProduto: (produtoId: number) => Promise<void>;
@@ -45,6 +48,7 @@ export const useStore = create<StoreState>((set, get) => ({
   insight: null,
   loading: false,
   loadingInbox: false,
+  theme: (localStorage.getItem('aurora-theme') as 'light' | 'dark') || 'light',
 
   setAuth: (token, user) => {
     localStorage.setItem('aurora-token', token);
@@ -124,6 +128,22 @@ export const useStore = create<StoreState>((set, get) => ({
     } catch (e) {
       console.error(e);
     }
+  },
+  deletarInboxEvent: async (id: number) => {
+    try {
+      // API call logic would go here
+      set((state) => ({ inboxEvents: state.inboxEvents.filter(e => e.id !== id) }));
+    } catch (error) {
+      console.error('Error deleting inbox event:', error);
+      throw error;
+    }
+  },
+  toggleTheme: () => {
+    set((state) => {
+      const newTheme = state.theme === 'light' ? 'dark' : 'light';
+      localStorage.setItem('aurora-theme', newTheme);
+      return { theme: newTheme };
+    });
   },
   alterarQuantidade: async (produtoId: number, delta: number) => {
     const { produtos } = get();

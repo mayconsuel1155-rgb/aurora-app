@@ -56,7 +56,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
           <p className="text-sm font-medium">Ative as notificações para ser avisado sobre vencimentos na geladeira e despensa.</p>
           <div className="flex space-x-3 ml-4 flex-shrink-0">
             <button onClick={() => setShowNotificationBanner(false)} className="text-indigo-200 hover:text-white text-sm">Depois</button>
-            <button onClick={handleEnableNotifications} className="bg-white text-indigo-600 px-3 py-1 rounded-full text-sm font-bold hover:bg-indigo-50">Ativar</button>
+            <button onClick={handleEnableNotifications} className="bg-white dark:bg-slate-800 text-indigo-600 px-3 py-1 rounded-full text-sm font-bold hover:bg-indigo-50">Ativar</button>
           </div>
         </div>
       )}
@@ -66,6 +66,16 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 function App() {
+  const theme = useStore(state => state.theme);
+
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [theme]);
+
   return (
     <BrowserRouter>
       <Routes>

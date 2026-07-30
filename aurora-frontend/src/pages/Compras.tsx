@@ -22,7 +22,7 @@ export default function Compras() {
       {loading ? (
         <div className="space-y-4">
            {[1, 2].map(i => (
-             <div key={i} className="aurora-card h-28 animate-pulse bg-slate-200/40"></div>
+             <div key={i} className="aurora-card h-28 animate-pulse bg-slate-200 dark:bg-slate-700/40"></div>
            ))}
         </div>
       ) : listaInvisivel.length === 0 ? (

@@ -96,11 +96,11 @@ export default function AIChatModal({ isOpen, onClose }: AIChatModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 sm:inset-auto sm:bottom-6 sm:right-6 sm:w-[420px] sm:h-[600px] z-50 flex flex-col bg-white/95 backdrop-blur-2xl sm:rounded-3xl border border-slate-200/80 shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-6 duration-300">
+    <div className="fixed inset-0 sm:inset-auto sm:bottom-6 sm:right-6 sm:w-[420px] sm:h-[600px] z-50 flex flex-col bg-white dark:bg-slate-800/95 backdrop-blur-2xl sm:rounded-3xl border border-slate-200 dark:border-slate-700/80 shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-6 duration-300">
       {/* Header */}
       <div className="p-4 md:p-5 bg-gradient-to-r from-[var(--color-aurora-primary)] via-indigo-600 to-purple-600 text-white flex items-center justify-between shadow-md shrink-0">
         <div className="flex items-center space-x-3">
-          <div className="p-2.5 bg-white/20 backdrop-blur-md rounded-2xl">
+          <div className="p-2.5 bg-white dark:bg-slate-800/20 backdrop-blur-md rounded-2xl">
             <Sparkles size={22} className="text-amber-300 animate-pulse" />
           </div>
           <div>
@@ -113,14 +113,14 @@ export default function AIChatModal({ isOpen, onClose }: AIChatModalProps) {
           <button
             onClick={handleLimparHistorico}
             title="Limpar Conversa"
-            className="p-2 hover:bg-white/10 rounded-xl transition-colors text-white/80 hover:text-white"
+            className="p-2 hover:bg-white dark:bg-slate-800/10 rounded-xl transition-colors text-white/80 hover:text-white"
           >
             <RefreshCw size={17} />
           </button>
           <button
             onClick={onClose}
             title="Fechar Chat"
-            className="p-2 hover:bg-white/10 rounded-xl transition-colors text-white/80 hover:text-white"
+            className="p-2 hover:bg-white dark:bg-slate-800/10 rounded-xl transition-colors text-white/80 hover:text-white"
           >
             <X size={20} />
           </button>
@@ -128,7 +128,7 @@ export default function AIChatModal({ isOpen, onClose }: AIChatModalProps) {
       </div>
 
       {/* Messages Scroll Area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50/50">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50 dark:bg-slate-900/50/50">
         {messages.map((msg, index) => (
           <div
             key={index}
@@ -148,7 +148,7 @@ export default function AIChatModal({ isOpen, onClose }: AIChatModalProps) {
               className={`p-3.5 rounded-2xl max-w-[82%] text-sm leading-relaxed ${
                 msg.role === 'user'
                   ? 'bg-[var(--color-aurora-primary)] text-white rounded-tr-none shadow-sm'
-                  : 'bg-white text-slate-800 border border-slate-100 shadow-sm rounded-tl-none'
+                  : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-100 dark:border-slate-700 shadow-sm rounded-tl-none'
               }`}
             >
               <div className="whitespace-pre-wrap">{msg.content}</div>
@@ -162,7 +162,7 @@ export default function AIChatModal({ isOpen, onClose }: AIChatModalProps) {
               <div className="p-2 rounded-2xl bg-indigo-100 text-[var(--color-aurora-primary)] shrink-0">
                 <Bot size={16} />
               </div>
-              <div className="p-4 bg-white rounded-2xl rounded-tl-none border border-slate-100 shadow-sm flex items-center space-x-2">
+              <div className="p-4 bg-white dark:bg-slate-800 rounded-2xl rounded-tl-none border border-slate-100 dark:border-slate-700 shadow-sm flex items-center space-x-2">
                 <div className="w-2 h-2 rounded-full bg-indigo-400 animate-bounce" style={{ animationDelay: '0ms' }} />
                 <div className="w-2 h-2 rounded-full bg-indigo-500 animate-bounce" style={{ animationDelay: '150ms' }} />
                 <div className="w-2 h-2 rounded-full bg-indigo-600 animate-bounce" style={{ animationDelay: '300ms' }} />
@@ -186,7 +186,7 @@ export default function AIChatModal({ isOpen, onClose }: AIChatModalProps) {
 
       {/* Quick Suggestions */}
       {messages.length <= 2 && !loading && (
-        <div className="px-4 py-2 bg-slate-50/80 border-t border-slate-100 shrink-0">
+        <div className="px-4 py-2 bg-slate-50 dark:bg-slate-900/50/80 border-t border-slate-100 dark:border-slate-700 shrink-0">
           <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1">
             <MessageSquare size={12} /> Sugestões de perguntas:
           </p>
@@ -195,7 +195,7 @@ export default function AIChatModal({ isOpen, onClose }: AIChatModalProps) {
               <button
                 key={idx}
                 onClick={() => handleSend(sugestao)}
-                className="text-xs bg-white text-slate-700 hover:bg-indigo-50 hover:text-[var(--color-aurora-primary)] border border-slate-200/80 px-2.5 py-1.5 rounded-xl transition-all text-left shadow-2xs"
+                className="text-xs bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-indigo-50 hover:text-[var(--color-aurora-primary)] border border-slate-200 dark:border-slate-700/80 px-2.5 py-1.5 rounded-xl transition-all text-left shadow-2xs"
               >
                 {sugestao}
               </button>
@@ -205,7 +205,7 @@ export default function AIChatModal({ isOpen, onClose }: AIChatModalProps) {
       )}
 
       {/* Input Form */}
-      <div className="p-3 bg-white border-t border-slate-100 flex items-center space-x-2 shrink-0">
+      <div className="p-3 bg-white dark:bg-slate-800 border-t border-slate-100 dark:border-slate-700 flex items-center space-x-2 shrink-0">
         <input
           type="text"
           value={inputMessage}
@@ -213,12 +213,12 @@ export default function AIChatModal({ isOpen, onClose }: AIChatModalProps) {
           onKeyDown={handleKeyDown}
           placeholder="Pergunte algo sobre a sua casa..."
           disabled={loading}
-          className="flex-1 bg-slate-100 text-slate-800 placeholder-slate-400 text-sm px-4 py-3 rounded-2xl outline-none focus:ring-2 focus:ring-[var(--color-aurora-primary)]/40 transition-all disabled:opacity-60"
+          className="flex-1 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 placeholder-slate-400 text-sm px-4 py-3 rounded-2xl outline-none focus:ring-2 focus:ring-[var(--color-aurora-primary)]/40 transition-all disabled:opacity-60"
         />
         <button
           onClick={() => handleSend()}
           disabled={!inputMessage.trim() || loading}
-          className="p-3 bg-[var(--color-aurora-primary)] text-white hover:bg-indigo-700 disabled:bg-slate-200 disabled:text-slate-400 rounded-2xl transition-all shadow-md active:scale-95 shrink-0"
+          className="p-3 bg-[var(--color-aurora-primary)] text-white hover:bg-indigo-700 disabled:bg-slate-200 dark:bg-slate-700 disabled:text-slate-400 rounded-2xl transition-all shadow-md active:scale-95 shrink-0"
         >
           <Send size={18} />
         </button>

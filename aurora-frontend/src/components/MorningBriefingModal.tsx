@@ -34,13 +34,13 @@ export default function MorningBriefingModal() {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500">
+      <div className="bg-white dark:bg-slate-800 w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500">
         
         {/* Header (Gradient) */}
         <div className="bg-gradient-to-br from-amber-200 via-orange-100 to-amber-50 p-6 relative">
           <button 
             onClick={() => setIsOpen(false)}
-            className="absolute top-4 right-4 p-2 bg-white/40 hover:bg-white/60 rounded-full text-amber-700 transition-colors"
+            className="absolute top-4 right-4 p-2 bg-white dark:bg-slate-800/40 hover:bg-white dark:bg-slate-800/60 rounded-full text-amber-700 transition-colors"
           >
             <X size={20} />
           </button>
@@ -63,11 +63,11 @@ export default function MorningBriefingModal() {
               <CalendarIcon size={24} />
             </div>
             <div>
-              <h3 className="font-semibold text-slate-900 text-lg">Sua Agenda</h3>
+              <h3 className="font-semibold text-slate-900 dark:text-slate-100 text-lg">Sua Agenda</h3>
               {eventosHoje.length > 0 ? (
-                <p className="text-slate-600">Você tem <span className="font-bold text-blue-600">{eventosHoje.length} compromisso(s)</span> agendados para hoje.</p>
+                <p className="text-slate-600 dark:text-slate-400">Você tem <span className="font-bold text-blue-600">{eventosHoje.length} compromisso(s)</span> agendados para hoje.</p>
               ) : (
-                <p className="text-slate-600">Sua agenda está livre para hoje. Respire fundo e aproveite!</p>
+                <p className="text-slate-600 dark:text-slate-400">Sua agenda está livre para hoje. Respire fundo e aproveite!</p>
               )}
             </div>
           </div>
@@ -78,11 +78,11 @@ export default function MorningBriefingModal() {
               <Package size={24} />
             </div>
             <div>
-              <h3 className="font-semibold text-slate-900 text-lg">Sua Casa</h3>
+              <h3 className="font-semibold text-slate-900 dark:text-slate-100 text-lg">Sua Casa</h3>
               {itensEmFalta.length > 0 ? (
-                <p className="text-slate-600">Há <span className="font-bold text-amber-600">{itensEmFalta.length} item(ns)</span> precisando de reposição na sua despensa.</p>
+                <p className="text-slate-600 dark:text-slate-400">Há <span className="font-bold text-amber-600">{itensEmFalta.length} item(ns)</span> precisando de reposição na sua despensa.</p>
               ) : (
-                <p className="text-slate-600">Sua despensa está completamente abastecida.</p>
+                <p className="text-slate-600 dark:text-slate-400">Sua despensa está completamente abastecida.</p>
               )}
             </div>
           </div>
@@ -98,7 +98,7 @@ export default function MorningBriefingModal() {
         </div>
 
         {/* Footer */}
-        <div className="p-4 bg-slate-50 border-t border-slate-100 flex justify-end">
+        <div className="p-4 bg-slate-50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-700 flex justify-end">
           <button 
             onClick={() => setIsOpen(false)}
             className="flex items-center space-x-2 bg-slate-900 text-white px-6 py-3 rounded-xl font-medium hover:bg-slate-800 active:scale-95 transition-all shadow-lg shadow-slate-900/20"

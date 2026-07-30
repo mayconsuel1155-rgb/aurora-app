@@ -48,11 +48,11 @@ export default function Integracoes() {
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out pb-24">
       <header className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900 flex items-center gap-3">
+        <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100 flex items-center gap-3">
           <Network className="text-indigo-600" size={32} strokeWidth={1.5} />
           Aurora Connect
         </h1>
-        <p className="text-slate-500 text-lg font-light">
+        <p className="text-slate-500 dark:text-slate-400 text-lg font-light">
           Conecte a Aurora aos seus serviços para automação da rotina.
         </p>
       </header>
@@ -65,12 +65,12 @@ export default function Integracoes() {
       )}
 
       <section className="space-y-6">
-        <h2 className="text-xl font-semibold text-slate-800">Calendários e Agendas</h2>
+        <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-200">Calendários e Agendas</h2>
         
         {/* Card Google Calendar */}
         <div className="aurora-card p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 transition-all hover:shadow-xl hover:translate-y-[-2px]">
           <div className="flex items-start gap-4">
-            <div className="w-14 h-14 bg-white rounded-2xl shadow-sm border border-slate-100 flex items-center justify-center shrink-0">
+            <div className="w-14 h-14 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex items-center justify-center shrink-0">
               {/* Google G Logo simplificado SVG */}
               <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -80,8 +80,8 @@ export default function Integracoes() {
               </svg>
             </div>
             <div>
-              <h3 className="text-lg font-bold text-slate-900">Google Calendar</h3>
-              <p className="text-sm text-slate-500 mt-1">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">Google Calendar</h3>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                 Permita que a Aurora leia seus compromissos para planejar a sua semana e enviar lembretes antecipados.
               </p>
             </div>
@@ -108,18 +108,18 @@ export default function Integracoes() {
         {/* Outlook Coming Soon */}
         <div className="aurora-card p-6 flex items-center justify-between gap-6 opacity-60">
           <div className="flex items-start gap-4">
-            <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center shrink-0">
+            <div className="w-14 h-14 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center shrink-0">
                <span className="font-bold text-slate-400 text-xl">O</span>
             </div>
             <div>
-              <h3 className="text-lg font-bold text-slate-500">Microsoft Outlook</h3>
+              <h3 className="text-lg font-bold text-slate-500 dark:text-slate-400">Microsoft Outlook</h3>
               <p className="text-sm text-slate-400 mt-1">
                 Integração nativa com o calendário do Office 365 e Outlook.
               </p>
             </div>
           </div>
           <div className="shrink-0">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-400 bg-slate-100 px-3 py-1 rounded-full">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full">
               Em Breve
             </span>
           </div>

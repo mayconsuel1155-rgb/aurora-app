@@ -16,7 +16,7 @@ export default function Dashboard() {
 
   if (loading && produtos.length === 0) return (
      <div className="animate-pulse space-y-8">
-        <div className="h-10 bg-slate-200/50 rounded-xl w-1/3"></div>
+        <div className="h-10 bg-slate-200 dark:bg-slate-700/50 rounded-xl w-1/3"></div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="h-44 aurora-card w-full"></div>
           <div className="h-44 aurora-card w-full"></div>
@@ -65,7 +65,7 @@ export default function Dashboard() {
               <div className={`p-4 rounded-3xl backdrop-blur-md ${itensEmFalta.length > 0 ? 'bg-amber-100/60 text-amber-600' : 'bg-emerald-100/60 text-emerald-600'}`}>
                 {itensEmFalta.length > 0 ? <PackageX size={32} strokeWidth={1.5} /> : <CheckCircle2 size={32} strokeWidth={1.5} />}
               </div>
-              <span className="text-xs font-semibold px-3 py-1 bg-slate-100 text-slate-600 rounded-full">
+              <span className="text-xs font-semibold px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-full">
                 {safeProdutos.length} {safeProdutos.length === 1 ? 'produto registrado' : 'produtos registrados'}
               </span>
             </div>
@@ -84,7 +84,7 @@ export default function Dashboard() {
                <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
              </Link>
           ) : (
-            <div className="w-full text-center py-4 px-6 bg-slate-100/50 text-slate-400 rounded-2xl font-medium border border-slate-200/50">
+            <div className="w-full text-center py-4 px-6 bg-slate-100 dark:bg-slate-800/50 text-slate-400 rounded-2xl font-medium border border-slate-200 dark:border-slate-700/50">
                Nenhuma compra necessária
             </div>
           )}
@@ -109,7 +109,7 @@ export default function Dashboard() {
                   {insight.tipo === 'alerta' && <AlertTriangle size={20} className="text-amber-500 shrink-0 mt-0.5" />}
                   {insight.tipo === 'sucesso' && <CheckCircle2 size={20} className="text-emerald-500 shrink-0 mt-0.5" />}
                   {insight.tipo === 'info' && <Info size={20} className="text-indigo-500 shrink-0 mt-0.5" />}
-                  <p className="text-slate-700 leading-relaxed font-normal">
+                  <p className="text-slate-700 dark:text-slate-300 leading-relaxed font-normal">
                     {insight.mensagem}
                   </p>
                 </div>
@@ -136,7 +136,7 @@ export default function Dashboard() {
       <section className="grid grid-cols-3 gap-4">
         <div className="aurora-card p-4 md:p-6 text-center">
           <p className="text-xs text-[var(--color-aurora-text-muted)] uppercase tracking-wider font-semibold mb-1">Total</p>
-          <p className="text-2xl md:text-3xl font-bold text-slate-800">{safeProdutos.length}</p>
+          <p className="text-2xl md:text-3xl font-bold text-slate-800 dark:text-slate-200">{safeProdutos.length}</p>
         </div>
         <div className="aurora-card p-4 md:p-6 text-center">
           <p className="text-xs text-emerald-600 uppercase tracking-wider font-semibold mb-1">OK</p>
@@ -152,7 +152,7 @@ export default function Dashboard() {
       {itensEmFalta.length > 0 && (
         <section className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+            <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
               <Package size={20} className="text-amber-500" />
               Itens Precisando de Reposição Rápida
             </h2>
@@ -165,23 +165,23 @@ export default function Dashboard() {
             {itensEmFalta.map(produto => (
               <div key={produto.id} className="aurora-card p-5 flex items-center justify-between">
                 <div>
-                  <h3 className="font-semibold text-slate-900">{produto.nome}</h3>
-                  <p className="text-xs text-slate-500 mt-0.5">
+                  <h3 className="font-semibold text-slate-900 dark:text-slate-100">{produto.nome}</h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                     Estoque atual: <span className="font-bold text-amber-600">{produto.quantidade}</span> (Mínimo: {produto.quantidade_minima})
                   </p>
                 </div>
-                <div className="flex items-center space-x-2 bg-slate-100/60 p-1.5 rounded-2xl">
+                <div className="flex items-center space-x-2 bg-slate-100 dark:bg-slate-800/60 p-1.5 rounded-2xl">
                   <button 
                     onClick={() => alterarQuantidade(produto.id, -1)}
                     disabled={produto.quantidade === 0}
-                    className="p-2 text-slate-500 hover:bg-white hover:text-slate-800 rounded-xl transition-all disabled:opacity-40"
+                    className="p-2 text-slate-500 dark:text-slate-400 hover:bg-white dark:bg-slate-800 hover:text-slate-800 dark:text-slate-200 rounded-xl transition-all disabled:opacity-40"
                   >
                     <Minus size={16} />
                   </button>
-                  <span className="text-xs font-semibold px-2 text-slate-700">{produto.quantidade}</span>
+                  <span className="text-xs font-semibold px-2 text-slate-700 dark:text-slate-300">{produto.quantidade}</span>
                   <button 
                     onClick={() => alterarQuantidade(produto.id, 1)}
-                    className="p-2 text-slate-500 hover:bg-white hover:text-slate-800 rounded-xl transition-all"
+                    className="p-2 text-slate-500 dark:text-slate-400 hover:bg-white dark:bg-slate-800 hover:text-slate-800 dark:text-slate-200 rounded-xl transition-all"
                   >
                     <Plus size={16} />
                   </button>
@@ -196,7 +196,7 @@ export default function Dashboard() {
       {itensVencendoOuVencidos.length > 0 && (
         <section className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+            <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
               <Clock size={20} className="text-rose-500" />
               Atenção: Consumir em Breve
             </h2>
@@ -207,7 +207,7 @@ export default function Dashboard() {
               const vencido = isVencido(produto.validade);
               return (
                 <div key={produto.id} className={`aurora-card p-5 border-l-4 ${vencido ? 'border-l-rose-500 bg-rose-50/30' : 'border-l-orange-400 bg-orange-50/30'}`}>
-                  <h3 className="font-semibold text-slate-900">{produto.nome}</h3>
+                  <h3 className="font-semibold text-slate-900 dark:text-slate-100">{produto.nome}</h3>
                   <div className="flex items-center gap-1 mt-2">
                     <Clock size={14} className={vencido ? 'text-rose-600' : 'text-orange-600'} />
                     <span className={`text-sm font-medium ${vencido ? 'text-rose-600' : 'text-orange-600'}`}>

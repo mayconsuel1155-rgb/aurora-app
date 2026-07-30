@@ -67,7 +67,7 @@ export default function Login() {
               </div>
             )}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1">
+              <label htmlFor="email" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                 Endereço de Email
               </label>
               <input
@@ -76,13 +76,13 @@ export default function Login() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full border border-slate-200/80 rounded-2xl p-3.5 focus:outline-none focus:ring-2 focus:ring-[var(--color-aurora-primary)]/40 transition-all bg-slate-50/50"
+                className="w-full border border-slate-200 dark:border-slate-700/80 rounded-2xl p-3.5 focus:outline-none focus:ring-2 focus:ring-[var(--color-aurora-primary)]/40 transition-all bg-slate-50 dark:bg-slate-900/50/50"
                 placeholder="seu@email.com"
               />
             </div>
 
             <div>
-              <label htmlFor="senha" className="block text-sm font-medium text-slate-700 mb-1">
+              <label htmlFor="senha" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                 Senha
               </label>
               <input
@@ -91,7 +91,7 @@ export default function Login() {
                 required
                 value={senha}
                 onChange={(e) => setSenha(e.target.value)}
-                className="w-full border border-slate-200/80 rounded-2xl p-3.5 focus:outline-none focus:ring-2 focus:ring-[var(--color-aurora-primary)]/40 transition-all bg-slate-50/50"
+                className="w-full border border-slate-200 dark:border-slate-700/80 rounded-2xl p-3.5 focus:outline-none focus:ring-2 focus:ring-[var(--color-aurora-primary)]/40 transition-all bg-slate-50 dark:bg-slate-900/50/50"
                 placeholder="••••••••"
               />
             </div>

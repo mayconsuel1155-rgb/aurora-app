@@ -117,9 +117,9 @@ export default function Agenda() {
       
       <div className="aurora-card p-6 shadow-sm border-t-4 border-t-indigo-400">
         {eventos.length === 0 ? (
-          <div className="py-12 text-center bg-slate-50 rounded-xl border border-dashed border-slate-200">
+          <div className="py-12 text-center bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-dashed border-slate-200 dark:border-slate-700">
              <CheckCircle2 className="mx-auto h-12 w-12 text-slate-300 mb-3" />
-             <p className="text-slate-600 font-medium">Sua agenda está livre.</p>
+             <p className="text-slate-600 dark:text-slate-400 font-medium">Sua agenda está livre.</p>
              <button onClick={abrirModalNovo} className="mt-4 text-indigo-600 font-semibold hover:underline">
                  Adicionar um compromisso
              </button>
@@ -129,7 +129,7 @@ export default function Agenda() {
              {eventos.map(evt => {
                  const isConcluido = evt.titulo.startsWith('[Concluído]');
                  return (
-                 <div key={evt.id} className={`p-4 border rounded-xl bg-white shadow-sm flex flex-col sm:flex-row sm:items-center gap-4 hover:shadow-md transition-shadow relative overflow-hidden ${isConcluido ? 'border-emerald-200 bg-emerald-50/30' : 'border-slate-100'}`}>
+                 <div key={evt.id} className={`p-4 border rounded-xl bg-white dark:bg-slate-800 shadow-sm flex flex-col sm:flex-row sm:items-center gap-4 hover:shadow-md transition-shadow relative overflow-hidden ${isConcluido ? 'border-emerald-200 bg-emerald-50/30' : 'border-slate-100 dark:border-slate-700'}`}>
                      {isConcluido && (
                          <div className="absolute top-0 left-0 w-1 h-full bg-emerald-500"></div>
                      )}
@@ -139,10 +139,10 @@ export default function Agenda() {
                      </div>
                      
                      <div className="flex-1">
-                         <h4 className={`font-bold text-lg ${isConcluido ? 'text-slate-500 line-through decoration-slate-300' : 'text-slate-800'}`}>
+                         <h4 className={`font-bold text-lg ${isConcluido ? 'text-slate-500 dark:text-slate-400 line-through decoration-slate-300' : 'text-slate-800 dark:text-slate-200'}`}>
                              {evt.titulo.replace('[Concluído] ', '')}
                          </h4>
-                         <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 mt-2 text-sm text-slate-600">
+                         <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 mt-2 text-sm text-slate-600 dark:text-slate-400">
                              {evt.data && (
                                <span className="flex items-center"><Clock size={16} className="mr-1 text-slate-400"/> 
                                 {evt.data.includes('T') ? new Date(evt.data).toLocaleString('pt-BR', { dateStyle: 'long', timeStyle: 'short' }) : new Date(evt.data + "T12:00:00").toLocaleDateString('pt-BR', { dateStyle: 'long'})}
@@ -156,7 +156,7 @@ export default function Agenda() {
                          </div>
                      </div>
                      
-                     <div className="flex items-center gap-2 mt-4 sm:mt-0 pt-4 sm:pt-0 border-t sm:border-0 border-slate-100 w-full sm:w-auto justify-end">
+                     <div className="flex items-center gap-2 mt-4 sm:mt-0 pt-4 sm:pt-0 border-t sm:border-0 border-slate-100 dark:border-slate-700 w-full sm:w-auto justify-end">
                          {!isConcluido && (
                              <button 
                                onClick={() => handleConcluir(evt.id, evt.titulo)}
@@ -190,26 +190,26 @@ export default function Agenda() {
       {/* Modal de Criação / Edição */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden">
-            <div className="flex justify-between items-center p-6 border-b border-slate-100">
-              <h3 className="text-xl font-bold text-slate-800">
+          <div className="bg-white dark:bg-slate-800 rounded-3xl w-full max-w-md shadow-2xl overflow-hidden">
+            <div className="flex justify-between items-center p-6 border-b border-slate-100 dark:border-slate-700">
+              <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200">
                 {eventoEditando ? 'Reagendar / Editar' : 'Novo Compromisso'}
               </h3>
-              <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600 p-2 bg-slate-50 hover:bg-slate-100 rounded-full transition-colors">
+              <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600 dark:text-slate-400 p-2 bg-slate-50 dark:bg-slate-900/50 hover:bg-slate-100 dark:bg-slate-800 rounded-full transition-colors">
                 <X size={20} />
               </button>
             </div>
             
             <form onSubmit={salvarEvento} className="p-6 space-y-5">
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1">Título do Compromisso</label>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Título do Compromisso</label>
                 <input
                   type="text"
                   required
                   value={titulo}
                   onChange={e => setTitulo(e.target.value)}
                   placeholder="Ex: Consulta Médica"
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[var(--color-aurora-primary)] focus:border-transparent outline-none transition-all"
+                  className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-[var(--color-aurora-primary)] focus:border-transparent outline-none transition-all"
                 />
               </div>
               
@@ -221,17 +221,17 @@ export default function Agenda() {
                       onChange={e => setIsAllDay(e.target.checked)}
                       className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500"
                   />
-                  <label htmlFor="allday" className="text-sm font-semibold text-slate-700">Evento de dia inteiro (sem horário)</label>
+                  <label htmlFor="allday" className="text-sm font-semibold text-slate-700 dark:text-slate-300">Evento de dia inteiro (sem horário)</label>
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1">Data {isAllDay ? '' : 'e Hora'}</label>
+                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Data {isAllDay ? '' : 'e Hora'}</label>
                 <input
                   type={isAllDay ? "date" : "datetime-local"}
                   required
                   value={dataLocal}
                   onChange={e => setDataLocal(e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[var(--color-aurora-primary)] focus:border-transparent outline-none transition-all"
+                  className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-[var(--color-aurora-primary)] focus:border-transparent outline-none transition-all"
                 />
               </div>
 
@@ -239,7 +239,7 @@ export default function Agenda() {
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="flex-1 px-4 py-3 bg-white border border-slate-200 text-slate-700 font-bold rounded-xl hover:bg-slate-50 transition-colors"
+                  className="flex-1 px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl hover:bg-slate-50 dark:bg-slate-900/50 transition-colors"
                 >
                   Cancelar
                 </button>

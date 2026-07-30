@@ -113,10 +113,10 @@ export default function Estoque() {
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
             placeholder="Buscar produto por nome ou categoria..."
-            className="w-full pl-12 pr-4 py-3.5 bg-white border border-slate-200/80 rounded-2xl shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-aurora-primary)]/40 transition-all text-slate-800 placeholder-slate-400"
+            className="w-full pl-12 pr-4 py-3.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-2xl shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-aurora-primary)]/40 transition-all text-slate-800 dark:text-slate-200 placeholder-slate-400"
           />
           {busca && (
-            <button onClick={() => setBusca('')} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+            <button onClick={() => setBusca('')} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:text-slate-400">
               <X size={16} />
             </button>
           )}
@@ -143,7 +143,7 @@ export default function Estoque() {
               className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
                 ambienteFiltroId === null
                   ? 'bg-[var(--color-aurora-primary)] text-white shadow-md shadow-[var(--color-aurora-primary)]/20'
-                  : 'bg-white text-slate-600 border border-slate-200/80 hover:bg-slate-50'
+                  : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700/80 hover:bg-slate-50 dark:bg-slate-900/50'
               }`}
             >
               Todos
@@ -155,7 +155,7 @@ export default function Estoque() {
                 className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
                   ambienteFiltroId === amb.id
                     ? 'bg-[var(--color-aurora-primary)] text-white shadow-md shadow-[var(--color-aurora-primary)]/20'
-                    : 'bg-white text-slate-600 border border-slate-200/80 hover:bg-slate-50'
+                    : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700/80 hover:bg-slate-50 dark:bg-slate-900/50'
                 }`}
               >
                 {amb.icone} {amb.nome}
@@ -178,7 +178,7 @@ export default function Estoque() {
                 className={`px-4 py-2 rounded-xl text-xs font-medium transition-all ${
                   categoriaFiltro === cat
                     ? 'bg-slate-900 text-white'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:bg-slate-700'
                 }`}
               >
                 {cat}
@@ -191,12 +191,12 @@ export default function Estoque() {
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
            {[1, 2, 3].map(i => (
-             <div key={i} className="aurora-card h-48 animate-pulse bg-slate-200/40"></div>
+             <div key={i} className="aurora-card h-48 animate-pulse bg-slate-200 dark:bg-slate-700/40"></div>
            ))}
         </div>
       ) : produtosFiltrados.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 px-4 aurora-card border-dashed">
-           <div className="p-6 bg-slate-100/50 rounded-full mb-4 text-[var(--color-aurora-text-muted)]">
+           <div className="p-6 bg-slate-100 dark:bg-slate-800/50 rounded-full mb-4 text-[var(--color-aurora-text-muted)]">
               <PackageOpen size={48} strokeWidth={1} />
            </div>
            <h3 className="text-xl font-medium text-[var(--color-aurora-text)] mb-2">Nenhum produto encontrado</h3>
@@ -232,14 +232,14 @@ export default function Estoque() {
                 </div>
 
                 <div className="flex items-center space-x-2 text-xs text-[var(--color-aurora-text-muted)] mt-1">
-                  <span className="bg-slate-100 px-2 py-0.5 rounded-md font-medium">{produto?.categoria ?? 'Outro'}</span>
+                  <span className="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md font-medium">{produto?.categoria ?? 'Outro'}</span>
                   {produto?.ambiente_id && (
                     <span className="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-md font-medium flex items-center gap-1">
                       {ambientes.find(a => a.id === produto.ambiente_id)?.icone ?? '🏠'} {ambientes.find(a => a.id === produto.ambiente_id)?.nome ?? 'Desconhecido'}
                     </span>
                   )}
                   {produto?.validade && (
-                    <span className={`px-2 py-0.5 rounded-md font-medium flex items-center gap-1 ${isVencido(produto.validade) ? 'bg-red-100 text-red-700' : isVencendo(produto.validade) ? 'bg-orange-100 text-orange-700' : 'bg-slate-100 text-slate-600'}`}>
+                    <span className={`px-2 py-0.5 rounded-md font-medium flex items-center gap-1 ${isVencido(produto.validade) ? 'bg-red-100 text-red-700' : isVencendo(produto.validade) ? 'bg-orange-100 text-orange-700' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}`}>
                       <Clock size={12} /> {new Date(produto.validade).toLocaleDateString('pt-BR')}
                     </span>
                   )}
@@ -247,20 +247,20 @@ export default function Estoque() {
               </div>
               
               <div className="mt-8 flex items-center justify-between">
-                <span className="text-[var(--color-aurora-text)] font-medium bg-slate-100/50 px-4 py-2 rounded-xl backdrop-blur-md">
+                <span className="text-[var(--color-aurora-text)] font-medium bg-slate-100 dark:bg-slate-800/50 px-4 py-2 rounded-xl backdrop-blur-md">
                   {produto?.quantidade ?? 0} {produto?.quantidade === 1 ? 'unid' : 'unids'}
                 </span>
-                <div className="flex space-x-1.5 bg-slate-100/50 p-1.5 rounded-2xl backdrop-blur-md">
+                <div className="flex space-x-1.5 bg-slate-100 dark:bg-slate-800/50 p-1.5 rounded-2xl backdrop-blur-md">
                   <button 
                     onClick={() => alterarQuantidade(produto.id, -1)} 
                     disabled={(produto?.quantidade ?? 0) === 0}
-                    className="p-2.5 text-[var(--color-aurora-text-muted)] hover:bg-white hover:text-[var(--color-aurora-text)] hover:shadow-sm rounded-xl transition-all active:scale-90 disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:shadow-none disabled:active:scale-100"
+                    className="p-2.5 text-[var(--color-aurora-text-muted)] hover:bg-white dark:bg-slate-800 hover:text-[var(--color-aurora-text)] hover:shadow-sm rounded-xl transition-all active:scale-90 disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:shadow-none disabled:active:scale-100"
                   >
                     <Minus size={18} strokeWidth={2.5} />
                   </button>
                   <button 
                     onClick={() => alterarQuantidade(produto.id, 1)} 
-                    className="p-2.5 text-[var(--color-aurora-text-muted)] hover:bg-white hover:text-[var(--color-aurora-text)] hover:shadow-sm rounded-xl transition-all active:scale-90"
+                    className="p-2.5 text-[var(--color-aurora-text-muted)] hover:bg-white dark:bg-slate-800 hover:text-[var(--color-aurora-text)] hover:shadow-sm rounded-xl transition-all active:scale-90"
                   >
                     <Plus size={18} strokeWidth={2.5} />
                   </button>
@@ -274,20 +274,20 @@ export default function Estoque() {
       {/* Modal Confirmação de Exclusão */}
       {produtoParaExcluir && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+          <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 w-full max-w-sm shadow-2xl animate-in fade-in zoom-in-95 duration-200">
             <div className="flex flex-col items-center text-center space-y-3">
               <div className="p-3 bg-rose-100 text-rose-600 rounded-full">
                 <AlertTriangle size={32} />
               </div>
-              <h3 className="text-xl font-bold text-slate-800">Excluir Produto</h3>
-              <p className="text-sm text-slate-500">
-                Tem certeza que deseja remover <strong className="text-slate-800">{produtoParaExcluir.nome}</strong> do inventário?
+              <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200">Excluir Produto</h3>
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                Tem certeza que deseja remover <strong className="text-slate-800 dark:text-slate-200">{produtoParaExcluir.nome}</strong> do inventário?
               </p>
             </div>
             <div className="flex space-x-3 mt-6">
               <button 
                 onClick={() => setProdutoParaExcluir(null)}
-                className="flex-1 bg-slate-100 text-slate-700 py-3 rounded-xl font-medium hover:bg-slate-200 transition-colors"
+                className="flex-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 py-3 rounded-xl font-medium hover:bg-slate-200 dark:bg-slate-700 transition-colors"
               >
                 Cancelar
               </button>
@@ -306,23 +306,23 @@ export default function Estoque() {
       {/* Modal Novo Item */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+          <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 w-full max-w-md shadow-2xl animate-in fade-in zoom-in-95 duration-200">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-bold">Novo Item do Inventário</h2>
-              <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600 bg-slate-100 p-2 rounded-full">
+              <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 p-2 rounded-full">
                 <X size={20} />
               </button>
             </div>
             <form onSubmit={handleCreateProduto} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Nome do Produto</label>
-                <input required autoFocus type="text" value={novoProduto.nome} onChange={e => setNovoProduto({...novoProduto, nome: e.target.value})} className="w-full border border-slate-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[var(--color-aurora-primary)]/50" placeholder="Ex: Café em pó" />
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nome do Produto</label>
+                <input required autoFocus type="text" value={novoProduto.nome} onChange={e => setNovoProduto({...novoProduto, nome: e.target.value})} className="w-full border border-slate-200 dark:border-slate-700 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[var(--color-aurora-primary)]/50" placeholder="Ex: Café em pó" />
               </div>
               
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Categoria</label>
-                  <select required value={novoProduto.categoria} onChange={e => setNovoProduto({...novoProduto, categoria: e.target.value})} className="w-full border border-slate-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[var(--color-aurora-primary)]/50 bg-white">
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Categoria</label>
+                  <select required value={novoProduto.categoria} onChange={e => setNovoProduto({...novoProduto, categoria: e.target.value})} className="w-full border border-slate-200 dark:border-slate-700 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[var(--color-aurora-primary)]/50 bg-white dark:bg-slate-800">
                     <option value="Alimentos">Alimentos</option>
                     <option value="Limpeza">Limpeza</option>
                     <option value="Higiene">Higiene</option>
@@ -331,8 +331,8 @@ export default function Estoque() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Ambiente</label>
-                  <select required value={novoProduto.ambiente_id} onChange={e => setNovoProduto({...novoProduto, ambiente_id: Number(e.target.value)})} className="w-full border border-slate-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[var(--color-aurora-primary)]/50 bg-white">
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Ambiente</label>
+                  <select required value={novoProduto.ambiente_id} onChange={e => setNovoProduto({...novoProduto, ambiente_id: Number(e.target.value)})} className="w-full border border-slate-200 dark:border-slate-700 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[var(--color-aurora-primary)]/50 bg-white dark:bg-slate-800">
                     {ambientes.map(amb => (
                       <option key={amb.id} value={amb.id}>{amb.nome} {amb.icone}</option>
                     ))}
@@ -342,18 +342,18 @@ export default function Estoque() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Qtd Atual</label>
-                  <input required type="number" min="0" step="any" value={novoProduto.quantidade} onChange={e => setNovoProduto({...novoProduto, quantidade: Number(e.target.value)})} className="w-full border border-slate-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[var(--color-aurora-primary)]/50" />
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Qtd Atual</label>
+                  <input required type="number" min="0" step="any" value={novoProduto.quantidade} onChange={e => setNovoProduto({...novoProduto, quantidade: Number(e.target.value)})} className="w-full border border-slate-200 dark:border-slate-700 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[var(--color-aurora-primary)]/50" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Estoque Mínimo</label>
-                  <input required type="number" min="0" step="any" value={novoProduto.quantidade_minima} onChange={e => setNovoProduto({...novoProduto, quantidade_minima: Number(e.target.value)})} className="w-full border border-slate-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[var(--color-aurora-primary)]/50" />
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Estoque Mínimo</label>
+                  <input required type="number" min="0" step="any" value={novoProduto.quantidade_minima} onChange={e => setNovoProduto({...novoProduto, quantidade_minima: Number(e.target.value)})} className="w-full border border-slate-200 dark:border-slate-700 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[var(--color-aurora-primary)]/50" />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Validade (Opcional)</label>
-                <input type="date" value={novoProduto.validade} onChange={e => setNovoProduto({...novoProduto, validade: e.target.value})} className="w-full border border-slate-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[var(--color-aurora-primary)]/50 bg-white" />
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Validade (Opcional)</label>
+                <input type="date" value={novoProduto.validade} onChange={e => setNovoProduto({...novoProduto, validade: e.target.value})} className="w-full border border-slate-200 dark:border-slate-700 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[var(--color-aurora-primary)]/50 bg-white dark:bg-slate-800" />
               </div>
 
               <button type="submit" className="w-full bg-[var(--color-aurora-primary)] text-white p-4 rounded-xl font-medium mt-2 hover:bg-[var(--color-aurora-primary-hover)] transition-smooth active:scale-95 shadow-md">
