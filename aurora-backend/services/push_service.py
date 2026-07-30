@@ -72,16 +72,42 @@ async def push_worker_loop():
                 # Para cada usuário, checamos eventos próximos
                 agora = datetime.utcnow()
                 
-                # A lógica de Vencimento de Produtos (1x ao dia)
-                # Como simplificação para o MVP, vamos apenas focar nos eventos de agenda.
-                # (Vencimentos podem ser feitos como 'Resumo Matinal' depois).
-                
                 for uid in usuarios_ids:
                     user_inscricoes = [i for i in inscricoes if i.usuario_id == uid]
                     if not user_inscricoes:
                         continue
                         
-                    # Checar eventos do Google Calendar
+                    # 1. Resumo Matinal de Estoque (apenas se for entre 08:00 e 08:01 da manhã no horário de Brasília)
+                    # Hora atual de Brasília = agora - 3 horas
+                    agora_br = agora - timedelta(hours=3)
+                    if agora_br.hour == 8 and agora_br.minute == 0:
+                        produtos = db.query(models.Produto).filter(
+                            models.Produto.casa_id == db.query(models.Usuario).filter_by(id=uid).first().casa_id
+                        ).all()
+                        
+                        vencendo_em_breve = 0
+                        vencidos = 0
+                        
+                        for p in produtos:
+                            if p.validade and p.quantidade > 0:
+                                diff_dias = (p.validade.date() - agora_br.date()).days
+                                if diff_dias < 0:
+                                    vencidos += 1
+                                elif diff_dias <= 3:
+                                    vencendo_em_breve += 1
+                        
+                        if vencendo_em_breve > 0 or vencidos > 0:
+                            titulo = "🛒 Resumo Matinal do Estoque"
+                            corpo = ""
+                            if vencidos > 0:
+                                corpo += f"{vencidos} produto(s) já venceram! "
+                            if vencendo_em_breve > 0:
+                                corpo += f"{vencendo_em_breve} produto(s) vencem em breve."
+                            
+                            for insc in user_inscricoes:
+                                send_push_notification(insc, titulo, corpo)
+
+                    # 2. Checar eventos do Google Calendar
                     # (Para isso, precisamos pegar os tokens)
                     conexao_google = db.query(models.ConexaoExterna).filter(
                         models.ConexaoExterna.usuario_id == uid,
