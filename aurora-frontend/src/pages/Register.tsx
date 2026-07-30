@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { registerUser, loginUser } from '../api/client';
 import { useStore } from '../store/useStore';
 import { Sparkles, ArrowRight, Loader2 } from 'lucide-react';
@@ -8,7 +8,11 @@ export default function Register() {
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
-  const [codigoConvite, setCodigoConvite] = useState('');
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const initialInvite = searchParams.get('invite') || '';
+  
+  const [codigoConvite, setCodigoConvite] = useState(initialInvite);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -120,10 +124,14 @@ export default function Register() {
                 type="text"
                 value={codigoConvite}
                 onChange={(e) => setCodigoConvite(e.target.value)}
-                className="w-full border border-slate-200 dark:border-slate-700/80 rounded-2xl p-3.5 focus:outline-none focus:ring-2 focus:ring-[var(--color-aurora-primary)]/40 transition-all bg-slate-50 dark:bg-slate-900/50/50 uppercase font-mono"
+                className={`w-full border rounded-2xl p-3.5 focus:outline-none focus:ring-2 focus:ring-[var(--color-aurora-primary)]/40 transition-all uppercase font-mono ${initialInvite ? 'border-green-300 bg-green-50/50 text-green-800' : 'border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-900/50/50'}`}
                 placeholder="Ex: AB92KX"
                 maxLength={6}
+                readOnly={!!initialInvite}
               />
+              {initialInvite && (
+                <p className="text-xs text-green-600 mt-1 font-medium">✨ Convite aplicado via link!</p>
+              )}
             </div>
 
             <button

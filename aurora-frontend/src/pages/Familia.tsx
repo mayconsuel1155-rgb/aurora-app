@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useStore } from '../store/useStore';
-import { Users, Copy, Check, RefreshCw, Key } from 'lucide-react';
+import { Users, Copy, Check, RefreshCw, Key, Link as LinkIcon } from 'lucide-react';
 import { gerarConvite } from '../api/client';
 
 export default function Familia() {
@@ -32,6 +32,15 @@ export default function Familia() {
     if (codigoConvite) {
       navigator.clipboard.writeText(codigoConvite);
       setCopiado(true);
+      setTimeout(() => setCopiado(false), 2000);
+    }
+  };
+
+  const copiarLink = () => {
+    if (codigoConvite) {
+      const link = `${window.location.origin}/register?invite=${codigoConvite}`;
+      navigator.clipboard.writeText(link);
+      setCopiado(true); // Reusing the state for visual feedback
       setTimeout(() => setCopiado(false), 2000);
     }
   };
@@ -113,14 +122,23 @@ export default function Familia() {
                   </span>
                 </div>
                 
-                <button
-                  onClick={copiarCodigo}
-                  className="w-full flex items-center justify-center py-3 px-4 rounded-xl font-medium transition-all active:scale-[0.98] bg-white dark:bg-slate-800 border border-indigo-200 text-indigo-700 hover:bg-indigo-50 shadow-sm"
-                >
-                  {copiado ? <Check size={18} className="mr-2 text-green-500" /> : <Copy size={18} className="mr-2" />}
-                  {copiado ? 'Copiado!' : 'Copiar Código'}
-                </button>
-                <p className="text-xs text-center text-slate-500 dark:text-slate-400 mt-2">Válido por 24 horas.</p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={copiarCodigo}
+                    className="flex-1 flex items-center justify-center py-3 px-4 rounded-xl font-medium transition-all active:scale-[0.98] bg-white dark:bg-slate-800 border border-indigo-200 text-indigo-700 hover:bg-indigo-50 shadow-sm text-sm"
+                  >
+                    {copiado ? <Check size={16} className="mr-2 text-green-500" /> : <Copy size={16} className="mr-2" />}
+                    Copiar Código
+                  </button>
+                  <button
+                    onClick={copiarLink}
+                    className="flex-1 flex items-center justify-center py-3 px-4 rounded-xl font-medium transition-all active:scale-[0.98] bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 shadow-sm text-sm"
+                  >
+                    {copiado ? <Check size={16} className="mr-2 text-green-500" /> : <LinkIcon size={16} className="mr-2" />}
+                    Copiar Link
+                  </button>
+                </div>
+                <p className="text-xs text-center text-slate-500 dark:text-slate-400 mt-2">Envie o link para a pessoa. Válido por 24h.</p>
               </div>
             ) : (
               <button
