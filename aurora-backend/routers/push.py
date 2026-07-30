@@ -50,7 +50,7 @@ def subscribe(
 
 @router.get("/vapid-public-key")
 def get_vapid_public_key():
-    key = os.getenv("VAPID_PUBLIC_KEY")
+    key = os.getenv("VAPID_PUBLIC_KEY", "BJilCbzjYfT_vhASrjmGfq9gyssnCmK5E8tFfIkANu0DwpdEKzM9vQtj6dM1u7grVeBxftnjuD_kfa0qdgBSQpo")
     if not key:
         raise HTTPException(status_code=500, detail="VAPID public key não configurada no servidor")
     return {"public_key": key}

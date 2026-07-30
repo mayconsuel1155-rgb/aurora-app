@@ -17,7 +17,7 @@ def get_vapid_claims():
 
 def send_push_notification(inscricao: models.InscricaoPush, title: str, body: str, url: str = "/"):
     try:
-        private_key = os.getenv("VAPID_PRIVATE_KEY")
+        private_key = os.getenv("VAPID_PRIVATE_KEY", "4tUuFHe_boL0wGw_-Ouvpx_ZAdJO2JpZ34S1qqizRCg")
         if not private_key:
             print("AVISO: VAPID_PRIVATE_KEY não encontrada.")
             return False
