@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useStore } from '../store/useStore';
-import { Plus, Minus, PackageOpen, X, Search, MapPin, Tag, Trash2, AlertTriangle, Settings2, Clock } from 'lucide-react';
+import { Plus, Minus, PackageOpen, X, Search, MapPin, Tag, Trash2, AlertTriangle, Settings2, Clock, DollarSign, TrendingUp, Wallet } from 'lucide-react';
 import { GestaoAmbientesModal } from '../components/GestaoAmbientesModal';
 import type { Produto } from '../api/client';
 
@@ -68,6 +68,11 @@ export default function Estoque() {
     return (nomeMatch || categoriaMatch) && ambienteMatch && catFiltroMatch;
   });
 
+  const valorTotal = safeProdutos.reduce((acc, p) => acc + ((p.quantidade ?? 0) * (p.preco ?? 0)), 0);
+  const produtoMaisValioso = safeProdutos.reduce((prev, curr) => 
+    ((curr.quantidade ?? 0) * (curr.preco ?? 0)) > ((prev?.quantidade ?? 0) * (prev?.preco ?? 0)) ? curr : prev
+  , safeProdutos[0] || null);
+
   // Função para verificar vencimento (menor que 3 dias)
   const isVencendo = (dataStr?: string) => {
     if (!dataStr) return false;
@@ -102,6 +107,46 @@ export default function Estoque() {
           <Plus size={18} strokeWidth={2} className="mr-2" /> Novo Item
         </button>
       </header>
+
+      {/* Dashboard Financeiro */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-3xl p-6 text-white shadow-lg shadow-emerald-500/20 relative overflow-hidden group hover:scale-[1.01] transition-transform duration-300">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none group-hover:scale-110 transition-transform"></div>
+          <div className="flex items-center space-x-3 mb-4">
+            <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
+              <Wallet size={20} className="text-white" />
+            </div>
+            <h3 className="font-medium text-emerald-50 tracking-wide text-sm uppercase">Valor Total em Estoque</h3>
+          </div>
+          <div className="flex items-baseline space-x-2">
+            <span className="text-2xl font-semibold opacity-80">R$</span>
+            <span className="text-5xl font-extrabold tracking-tight">{valorTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+          </div>
+          <p className="mt-3 text-emerald-100 text-sm opacity-90 flex items-center">
+            <TrendingUp size={14} className="mr-1.5" /> O patrimônio da sua casa
+          </p>
+        </div>
+
+        {produtoMaisValioso && ((produtoMaisValioso.quantidade ?? 0) * (produtoMaisValioso.preco ?? 0)) > 0 && (
+          <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 border border-slate-200 dark:border-slate-700/80 shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow">
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl">
+                <DollarSign size={20} className="text-indigo-500" />
+              </div>
+              <h3 className="font-medium text-slate-500 dark:text-slate-400 tracking-wide text-sm uppercase">Item Mais Valioso</h3>
+            </div>
+            <div>
+              <h4 className="text-2xl font-bold text-[var(--color-aurora-text)] truncate">{produtoMaisValioso.nome}</h4>
+              <p className="mt-1 text-slate-500 dark:text-slate-400 text-sm">
+                Temos {produtoMaisValioso.quantidade} no valor de R$ {(produtoMaisValioso.preco ?? 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })} cada.
+              </p>
+            </div>
+            <div className="mt-4 inline-flex items-center space-x-1.5 px-3 py-1.5 bg-slate-50 dark:bg-slate-900/50 rounded-lg text-sm font-semibold text-slate-700 dark:text-slate-300">
+              <span>Total: R$ {((produtoMaisValioso.quantidade ?? 0) * (produtoMaisValioso.preco ?? 0)).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* Controles de Busca e Filtros */}
       <div className="space-y-4">
@@ -231,7 +276,7 @@ export default function Estoque() {
                   </div>
                 </div>
 
-                <div className="flex items-center space-x-2 text-xs text-[var(--color-aurora-text-muted)] mt-1">
+                <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--color-aurora-text-muted)] mt-1.5">
                   <span className="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md font-medium">{produto?.categoria ?? 'Outro'}</span>
                   {produto?.ambiente_id && (
                     <span className="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-md font-medium flex items-center gap-1">
@@ -241,6 +286,14 @@ export default function Estoque() {
                   {produto?.validade && (
                     <span className={`px-2 py-0.5 rounded-md font-medium flex items-center gap-1 ${isVencido(produto.validade) ? 'bg-red-100 text-red-700' : isVencendo(produto.validade) ? 'bg-orange-100 text-orange-700' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}`}>
                       <Clock size={12} /> {new Date(produto.validade).toLocaleDateString('pt-BR')}
+                    </span>
+                  )}
+                  {(produto?.preco ?? 0) > 0 && (
+                    <span className="bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded-md font-medium flex items-center gap-1" title="Valor Unitário -> Total">
+                      <DollarSign size={12} /> 
+                      R$ {(produto!.preco!).toLocaleString('pt-BR', { minimumFractionDigits: 2 })} 
+                      <span className="opacity-50 mx-0.5">•</span> 
+                      Total: R$ {((produto?.quantidade ?? 0) * (produto!.preco!)).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </span>
                   )}
                 </div>
