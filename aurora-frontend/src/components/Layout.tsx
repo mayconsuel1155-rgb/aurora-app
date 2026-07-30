@@ -98,12 +98,14 @@ export default function Layout() {
       <AIChatModal isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
 
       {/* Bottom Nav - Mobile with Glassmorphism */}
-      <nav className="md:hidden fixed bottom-6 left-4 right-4 bg-white/70 dark:bg-slate-800/80 backdrop-blur-xl border border-white dark:border-slate-700 shadow-xl rounded-3xl flex justify-around p-2 z-50 transition-colors duration-300">
+      <nav className="md:hidden fixed bottom-6 left-4 right-4 bg-white/70 dark:bg-slate-800/80 backdrop-blur-xl border border-white dark:border-slate-700 shadow-xl rounded-3xl flex overflow-x-auto justify-start sm:justify-around p-2 z-50 transition-colors duration-300 custom-scrollbar gap-1 hide-scroll">
           <MobileNavItem to="/" icon={<Home size={22} />} label="Início" />
           <MobileNavItem to="/estoque" icon={<Package size={22} />} label="Estoque" />
           <MobileNavItem to="/compras" icon={<ShoppingCart size={22} />} label="Compras" />
           <MobileNavItem to="/despesas" icon={<Wallet size={22} />} label="Despesas" />
+          <MobileNavItem to="/saude" icon={<Activity size={22} />} label="Saúde" />
           <MobileNavItem to="/agenda" icon={<Calendar size={22} />} label="Agenda" />
+          <MobileNavItem to="/familia" icon={<Users size={22} />} label="Família" />
           <MobileNavItem to="/integracoes" icon={<Network size={22} />} label="Connect" />
       </nav>
     </div>
@@ -133,7 +135,7 @@ function MobileNavItem({ to, icon, label }: { to: string; icon: React.ReactNode;
     <NavLink
       to={to}
       className={({ isActive }) =>
-        `flex flex-col items-center justify-center w-full py-2 space-y-1 transition-smooth rounded-2xl ${
+        `flex flex-col items-center justify-center min-w-[64px] flex-1 py-2 space-y-1 transition-smooth rounded-2xl ${
           isActive 
             ? 'text-[var(--color-aurora-primary)] bg-white/50 dark:bg-slate-700/50 shadow-sm' 
             : 'text-[var(--color-aurora-text-muted)] dark:text-slate-400 hover:text-[var(--color-aurora-text)] dark:hover:text-slate-200'
