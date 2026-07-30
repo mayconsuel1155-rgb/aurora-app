@@ -56,8 +56,24 @@ export default function Layout() {
         </div>
       </aside>
 
+      {/* Mobile Top Actions */}
+      <div className="md:hidden fixed top-4 right-4 z-50 flex items-center space-x-2">
+        <button
+          onClick={toggleTheme}
+          className="p-2.5 bg-white/80 dark:bg-slate-800/90 backdrop-blur-md rounded-full shadow-lg border border-slate-200/50 dark:border-slate-700/50 text-slate-600 dark:text-slate-300 transition-colors"
+        >
+          {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+        </button>
+        <button
+          onClick={logout}
+          className="p-2.5 bg-white/80 dark:bg-slate-800/90 backdrop-blur-md rounded-full shadow-lg border border-slate-200/50 dark:border-slate-700/50 text-rose-500 transition-colors"
+        >
+          <LogOut size={20} />
+        </button>
+      </div>
+
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto pb-24 md:pb-0 relative text-slate-800 dark:text-slate-100 transition-colors duration-300">
+      <main className="flex-1 overflow-y-auto pb-24 md:pb-0 relative text-slate-800 dark:text-slate-100 transition-colors duration-300 pt-16 md:pt-0">
         <div className="absolute inset-0 bg-gradient-to-b from-white/40 dark:from-transparent to-transparent pointer-events-none" />
         <div className="p-4 md:p-10 max-w-5xl mx-auto mt-2 md:mt-0 relative z-10">
            <Outlet />
