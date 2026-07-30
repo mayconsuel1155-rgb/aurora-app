@@ -9,6 +9,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Agenda from './pages/Agenda';
 import Saude from './pages/Saude';
+import Despesas from './pages/Despesas';
 import { useStore } from './store/useStore';
 import { NotificationService } from './services/NotificationService';
 import { useState, useEffect } from 'react';
@@ -87,6 +88,7 @@ function App() {
           <Route index element={<Timeline />} />
           <Route path="estoque" element={<Estoque />} />
           <Route path="compras" element={<Compras />} />
+          <Route path="despesas" element={<Despesas />} />
           <Route path="agenda" element={<Agenda />} />
           <Route path="familia" element={<Familia />} />
           <Route path="saude" element={<Saude />} />

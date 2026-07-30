@@ -49,6 +49,23 @@ export interface Remedio {
   timestamp: string;
 }
 
+export interface Despesa {
+  id: number;
+  casa_id: number;
+  descricao: string;
+  categoria: string;
+  valor: number;
+  vencimento?: string;
+  pago: boolean;
+  timestamp: string;
+}
+
+export interface CategoriaProduto {
+  id: number;
+  casa_id: number;
+  nome: string;
+}
+
 
 
 export const registerUser = async (data: any) => {
@@ -128,6 +145,77 @@ export const deleteAmbiente = async (ambienteId: number) => {
   } catch (error) {
     console.error('Error deleting ambiente:', error);
     throw error;
+  }
+};
+
+export const getDespesas = async (): Promise<Despesa[]> => {
+  try {
+    const response = await api.get<Despesa[]>('/despesas/');
+    return Array.isArray(response.data) ? response.data : [];
+  } catch (error) {
+    console.error('Error fetching despesas:', error);
+    return [];
+  }
+};
+
+export const createDespesa = async (data: Omit<Despesa, 'id' | 'casa_id' | 'timestamp'>) => {
+  try {
+    const response = await api.post<Despesa>('/despesas/', data);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating despesa:', error);
+    throw error;
+  }
+};
+
+export const updateDespesa = async (id: number, data: Partial<Despesa>) => {
+  try {
+    const response = await api.put<Despesa>(`/despesas/${id}`, data);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating despesa:', error);
+    throw error;
+  }
+};
+
+export const deleteDespesa = async (id: number) => {
+  try {
+    const response = await api.delete(`/despesas/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting despesa:', error);
+    throw error;
+  }
+};
+
+export const getCategoriasProduto = async (): Promise<CategoriaProduto[]> => {
+  try {
+    const response = await api.get<CategoriaProduto[]>('/categorias/');
+    return Array.isArray(response.data) ? response.data : [];
+  } catch (error) {
+    console.error('Error fetching categorias:', error);
+    return [];
+  }
+};
+
+export const createCategoriaProduto = async (data: Omit<CategoriaProduto, 'id' | 'casa_id'>) => {
+  try {
+    const response = await api.post<CategoriaProduto>('/categorias/', data);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating categoria:', error);
+    throw error;
+  }
+};
+
+export const deleteCategoriaProduto = async (id: number) => {
+  try {
+    const response = await api.delete(`/categorias/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting categoria:', error);
+    throw error;
+
   }
 };
 

@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database import engine, Base
-from routers import produtos, ai, ambientes, auth, casas, connect, push, remedios
+from routers import produtos, ai, ambientes, auth, casas, connect, push, remedios, despesas, categorias
 from services import push_service
 from starlette.middleware.sessions import SessionMiddleware
 import os
@@ -51,6 +51,8 @@ app.include_router(casas.router)
 app.include_router(connect.router)
 app.include_router(push.router)
 app.include_router(remedios.router)
+app.include_router(despesas.router)
+app.include_router(categorias.router)
 
 @app.get("/")
 def read_root():

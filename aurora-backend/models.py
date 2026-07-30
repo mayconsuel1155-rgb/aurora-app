@@ -123,3 +123,24 @@ class Remedio(Base):
     timestamp = Column(DateTime, default=datetime.utcnow)
     
     casa = relationship("Casa")
+
+class Despesa(Base):
+    __tablename__ = "despesas"
+    id = Column(Integer, primary_key=True, index=True)
+    casa_id = Column(Integer, ForeignKey("casas.id"))
+    descricao = Column(String, index=True)
+    categoria = Column(String, index=True)
+    valor = Column(Float, default=0.0)
+    vencimento = Column(DateTime, nullable=True)
+    pago = Column(Boolean, default=False)
+    timestamp = Column(DateTime, default=datetime.utcnow)
+    
+    casa = relationship("Casa")
+
+class CategoriaProduto(Base):
+    __tablename__ = "categorias_produto"
+    id = Column(Integer, primary_key=True, index=True)
+    casa_id = Column(Integer, ForeignKey("casas.id"))
+    nome = Column(String, index=True)
+    
+    casa = relationship("Casa")

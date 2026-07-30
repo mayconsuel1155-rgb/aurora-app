@@ -129,3 +129,41 @@ class RemedioResponse(RemedioBase):
     
     class Config:
         from_attributes = True
+
+class DespesaBase(BaseModel):
+    descricao: str
+    categoria: str
+    valor: float
+    vencimento: Optional[datetime] = None
+    pago: bool = False
+
+class DespesaCreate(DespesaBase):
+    pass
+
+class DespesaUpdate(BaseModel):
+    descricao: Optional[str] = None
+    categoria: Optional[str] = None
+    valor: Optional[float] = None
+    vencimento: Optional[datetime] = None
+    pago: Optional[bool] = None
+
+class DespesaResponse(DespesaBase):
+    id: int
+    casa_id: int
+    timestamp: datetime
+    
+    class Config:
+        from_attributes = True
+
+class CategoriaProdutoBase(BaseModel):
+    nome: str
+
+class CategoriaProdutoCreate(CategoriaProdutoBase):
+    pass
+
+class CategoriaProdutoResponse(CategoriaProdutoBase):
+    id: int
+    casa_id: int
+    
+    class Config:
+        from_attributes = True

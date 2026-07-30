@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { getProdutos, getInsights, updateProduto, createProduto, deleteProduto, getAmbientes, createAmbiente, deleteAmbiente, getMembros, getEventos, createGoogleEvent, updateGoogleEvent, deleteGoogleEvent, getInboxEvents, getRemedios, createRemedio, deleteRemedio, toggleRemedio as toggleRemedioApi, type Produto, type Insight, type Ambiente, type Usuario, type Membro, type Evento, type InboxEvent, type Remedio } from '../api/client';
+import { getProdutos, getInsights, updateProduto, createProduto, deleteProduto, getAmbientes, createAmbiente, deleteAmbiente, getMembros, getEventos, createGoogleEvent, updateGoogleEvent, deleteGoogleEvent, getInboxEvents, getRemedios, createRemedio, deleteRemedio, toggleRemedio as toggleRemedioApi, getDespesas, createDespesa, updateDespesa, deleteDespesa, getCategoriasProduto, createCategoriaProduto, deleteCategoriaProduto, type Produto, type Insight, type Ambiente, type Usuario, type Membro, type Evento, type InboxEvent, type Remedio, type Despesa, type CategoriaProduto } from '../api/client';
 import { NotificationService } from '../services/NotificationService';
 
 interface StoreState {
@@ -11,6 +11,8 @@ interface StoreState {
   eventos: Evento[];
   inboxEvents: InboxEvent[];
   remedios: Remedio[];
+  despesas: Despesa[];
+  categoriasProduto: CategoriaProduto[];
   insight: Insight | null;
   loading: boolean;
   loadingInbox: boolean;
@@ -40,6 +42,15 @@ interface StoreState {
   adicionarRemedio: (remedio: Omit<Remedio, 'id' | 'casa_id' | 'timestamp' | 'ativo'>) => Promise<void>;
   toggleRemedio: (id: number) => Promise<void>;
   removerRemedio: (id: number) => Promise<void>;
+  
+  fetchDespesas: () => Promise<void>;
+  adicionarDespesa: (despesa: Omit<Despesa, 'id' | 'casa_id' | 'timestamp'>) => Promise<void>;
+  editarDespesa: (id: number, despesa: Partial<Despesa>) => Promise<void>;
+  removerDespesa: (id: number) => Promise<void>;
+  
+  fetchCategoriasProduto: () => Promise<void>;
+  adicionarCategoriaProduto: (categoria: Omit<CategoriaProduto, 'id' | 'casa_id'>) => Promise<void>;
+  removerCategoriaProduto: (id: number) => Promise<void>;
 }
 
 export const useStore = create<StoreState>((set, get) => ({
@@ -51,6 +62,8 @@ export const useStore = create<StoreState>((set, get) => ({
   eventos: [],
   inboxEvents: [],
   remedios: [],
+  despesas: [],
+  categoriasProduto: [],
   insight: null,
   loading: false,
   loadingInbox: false,
@@ -65,13 +78,15 @@ export const useStore = create<StoreState>((set, get) => ({
     get().fetchMembros();
     get().fetchEventos();
     get().fetchRemedios();
+    get().fetchDespesas();
+    get().fetchCategoriasProduto();
     get().fetchInsight();
   },
 
   logout: () => {
     localStorage.removeItem('aurora-token');
     localStorage.removeItem('aurora-user');
-    set({ token: null, user: null, produtos: [], ambientes: [], membros: [], eventos: [], inboxEvents: [], remedios: [], insight: null });
+    set({ token: null, user: null, produtos: [], ambientes: [], membros: [], eventos: [], inboxEvents: [], remedios: [], despesas: [], categoriasProduto: [], insight: null });
   },
 
   fetchProdutos: async () => {
@@ -310,6 +325,66 @@ export const useStore = create<StoreState>((set, get) => ({
     } catch (error) {
       console.error('Error removing remedio:', error);
       throw error;
+    }
+  },
+
+  fetchDespesas: async () => {
+    try {
+      const data = await getDespesas();
+      set({ despesas: Array.isArray(data) ? data : [] });
+    } catch (e) {
+      console.error(e);
+      set({ despesas: [] });
+    }
+  },
+  adicionarDespesa: async (despesa) => {
+    try {
+      await createDespesa(despesa);
+      get().fetchDespesas();
+    } catch (e) {
+      console.error('Erro ao criar despesa:', e);
+    }
+  },
+  editarDespesa: async (id, despesa) => {
+    try {
+      await updateDespesa(id, despesa);
+      get().fetchDespesas();
+    } catch (e) {
+      console.error('Erro ao editar despesa:', e);
+    }
+  },
+  removerDespesa: async (id) => {
+    try {
+      await deleteDespesa(id);
+      get().fetchDespesas();
+    } catch (e) {
+      console.error('Erro ao remover despesa:', e);
+    }
+  },
+
+  fetchCategoriasProduto: async () => {
+    try {
+      const data = await getCategoriasProduto();
+      set({ categoriasProduto: Array.isArray(data) ? data : [] });
+    } catch (e) {
+      console.error(e);
+      set({ categoriasProduto: [] });
+    }
+  },
+  adicionarCategoriaProduto: async (categoria) => {
+    try {
+      await createCategoriaProduto(categoria);
+      get().fetchCategoriasProduto();
+    } catch (e) {
+      console.error('Erro ao criar categoria:', e);
+    }
+  },
+  removerCategoriaProduto: async (id) => {
+    try {
+      await deleteCategoriaProduto(id);
+      get().fetchCategoriasProduto();
+    } catch (e) {
+      console.error('Erro ao remover categoria:', e);
     }
   }
 }));

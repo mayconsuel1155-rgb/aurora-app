@@ -1,0 +1,42 @@
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
+from typing import List
+
+from database import get_db
+import models
+import schemas
+from utils.auth import get_current_user
+
+router = APIRouter(
+    prefix="/categorias",
+    tags=["categorias"]
+)
+
+@router.get("/", response_model=List[schemas.CategoriaProdutoResponse])
+def get_categorias(db: Session = Depends(get_db), current_user: models.Usuario = Depends(get_current_user)):
+    return db.query(models.CategoriaProduto).filter(models.CategoriaProduto.casa_id == current_user.casa_id).all()
+
+@router.post("/", response_model=schemas.CategoriaProdutoResponse, status_code=status.HTTP_201_CREATED)
+def create_categoria(categoria: schemas.CategoriaProdutoCreate, db: Session = Depends(get_db), current_user: models.Usuario = Depends(get_current_user)):
+    nova_categoria = models.CategoriaProduto(
+        casa_id=current_user.casa_id,
+        nome=categoria.nome
+    )
+    db.add(nova_categoria)
+    db.commit()
+    db.refresh(nova_categoria)
+    return nova_categoria
+
+@router.delete("/{categoria_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_categoria(categoria_id: int, db: Session = Depends(get_db), current_user: models.Usuario = Depends(get_current_user)):
+    categoria = db.query(models.CategoriaProduto).filter(
+        models.CategoriaProduto.id == categoria_id, 
+        models.CategoriaProduto.casa_id == current_user.casa_id
+    ).first()
+    
+    if not categoria:
+        raise HTTPException(status_code=404, detail="Categoria não encontrada")
+        
+    db.delete(categoria)
+    db.commit()
+    return None

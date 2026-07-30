@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Outlet, NavLink } from 'react-router-dom';
-import { Home, Package, ShoppingCart, Sparkles, LogOut, User, Users, Network, Calendar, Moon, Sun, Activity } from 'lucide-react';
+import { Home, Package, ShoppingCart, Sparkles, LogOut, User, Users, Network, Calendar, Moon, Sun, Activity, Wallet } from 'lucide-react';
 import AIChatModal from './AIChatModal';
 import { useStore } from '../store/useStore';
 
@@ -19,6 +19,7 @@ export default function Layout() {
           <NavItem to="/" icon={<Home size={22} strokeWidth={1.5} />} label="Rotina" />
           <NavItem to="/estoque" icon={<Package size={22} strokeWidth={1.5} />} label="Inventário" />
           <NavItem to="/compras" icon={<ShoppingCart size={22} strokeWidth={1.5} />} label="Lista de Compras" />
+          <NavItem to="/despesas" icon={<Wallet size={22} strokeWidth={1.5} />} label="Despesas da Casa" />
           <NavItem to="/familia" icon={<Users size={22} strokeWidth={1.5} />} label="Minha Família" />
           <NavItem to="/agenda" icon={<Calendar size={22} strokeWidth={1.5} />} label="Agenda" />
           <NavItem to="/saude" icon={<Activity size={22} strokeWidth={1.5} />} label="Saúde & Remédios" />
@@ -98,11 +99,12 @@ export default function Layout() {
 
       {/* Bottom Nav - Mobile with Glassmorphism */}
       <nav className="md:hidden fixed bottom-6 left-4 right-4 bg-white/70 dark:bg-slate-800/80 backdrop-blur-xl border border-white dark:border-slate-700 shadow-xl rounded-3xl flex justify-around p-2 z-50 transition-colors duration-300">
-          <MobileNavItem to="/" icon={<Home size={24} strokeWidth={1.5} />} label="Rotina" />
-          <MobileNavItem to="/estoque" icon={<Package size={24} strokeWidth={1.5} />} label="Estoque" />
-          <MobileNavItem to="/compras" icon={<ShoppingCart size={24} strokeWidth={1.5} />} label="Compras" />
-          <MobileNavItem to="/agenda" icon={<Calendar size={24} strokeWidth={1.5} />} label="Agenda" />
-          <MobileNavItem to="/integracoes" icon={<Network size={24} strokeWidth={1.5} />} label="Connect" />
+          <MobileNavItem to="/" icon={<Home size={22} />} label="Início" />
+          <MobileNavItem to="/estoque" icon={<Package size={22} />} label="Estoque" />
+          <MobileNavItem to="/compras" icon={<ShoppingCart size={22} />} label="Compras" />
+          <MobileNavItem to="/despesas" icon={<Wallet size={22} />} label="Despesas" />
+          <MobileNavItem to="/agenda" icon={<Calendar size={22} />} label="Agenda" />
+          <MobileNavItem to="/integracoes" icon={<Network size={22} />} label="Connect" />
       </nav>
     </div>
   );

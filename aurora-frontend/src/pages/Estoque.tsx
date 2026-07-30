@@ -2,14 +2,14 @@ import { useEffect, useState } from 'react';
 import { useStore } from '../store/useStore';
 import { Plus, Minus, PackageOpen, X, Search, MapPin, Tag, Trash2, AlertTriangle, Settings2, Clock, DollarSign, TrendingUp, Wallet } from 'lucide-react';
 import { GestaoAmbientesModal } from '../components/GestaoAmbientesModal';
+import { GestaoCategoriasModal } from '../components/GestaoCategoriasModal';
 import type { Produto } from '../api/client';
 
-const CATEGORIAS = ['Todas', 'Alimentos', 'Limpeza', 'Higiene', 'Outros'];
-
 export default function Estoque() {
-  const { produtos, ambientes, loading, fetchProdutos, fetchAmbientes, alterarQuantidade, adicionarProduto, removerProduto } = useStore();
+  const { produtos, ambientes, categoriasProduto, loading, fetchProdutos, fetchAmbientes, alterarQuantidade, adicionarProduto, removerProduto } = useStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isGestaoAmbientesModalOpen, setIsGestaoAmbientesModalOpen] = useState(false);
+  const [isGestaoCategoriasModalOpen, setIsGestaoCategoriasModalOpen] = useState(false);
   const [produtoParaExcluir, setProdutoParaExcluir] = useState<Produto | null>(null);
   const [busca, setBusca] = useState('');
   const [ambienteFiltroId, setAmbienteFiltroId] = useState<number | null>(null);
@@ -17,7 +17,7 @@ export default function Estoque() {
 
   const [novoProduto, setNovoProduto] = useState({
     nome: '',
-    categoria: 'Alimentos',
+    categoria: '',
     ambiente_id: 0,
     quantidade: 1,
     quantidade_minima: 1,
@@ -35,13 +35,19 @@ export default function Estoque() {
     }
   }, [ambientes]);
 
+  useEffect(() => {
+    if (categoriasProduto.length > 0 && novoProduto.categoria === '') {
+      setNovoProduto(prev => ({ ...prev, categoria: categoriasProduto[0].nome }));
+    }
+  }, [categoriasProduto]);
+
   const handleCreateProduto = async (e: React.FormEvent) => {
     e.preventDefault();
     await adicionarProduto(novoProduto);
     setIsModalOpen(false);
     setNovoProduto({
       nome: '',
-      categoria: 'Alimentos',
+      categoria: categoriasProduto.length > 0 ? categoriasProduto[0].nome : '',
       ambiente_id: ambientes.length > 0 ? ambientes[0].id : 0,
       quantidade: 1,
       quantidade_minima: 1,
@@ -211,12 +217,21 @@ export default function Estoque() {
 
         {/* Filtros por Categoria */}
         <div className="space-y-2">
-          <div className="flex items-center space-x-2 text-xs font-semibold uppercase text-[var(--color-aurora-text-muted)] tracking-wider">
-            <Tag size={14} />
-            <span>Filtrar por Categoria:</span>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2 text-xs font-semibold uppercase text-[var(--color-aurora-text-muted)] tracking-wider">
+              <Tag size={14} />
+              <span>Filtrar por Categoria:</span>
+            </div>
+            <button 
+              onClick={() => setIsGestaoCategoriasModalOpen(true)}
+              className="flex items-center space-x-1 text-xs font-medium text-[var(--color-aurora-primary)] hover:text-[var(--color-aurora-primary-hover)] transition-colors"
+            >
+              <Settings2 size={14} />
+              <span>Gerenciar Categorias</span>
+            </button>
           </div>
           <div className="flex flex-wrap gap-2">
-            {CATEGORIAS.map(cat => (
+            {['Todas', ...categoriasProduto.map(c => c.nome)].map(cat => (
               <button
                 key={cat}
                 onClick={() => setCategoriaFiltro(cat)}
@@ -375,21 +390,30 @@ export default function Estoque() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Categoria</label>
-                  <select required value={novoProduto.categoria} onChange={e => setNovoProduto({...novoProduto, categoria: e.target.value})} className="w-full border border-slate-200 dark:border-slate-700 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[var(--color-aurora-primary)]/50 bg-white dark:bg-slate-800">
-                    <option value="Alimentos">Alimentos</option>
-                    <option value="Limpeza">Limpeza</option>
-                    <option value="Higiene">Higiene</option>
-                    <option value="Outros">Outros</option>
-                  </select>
+                  <div className="flex items-center space-x-2">
+                    <select required value={novoProduto.categoria} onChange={e => setNovoProduto({...novoProduto, categoria: e.target.value})} className="flex-1 w-full border border-slate-200 dark:border-slate-700 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[var(--color-aurora-primary)]/50 bg-white dark:bg-slate-800">
+                      {categoriasProduto.map(c => (
+                        <option key={c.id} value={c.nome}>{c.nome}</option>
+                      ))}
+                    </select>
+                    <button type="button" onClick={() => setIsGestaoCategoriasModalOpen(true)} className="p-3 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-xl hover:bg-indigo-100 transition-colors" title="Nova Categoria">
+                      <Plus size={20} />
+                    </button>
+                  </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Ambiente</label>
-                  <select required value={novoProduto.ambiente_id} onChange={e => setNovoProduto({...novoProduto, ambiente_id: Number(e.target.value)})} className="w-full border border-slate-200 dark:border-slate-700 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[var(--color-aurora-primary)]/50 bg-white dark:bg-slate-800">
-                    {ambientes.map(amb => (
-                      <option key={amb.id} value={amb.id}>{amb.nome} {amb.icone}</option>
-                    ))}
-                  </select>
+                  <div className="flex items-center space-x-2">
+                    <select required value={novoProduto.ambiente_id} onChange={e => setNovoProduto({...novoProduto, ambiente_id: Number(e.target.value)})} className="flex-1 w-full border border-slate-200 dark:border-slate-700 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[var(--color-aurora-primary)]/50 bg-white dark:bg-slate-800">
+                      {ambientes.map(amb => (
+                        <option key={amb.id} value={amb.id}>{amb.nome} {amb.icone}</option>
+                      ))}
+                    </select>
+                    <button type="button" onClick={() => setIsGestaoAmbientesModalOpen(true)} className="p-3 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-xl hover:bg-indigo-100 transition-colors" title="Novo Ambiente">
+                      <Plus size={20} />
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -422,6 +446,9 @@ export default function Estoque() {
         isOpen={isGestaoAmbientesModalOpen} 
         onClose={() => setIsGestaoAmbientesModalOpen(false)} 
       />
+
+      {/* Modal Gestão de Categorias */}
+      <GestaoCategoriasModal isOpen={isGestaoCategoriasModalOpen} onClose={() => setIsGestaoCategoriasModalOpen(false)} />
     </div>
   );
 }
