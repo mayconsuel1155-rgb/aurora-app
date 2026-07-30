@@ -3,6 +3,7 @@ import { Outlet, NavLink } from 'react-router-dom';
 import { Home, Package, ShoppingCart, Sparkles, LogOut, User, Users, Network, Calendar, Moon, Sun, Activity, Wallet } from 'lucide-react';
 import AIChatModal from './AIChatModal';
 import { useStore } from '../store/useStore';
+import { IosInstallPrompt } from './IosInstallPrompt';
 
 export default function Layout() {
   const [isChatOpen, setIsChatOpen] = useState(false);
@@ -96,6 +97,9 @@ export default function Layout() {
 
       {/* AIChatModal Component */}
       <AIChatModal isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
+
+      {/* iOS Install Prompt */}
+      <IosInstallPrompt />
 
       {/* Bottom Nav - Mobile with Glassmorphism */}
       <nav className="md:hidden fixed bottom-6 left-4 right-4 bg-white/70 dark:bg-slate-800/80 backdrop-blur-xl border border-white dark:border-slate-700 shadow-xl rounded-3xl flex overflow-x-auto justify-start sm:justify-around p-2 z-50 transition-colors duration-300 custom-scrollbar gap-1 hide-scroll">
