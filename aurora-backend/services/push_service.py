@@ -141,7 +141,33 @@ async def push_worker_loop():
                                 titulo = "⏰ Compromisso em breve"
                                 corpo = f"{evento['titulo']} começa às {hora_str}."
                                 
-                                for insc in user_inscricoes:
+                                # Quem deve ser notificado?
+                                # 1. O dono do evento
+                                alvos_inscricoes = list(user_inscricoes)
+                                
+                                # 2. Os convidados (attendees) que sejam da mesma família (casa_id)
+                                attendees = evento.get("attendees", [])
+                                if attendees:
+                                    # Pega o usuario dono para saber qual a casa_id
+                                    dono = db.query(models.Usuario).filter_by(id=uid).first()
+                                    if dono:
+                                        # Busca se algum email de attendee é usuário da mesma casa
+                                        familiares = db.query(models.Usuario).filter(
+                                            models.Usuario.casa_id == dono.casa_id,
+                                            models.Usuario.email.in_(attendees),
+                                            models.Usuario.id != uid  # Já pegamos o dono
+                                        ).all()
+                                        
+                                        for fam in familiares:
+                                            # Pegar as inscricoes desse familiar
+                                            inscs_fam = [i for i in inscricoes if i.usuario_id == fam.id]
+                                            alvos_inscricoes.extend(inscs_fam)
+                                            print(f"Adicionando familiar {fam.nome} ao lembrete do evento '{evento['titulo']}'")
+                                
+                                # Evitar duplicatas caso a mesma inscricao por algum motivo caia duas vezes
+                                inscricoes_unicas = {i.id: i for i in alvos_inscricoes}.values()
+                                
+                                for insc in inscricoes_unicas:
                                     res = send_push_notification(insc, titulo, corpo)
                                     if res == "EXPIRED":
                                         db.delete(insc)
