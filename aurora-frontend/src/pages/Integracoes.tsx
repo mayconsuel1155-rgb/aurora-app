@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useStore } from '../store/useStore';
 import { Network, CheckCircle2, AlertCircle, RefreshCw } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
+import { checkConnections } from '../api/client';
 
 export default function Integracoes() {
   const { token } = useStore();
@@ -29,11 +30,15 @@ export default function Integracoes() {
 
   const verificarConexoes = async () => {
     try {
-      // Mock para verificação. Depois você usará const res = await client.get('/connect/status')
-      // Para testes locais, podemos apenas checar.
-      setGoogleStatus('not_connected');
+      const status = await checkConnections();
+      if (status.google) {
+        setGoogleStatus('connected');
+      } else {
+        setGoogleStatus('not_connected');
+      }
     } catch (e) {
       console.error(e);
+      setGoogleStatus('not_connected');
     }
   };
 

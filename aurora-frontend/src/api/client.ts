@@ -199,6 +199,16 @@ export interface Evento {
   origem: string;
 }
 
+export const checkConnections = async (): Promise<{ google: boolean }> => {
+  try {
+    const response = await api.get('/connect/status');
+    return response.data;
+  } catch (error) {
+    console.error('Error checking connections:', error);
+    return { google: false };
+  }
+};
+
 export const getEventos = async (): Promise<Evento[]> => {
   try {
     const response = await api.get<{eventos: Evento[]}>('/connect/google/events');
