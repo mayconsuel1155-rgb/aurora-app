@@ -86,31 +86,32 @@ export default function Timeline() {
             <div className="space-y-4">
               {/* Alertas de Compras */}
               {timelineData.hoje.produtosFalta.length > 0 && (
-                <div className="aurora-card p-5 border-l-4 border-l-rose-500 bg-rose-50/50 dark:bg-rose-900/20 dark:border-slate-800 shadow-sm hover:shadow-md transition-all">
-                  <div className="flex items-start gap-4">
-                    <div className="p-3 bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400 rounded-xl transition-colors">
-                      <ShoppingCart size={24} />
+                <div className="relative overflow-hidden bg-white dark:bg-slate-800/90 rounded-2xl border border-rose-100 dark:border-rose-900/40 shadow-sm hover:shadow-md transition-all p-5">
+                  <div className="absolute top-0 left-0 w-1 h-full bg-rose-500"></div>
+                  <div className="flex items-start gap-4 pl-1">
+                    <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center bg-rose-50 dark:bg-rose-500/10 rounded-xl border border-rose-100/50 dark:border-rose-500/20">
+                      <ShoppingCart className="text-rose-500" size={22} />
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-bold text-rose-900 dark:text-rose-300 text-lg transition-colors">Itens em Falta</h3>
-                      <p className="text-rose-700 dark:text-rose-400/80 text-sm mt-1 transition-colors">
-                        Você tem {timelineData.hoje.produtosFalta.length} produto(s) precisando de reposição urgente.
+                      <h3 className="font-semibold text-slate-800 dark:text-slate-200 text-lg tracking-tight">Alerta de Reposição</h3>
+                      <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">
+                        Você tem <span className="font-semibold text-rose-600 dark:text-rose-400">{timelineData.hoje.produtosFalta.length} itens</span> essenciais em falta.
                       </p>
-                      <div className="mt-3 flex flex-wrap gap-2">
+                      <div className="mt-4 flex flex-wrap gap-2">
                         {timelineData.hoje.produtosFalta.slice(0, 3).map(p => (
-                           <span key={p.id} className="text-xs font-bold bg-white dark:bg-slate-800 text-rose-600 dark:text-rose-400 px-2 py-1 rounded-md border border-rose-100 dark:border-rose-900/50 shadow-sm transition-colors">
+                           <span key={p.id} className="text-[11px] font-medium bg-slate-50 dark:bg-slate-900/50 text-slate-600 dark:text-slate-300 px-2.5 py-1 rounded-full border border-slate-200 dark:border-slate-700/50">
                              {p.nome}
                            </span>
                         ))}
                         {timelineData.hoje.produtosFalta.length > 3 && (
-                           <span className="text-xs font-bold bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400 px-2 py-1 rounded-md transition-colors">
-                             +{timelineData.hoje.produtosFalta.length - 3} itens
+                           <span className="text-[11px] font-medium bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 px-2.5 py-1 rounded-full">
+                             +{timelineData.hoje.produtosFalta.length - 3}
                            </span>
                         )}
                       </div>
-                      <div className="mt-4">
-                         <Link to="/estoque" className="text-sm font-bold text-rose-700 dark:text-rose-400 hover:text-rose-800 dark:hover:text-rose-300 flex items-center gap-1 group transition-colors">
-                           Ir para Estoque <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                      <div className="mt-5">
+                         <Link to="/estoque" className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white text-sm font-medium rounded-lg transition-colors shadow-sm shadow-rose-500/20">
+                           Repor Estoque <ArrowRight size={16} />
                          </Link>
                       </div>
                     </div>
@@ -120,27 +121,30 @@ export default function Timeline() {
 
               {/* Eventos de Hoje */}
               {timelineData.hoje.eventos.map(evt => (
-                <div key={evt.id} className="aurora-card p-5 border-l-4 border-l-indigo-500 bg-white dark:bg-slate-800 dark:border-slate-700 shadow-sm hover:shadow-md transition-all">
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-xl transition-colors">
-                      <Calendar size={24} />
+                <div key={evt.id} className="relative group bg-white dark:bg-slate-800/90 rounded-2xl border border-slate-100 dark:border-slate-700/60 shadow-sm hover:shadow-md transition-all p-4">
+                  <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500 rounded-l-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                  <div className="flex items-center gap-4 pl-1">
+                    <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center bg-indigo-50/50 dark:bg-indigo-500/10 rounded-xl border border-indigo-50 dark:border-indigo-500/10">
+                      <Calendar className="text-indigo-500" size={22} />
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-bold text-slate-800 dark:text-slate-200 text-lg transition-colors">{evt.titulo}</h3>
-                      <p className="text-slate-500 dark:text-slate-400 text-sm flex items-center gap-2 mt-1 transition-colors">
-                        <Clock size={14} />
-                        {evt.data && evt.data.includes('T') ? new Date(evt.data).toLocaleTimeString('pt-BR', {timeStyle: 'short'}) : 'Dia Inteiro'}
-                      </p>
+                      <h3 className="font-semibold text-slate-800 dark:text-slate-200 text-base">{evt.titulo}</h3>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Clock className="text-slate-400" size={14} />
+                        <span className="text-slate-500 dark:text-slate-400 text-sm font-medium">
+                          {evt.data && evt.data.includes('T') ? new Date(evt.data).toLocaleTimeString('pt-BR', {timeStyle: 'short'}) : 'Dia Inteiro'}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
               ))}
 
               {timelineData.hoje.eventos.length === 0 && timelineData.hoje.produtosFalta.length === 0 && (
-                <div className="aurora-card p-6 bg-slate-50 dark:bg-slate-800/50 border border-dashed border-slate-200 dark:border-slate-700 text-center rounded-2xl transition-colors">
-                  <CheckCircle2 size={32} className="mx-auto text-emerald-400 dark:text-emerald-500 mb-2" />
-                  <h3 className="font-bold text-slate-700 dark:text-slate-300">Tudo limpo por hoje!</h3>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm">Nenhum compromisso ou alerta pendente.</p>
+                <div className="p-8 bg-slate-50 dark:bg-slate-800/30 border border-dashed border-slate-200 dark:border-slate-700/50 text-center rounded-3xl transition-colors">
+                  <CheckCircle2 size={36} className="mx-auto text-emerald-400 dark:text-emerald-500/80 mb-3" />
+                  <h3 className="font-semibold text-slate-700 dark:text-slate-300">Tudo limpo por hoje!</h3>
+                  <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Nenhum compromisso ou alerta pendente.</p>
                 </div>
               )}
             </div>
@@ -149,21 +153,21 @@ export default function Timeline() {
 
         {/* BLOCO: AMANHÃ */}
         <div className="relative pt-6">
-          <div className="absolute -left-[17px] top-8 bg-indigo-100 dark:bg-indigo-900/50 w-8 h-8 rounded-full border-4 border-white dark:border-slate-900 flex items-center justify-center transition-colors">
+          <div className="absolute -left-[17px] top-8 bg-indigo-50 dark:bg-indigo-900/30 w-8 h-8 rounded-full border-4 border-slate-50 dark:border-[var(--color-aurora-bg)] flex items-center justify-center transition-colors">
             <div className="w-2 h-2 bg-indigo-400 dark:bg-indigo-500 rounded-full"></div>
           </div>
           <div className="pl-8">
-            <h2 className="text-xl font-bold text-slate-700 dark:text-slate-300 mb-4 opacity-80 transition-colors">Amanhã</h2>
+            <h2 className="text-xl font-bold text-slate-400 dark:text-slate-500 mb-4 transition-colors">Amanhã</h2>
             
-            <div className="space-y-4 opacity-90">
+            <div className="space-y-3">
               {timelineData.amanha.eventos.map(evt => (
-                <div key={evt.id} className="p-4 border border-slate-100 dark:border-slate-700/50 bg-white dark:bg-slate-800/80 rounded-xl shadow-sm flex items-center gap-4 transition-colors">
-                  <div className="p-2 bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-400 rounded-lg transition-colors">
-                    <Calendar size={20} />
+                <div key={evt.id} className="group p-4 bg-transparent border border-slate-200 dark:border-slate-700/50 rounded-2xl hover:bg-white dark:hover:bg-slate-800/80 hover:shadow-sm transition-all flex items-center gap-4">
+                  <div className="p-2.5 bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 rounded-xl group-hover:bg-indigo-50 dark:group-hover:bg-indigo-500/10 group-hover:text-indigo-500 transition-colors">
+                    <Calendar size={18} />
                   </div>
                   <div>
-                    <h3 className="font-bold text-slate-700 dark:text-slate-200 transition-colors">{evt.titulo}</h3>
-                    <p className="text-slate-400 dark:text-slate-500 text-xs mt-1 transition-colors">
+                    <h3 className="font-medium text-slate-600 dark:text-slate-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{evt.titulo}</h3>
+                    <p className="text-slate-400 dark:text-slate-500 text-xs mt-0.5 font-medium transition-colors">
                         {evt.data && evt.data.includes('T') ? new Date(evt.data).toLocaleTimeString('pt-BR', {timeStyle: 'short'}) : 'Dia Inteiro'}
                     </p>
                   </div>
@@ -180,17 +184,17 @@ export default function Timeline() {
         {/* BLOCO: FUTURO */}
         {timelineData.futuro.eventos.length > 0 && (
           <div className="relative pt-6">
-            <div className="absolute -left-[17px] top-8 bg-slate-100 dark:bg-slate-800 w-8 h-8 rounded-full border-4 border-white dark:border-slate-900 flex items-center justify-center transition-colors">
+            <div className="absolute -left-[17px] top-8 bg-slate-100 dark:bg-slate-800 w-8 h-8 rounded-full border-4 border-slate-50 dark:border-[var(--color-aurora-bg)] flex items-center justify-center transition-colors">
               <div className="w-2 h-2 bg-slate-300 dark:bg-slate-600 rounded-full"></div>
             </div>
             <div className="pl-8">
-              <h2 className="text-xl font-bold text-slate-500 dark:text-slate-400 mb-4 opacity-60 transition-colors">Próximos Dias</h2>
+              <h2 className="text-xl font-bold text-slate-400 dark:text-slate-500 mb-4 transition-colors">Próximos Dias</h2>
               
-              <div className="space-y-3 opacity-70">
+              <div className="space-y-2">
                 {timelineData.futuro.eventos.map(evt => (
-                  <div key={evt.id} className="p-3 bg-white/50 dark:bg-slate-800/30 border border-slate-100 dark:border-slate-700/30 rounded-xl flex items-center justify-between transition-colors">
-                      <span className="font-semibold text-slate-600 dark:text-slate-300">{evt.titulo}</span>
-                      <span className="text-xs text-slate-400 dark:text-slate-500 font-medium">
+                  <div key={evt.id} className="group p-3 bg-transparent hover:bg-white dark:hover:bg-slate-800/80 border border-transparent hover:border-slate-200 dark:hover:border-slate-700/50 rounded-xl flex items-center justify-between transition-all">
+                      <span className="font-medium text-slate-500 dark:text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-300 transition-colors">{evt.titulo}</span>
+                      <span className="text-xs text-slate-400 dark:text-slate-500 font-medium bg-slate-100 dark:bg-slate-800/50 px-2.5 py-1 rounded-md transition-colors">
                           {evt.data ? new Date(evt.data.includes('T') ? evt.data : evt.data + "T12:00:00").toLocaleDateString('pt-BR', {day: '2-digit', month: 'short'}) : ''}
                       </span>
                   </div>
