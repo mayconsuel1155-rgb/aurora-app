@@ -13,7 +13,8 @@ router = APIRouter(
 
 @router.get("/", response_model=List[schemas.RemedioResponse])
 def get_remedios(db: Session = Depends(get_db), current_user: models.Usuario = Depends(security.get_current_user)):
-    remedios = db.query(models.Remedio).filter(models.Remedio.casa_id == current_user.casa_id).all()
+    casa = security.get_user_casa(current_user)
+    remedios = db.query(models.Remedio).filter(models.Remedio.casa_id == casa.id).all()
     return remedios
 
 @router.post("/", response_model=schemas.RemedioResponse)
@@ -22,8 +23,9 @@ def create_remedio(
     db: Session = Depends(get_db), 
     current_user: models.Usuario = Depends(security.get_current_user)
 ):
+    casa = security.get_user_casa(current_user)
     novo_remedio = models.Remedio(
-        casa_id=current_user.casa_id,
+        casa_id=casa.id,
         nome=remedio.nome,
         horarios=remedio.horarios,
         ativo=remedio.ativo,
@@ -40,9 +42,10 @@ def toggle_remedio(
     db: Session = Depends(get_db), 
     current_user: models.Usuario = Depends(security.get_current_user)
 ):
+    casa = security.get_user_casa(current_user)
     remedio = db.query(models.Remedio).filter(
         models.Remedio.id == remedio_id,
-        models.Remedio.casa_id == current_user.casa_id
+        models.Remedio.casa_id == casa.id
     ).first()
     
     if not remedio:
@@ -59,9 +62,10 @@ def delete_remedio(
     db: Session = Depends(get_db), 
     current_user: models.Usuario = Depends(security.get_current_user)
 ):
+    casa = security.get_user_casa(current_user)
     remedio = db.query(models.Remedio).filter(
         models.Remedio.id == remedio_id,
-        models.Remedio.casa_id == current_user.casa_id
+        models.Remedio.casa_id == casa.id
     ).first()
     
     if not remedio:
