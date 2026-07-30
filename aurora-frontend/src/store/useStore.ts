@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { getProdutos, getInsights, updateProduto, createProduto, deleteProduto, getAmbientes, createAmbiente, deleteAmbiente, getMembros, getEventos, createGoogleEvent, updateGoogleEvent, deleteGoogleEvent, getInboxEvents, type Produto, type Insight, type Ambiente, type Usuario, type Membro, type Evento, type InboxEvent } from '../api/client';
+import { getProdutos, getInsights, updateProduto, createProduto, deleteProduto, getAmbientes, createAmbiente, deleteAmbiente, getMembros, getEventos, createGoogleEvent, updateGoogleEvent, deleteGoogleEvent, getInboxEvents, getRemedios, createRemedio, deleteRemedio, toggleRemedio as toggleRemedioApi, type Produto, type Insight, type Ambiente, type Usuario, type Membro, type Evento, type InboxEvent, type Remedio } from '../api/client';
 import { NotificationService } from '../services/NotificationService';
 
 interface StoreState {
@@ -10,6 +10,7 @@ interface StoreState {
   membros: Membro[];
   eventos: Evento[];
   inboxEvents: InboxEvent[];
+  remedios: Remedio[];
   insight: Insight | null;
   loading: boolean;
   loadingInbox: boolean;
@@ -22,6 +23,7 @@ interface StoreState {
   fetchMembros: () => Promise<void>;
   fetchEventos: () => Promise<void>;
   fetchInboxEvents: () => Promise<void>;
+  fetchRemedios: () => Promise<void>;
   fetchInsight: () => Promise<void>;
   deletarInboxEvent: (id: string) => Promise<void>;
   toggleTheme: () => void;
@@ -35,6 +37,9 @@ interface StoreState {
   editarEvento: (id: string, evento: { titulo?: string, data?: string, is_all_day?: boolean }) => Promise<void>;
   excluirEvento: (id: string) => Promise<void>;
   concluirEvento: (id: string, tituloAtual: string) => Promise<void>;
+  adicionarRemedio: (remedio: Omit<Remedio, 'id' | 'casa_id' | 'timestamp' | 'ativo'>) => Promise<void>;
+  toggleRemedio: (id: number) => Promise<void>;
+  removerRemedio: (id: number) => Promise<void>;
 }
 
 export const useStore = create<StoreState>((set, get) => ({
@@ -45,6 +50,7 @@ export const useStore = create<StoreState>((set, get) => ({
   membros: [],
   eventos: [],
   inboxEvents: [],
+  remedios: [],
   insight: null,
   loading: false,
   loadingInbox: false,
@@ -58,13 +64,14 @@ export const useStore = create<StoreState>((set, get) => ({
     get().fetchAmbientes();
     get().fetchMembros();
     get().fetchEventos();
+    get().fetchRemedios();
     get().fetchInsight();
   },
 
   logout: () => {
     localStorage.removeItem('aurora-token');
     localStorage.removeItem('aurora-user');
-    set({ token: null, user: null, produtos: [], ambientes: [], membros: [], eventos: [], inboxEvents: [], insight: null });
+    set({ token: null, user: null, produtos: [], ambientes: [], membros: [], eventos: [], inboxEvents: [], remedios: [], insight: null });
   },
 
   fetchProdutos: async () => {
@@ -104,11 +111,19 @@ export const useStore = create<StoreState>((set, get) => ({
   },
   fetchEventos: async () => {
     try {
-      const data = await getEventos();
-      set({ eventos: Array.isArray(data) ? data : [] });
-    } catch (e) {
-      console.error(e);
-      set({ eventos: [] });
+      const eventos = await getEventos();
+      set({ eventos });
+    } catch (error) {
+      console.error('Error fetching eventos:', error);
+    }
+  },
+
+  fetchRemedios: async () => {
+    try {
+      const remedios = await getRemedios();
+      set({ remedios });
+    } catch (error) {
+      console.error('Error fetching remedios:', error);
     }
   },
   fetchInboxEvents: async () => {
@@ -258,11 +273,44 @@ export const useStore = create<StoreState>((set, get) => ({
   },
   concluirEvento: async (id, tituloAtual) => {
     try {
-      await updateGoogleEvent(id, { titulo: `[Concluído] ${tituloAtual}` });
-      await get().fetchEventos();
-    } catch (e) {
-      console.error('Erro ao concluir evento:', e);
-      throw e;
+      await updateGoogleEvent(id, { titulo: `✅ ${tituloAtual}` });
+      get().fetchEventos();
+    } catch (error) {
+      console.error('Error completing google event:', error);
+    }
+  },
+
+  adicionarRemedio: async (remedio) => {
+    try {
+      await createRemedio(remedio);
+      get().fetchRemedios();
+    } catch (error) {
+      console.error('Error adding remedio:', error);
+      throw error;
+    }
+  },
+
+  toggleRemedio: async (id) => {
+    try {
+      // Optimistic update
+      set(state => ({
+        remedios: state.remedios.map(r => r.id === id ? { ...r, ativo: !r.ativo } : r)
+      }));
+      await toggleRemedioApi(id);
+    } catch (error) {
+      console.error('Error toggling remedio:', error);
+      get().fetchRemedios(); // revert on fail
+      throw error;
+    }
+  },
+
+  removerRemedio: async (id) => {
+    try {
+      await deleteRemedio(id);
+      get().fetchRemedios();
+    } catch (error) {
+      console.error('Error removing remedio:', error);
+      throw error;
     }
   }
 }));

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Outlet, NavLink } from 'react-router-dom';
-import { Home, Package, ShoppingCart, Sparkles, LogOut, User, Users, Network, Calendar, Moon, Sun } from 'lucide-react';
+import { Home, Package, ShoppingCart, Sparkles, LogOut, User, Users, Network, Calendar, Moon, Sun, Activity } from 'lucide-react';
 import AIChatModal from './AIChatModal';
 import { useStore } from '../store/useStore';
 
@@ -21,6 +21,7 @@ export default function Layout() {
           <NavItem to="/compras" icon={<ShoppingCart size={22} strokeWidth={1.5} />} label="Lista de Compras" />
           <NavItem to="/familia" icon={<Users size={22} strokeWidth={1.5} />} label="Minha Família" />
           <NavItem to="/agenda" icon={<Calendar size={22} strokeWidth={1.5} />} label="Agenda" />
+          <NavItem to="/saude" icon={<Activity size={22} strokeWidth={1.5} />} label="Saúde & Remédios" />
           <NavItem to="/integracoes" icon={<Network size={22} strokeWidth={1.5} />} label="Aurora Connect" />
         </nav>
 

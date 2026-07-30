@@ -110,3 +110,15 @@ class InscricaoPush(Base):
     timestamp = Column(DateTime, default=datetime.utcnow)
     
     usuario = relationship("Usuario")
+
+class Remedio(Base):
+    __tablename__ = "remedios"
+    id = Column(Integer, primary_key=True, index=True)
+    casa_id = Column(Integer, ForeignKey("casas.id"))
+    nome = Column(String, index=True)
+    horarios = Column(String) # Ex: "08:00, 20:00"
+    ativo = Column(Boolean, default=True)
+    estoque = Column(Integer, nullable=True)
+    timestamp = Column(DateTime, default=datetime.utcnow)
+    
+    casa = relationship("Casa")

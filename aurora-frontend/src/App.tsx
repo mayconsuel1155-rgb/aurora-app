@@ -8,6 +8,7 @@ import Integracoes from './pages/Integracoes';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Agenda from './pages/Agenda';
+import Saude from './pages/Saude';
 import { useStore } from './store/useStore';
 import { NotificationService } from './services/NotificationService';
 import { useState, useEffect } from 'react';
@@ -88,6 +89,7 @@ function App() {
           <Route path="compras" element={<Compras />} />
           <Route path="agenda" element={<Agenda />} />
           <Route path="familia" element={<Familia />} />
+          <Route path="saude" element={<Saude />} />
           <Route path="integracoes" element={<Integracoes />} />
         </Route>
       </Routes>

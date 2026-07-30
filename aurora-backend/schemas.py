@@ -110,3 +110,20 @@ class GoogleEventUpdate(BaseModel):
     titulo: Optional[str] = None
     data: Optional[str] = None
     is_all_day: Optional[bool] = None
+
+class RemedioBase(BaseModel):
+    nome: str
+    horarios: str
+    ativo: bool = True
+    estoque: Optional[int] = None
+
+class RemedioCreate(RemedioBase):
+    pass
+
+class RemedioResponse(RemedioBase):
+    id: int
+    casa_id: int
+    timestamp: datetime
+    
+    class Config:
+        from_attributes = True

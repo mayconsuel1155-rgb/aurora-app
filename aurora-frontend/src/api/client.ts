@@ -38,6 +38,18 @@ export interface Ambiente {
   icone: string;
 }
 
+export interface Remedio {
+  id: number;
+  casa_id: number;
+  nome: string;
+  horarios: string;
+  ativo: boolean;
+  estoque?: number;
+  timestamp: string;
+}
+
+
+
 export const registerUser = async (data: any) => {
   const response = await api.post('/auth/register', data);
   return response.data;
@@ -251,3 +263,23 @@ export const getInboxEvents = async (): Promise<InboxEvent[]> => {
   }
 };
 
+// Remedios API
+export const getRemedios = async () => {
+  const response = await api.get('/remedios/');
+  return response.data;
+};
+
+export const createRemedio = async (data: Omit<Remedio, 'id' | 'casa_id' | 'timestamp' | 'ativo'>) => {
+  const response = await api.post('/remedios/', data);
+  return response.data;
+};
+
+export const toggleRemedio = async (id: number) => {
+  const response = await api.put(`/remedios/${id}/toggle`);
+  return response.data;
+};
+
+export const deleteRemedio = async (id: number) => {
+  const response = await api.delete(`/remedios/${id}`);
+  return response.data;
+};

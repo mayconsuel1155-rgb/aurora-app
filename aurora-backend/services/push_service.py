@@ -108,6 +108,36 @@ async def push_worker_loop():
                             for insc in user_inscricoes:
                                 send_push_notification(insc, titulo, corpo)
 
+                    # 1.5. Lembretes de Remédios (Hora exata)
+                    remedios = db.query(models.Remedio).filter(
+                        models.Remedio.casa_id == db.query(models.Usuario).filter_by(id=uid).first().casa_id,
+                        models.Remedio.ativo == True
+                    ).all()
+                    
+                    hora_agora_str = f"{agora_br.hour:02d}:{agora_br.minute:02d}"
+                    
+                    for remedio in remedios:
+                        horarios_list = [h.strip() for h in remedio.horarios.split(",")]
+                        if hora_agora_str in horarios_list:
+                            titulo_rem = "💊 Hora do Remédio"
+                            corpo_rem = f"Está na hora de tomar: {remedio.nome}"
+                            
+                            # Notifica a família inteira (todos da casa)
+                            dono = db.query(models.Usuario).filter_by(id=uid).first()
+                            if dono:
+                                familiares = db.query(models.Usuario).filter(models.Usuario.casa_id == dono.casa_id).all()
+                                alvos_remedio = []
+                                for fam in familiares:
+                                    inscs_fam = [i for i in inscricoes if i.usuario_id == fam.id]
+                                    alvos_remedio.extend(inscs_fam)
+                                
+                                inscricoes_unicas_rem = {i.id: i for i in alvos_remedio}.values()
+                                for insc in inscricoes_unicas_rem:
+                                    res = send_push_notification(insc, titulo_rem, corpo_rem, url="/saude")
+                                    if res == "EXPIRED":
+                                        db.delete(insc)
+                            db.commit()
+
                     # 2. Checar eventos do Google Calendar
                     # (Para isso, precisamos pegar os tokens)
                     conexao_google = db.query(models.ConexaoExterna).filter(
