@@ -77,10 +77,10 @@ async def push_worker_loop():
                     if not user_inscricoes:
                         continue
                         
-                    # 1. Resumo Matinal de Estoque (apenas se for entre 08:00 e 08:01 da manhã no horário de Brasília)
+                    # 1. Resumo de Estoque (às 07:00 e às 17:00 no horário de Brasília)
                     # Hora atual de Brasília = agora - 3 horas
                     agora_br = agora - timedelta(hours=3)
-                    if agora_br.hour == 8 and agora_br.minute == 0:
+                    if (agora_br.hour == 7 or agora_br.hour == 17) and agora_br.minute == 0:
                         produtos = db.query(models.Produto).filter(
                             models.Produto.casa_id == db.query(models.Usuario).filter_by(id=uid).first().casa_id
                         ).all()
@@ -97,7 +97,8 @@ async def push_worker_loop():
                                     vencendo_em_breve += 1
                         
                         if vencendo_em_breve > 0 or vencidos > 0:
-                            titulo = "🛒 Resumo Matinal do Estoque"
+                            periodo = "Matinal" if agora_br.hour == 7 else "Vespertino"
+                            titulo = f"🛒 Resumo {periodo} do Estoque"
                             corpo = ""
                             if vencidos > 0:
                                 corpo += f"{vencidos} produto(s) já venceram! "
