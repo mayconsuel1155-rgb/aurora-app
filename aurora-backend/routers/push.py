@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from database import get_db
 import models
-from routers.auth import get_current_user
+import security
 import os
 
 router = APIRouter(
@@ -23,7 +23,7 @@ class PushSubscription(BaseModel):
 def subscribe(
     sub: PushSubscription,
     db: Session = Depends(get_db),
-    current_user: models.Usuario = Depends(get_current_user)
+    current_user: models.Usuario = Depends(security.get_current_user)
 ):
     try:
         # Verifica se já existe a inscrição
