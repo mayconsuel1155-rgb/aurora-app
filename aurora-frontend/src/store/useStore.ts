@@ -23,7 +23,7 @@ interface StoreState {
   fetchEventos: () => Promise<void>;
   fetchInboxEvents: () => Promise<void>;
   fetchInsight: () => Promise<void>;
-  deletarInboxEvent: (id: number) => Promise<void>;
+  deletarInboxEvent: (id: string) => Promise<void>;
   toggleTheme: () => void;
   alterarQuantidade: (produtoId: number, delta: number) => Promise<void>;
   adicionarProduto: (produto: Omit<Produto, 'id' | 'casa_id'>) => Promise<void>;
@@ -129,7 +129,7 @@ export const useStore = create<StoreState>((set, get) => ({
       console.error(e);
     }
   },
-  deletarInboxEvent: async (id: number) => {
+  deletarInboxEvent: async (id: string) => {
     try {
       // API call logic would go here
       set((state) => ({ inboxEvents: state.inboxEvents.filter(e => e.id !== id) }));
