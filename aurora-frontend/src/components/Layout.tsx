@@ -15,7 +15,7 @@ export default function Layout() {
         <div className="p-8">
           <h1 className="text-2xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-[var(--color-aurora-primary)] to-indigo-400 dark:from-indigo-400 dark:to-purple-300">Aurora Home</h1>
         </div>
-        <nav className="flex-1 px-4 space-y-2 mt-4">
+        <nav className="flex-1 px-4 space-y-2 mt-4 overflow-y-auto custom-scrollbar pb-4">
           <NavItem to="/" icon={<Home size={22} strokeWidth={1.5} />} label="Rotina" />
           <NavItem to="/estoque" icon={<Package size={22} strokeWidth={1.5} />} label="Inventário" />
           <NavItem to="/compras" icon={<ShoppingCart size={22} strokeWidth={1.5} />} label="Lista de Compras" />
@@ -36,7 +36,7 @@ export default function Layout() {
                 <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">Minha Casa</p>
               </div>
             </div>
-            <div className="flex items-center space-x-1">
+            <div className="flex items-center space-x-1 shrink-0 ml-2">
               <button
                 onClick={toggleTheme}
                 title="Mudar Tema"
