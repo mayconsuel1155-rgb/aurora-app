@@ -44,6 +44,7 @@ class Produto(Base):
     categoria = Column(String, index=True)
     quantidade = Column(Float, default=0)
     quantidade_minima = Column(Float, default=0)
+    preco = Column(Float, default=0.0)
     validade = Column(DateTime, nullable=True)
     
     casa = relationship("Casa", back_populates="produtos")

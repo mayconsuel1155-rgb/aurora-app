@@ -1,9 +1,14 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useStore } from '../store/useStore';
-import { Check, Sparkles } from 'lucide-react';
+import { Check, Sparkles, Trash2, X, DollarSign, Package } from 'lucide-react';
+import { Produto } from '../api/client';
 
 export default function Compras() {
-  const { produtos, loading, fetchProdutos, marcarComoComprado } = useStore();
+  const { produtos, loading, fetchProdutos, marcarComoComprado, removerProduto } = useStore();
+  
+  const [comprandoId, setComprandoId] = useState<number | null>(null);
+  const [qtdForm, setQtdForm] = useState<string>('1');
+  const [precoForm, setPrecoForm] = useState<string>('');
 
   useEffect(() => {
     fetchProdutos();
@@ -11,6 +16,25 @@ export default function Compras() {
 
   const safeProdutos = Array.isArray(produtos) ? produtos : [];
   const listaInvisivel = safeProdutos.filter(p => p && (p.quantidade ?? 0) <= (p.quantidade_minima ?? 0));
+
+  const handleIniciarCompra = (produto: Produto) => {
+    setComprandoId(produto.id);
+    setQtdForm('1');
+    setPrecoForm('');
+  };
+
+  const handleConfirmarCompra = async (produto: Produto) => {
+    const qtd = parseFloat(qtdForm) || 1;
+    const preco = parseFloat(precoForm) || 0;
+    await marcarComoComprado(produto, qtd, preco);
+    setComprandoId(null);
+  };
+
+  const handleExcluir = async (id: number) => {
+    if (window.confirm("Deseja realmente remover este produto de toda a sua casa?")) {
+      await removerProduto(id);
+    }
+  };
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
@@ -38,20 +62,83 @@ export default function Compras() {
       ) : (
         <div className="space-y-4">
           {listaInvisivel.map(produto => (
-            <div key={produto.id} className="aurora-card p-5 md:p-6 flex items-center justify-between hover:translate-y-[-2px] hover:shadow-xl transition-smooth">
-               <div className="pl-2">
-                 <h3 className="font-semibold text-[var(--color-aurora-text)] text-xl">{produto.nome}</h3>
-                 <p className="text-sm text-[var(--color-aurora-text-muted)] mt-1 font-light">
-                   Acabou (Temos {produto.quantidade}, Mínimo é {produto.quantidade_minima})
-                 </p>
-               </div>
-               <button 
-                 onClick={() => marcarComoComprado(produto)}
-                 className="flex items-center space-x-2 bg-[var(--color-aurora-primary)] text-white px-5 py-3 rounded-2xl hover:bg-[var(--color-aurora-primary-hover)] transition-smooth font-medium active:scale-95 shadow-lg shadow-[var(--color-aurora-primary)]/20"
-               >
-                 <Check size={20} strokeWidth={2.5} />
-                 <span className="hidden sm:inline">Peguei</span>
-               </button>
+            <div key={produto.id} className="aurora-card overflow-hidden transition-all duration-300 hover:shadow-xl">
+              {comprandoId === produto.id ? (
+                <div className="p-5 md:p-6 bg-indigo-50/30 dark:bg-indigo-900/10 border-b-2 border-[var(--color-aurora-primary)]">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="font-bold text-[var(--color-aurora-primary)] text-xl flex items-center">
+                      <Sparkles size={18} className="mr-2" /> Registrando {produto.nome}
+                    </h3>
+                    <button onClick={() => setComprandoId(null)} className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                      <X size={20} />
+                    </button>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center">
+                        <Package size={14} className="mr-1.5" /> Quantidade (un, kg, L)
+                      </label>
+                      <input 
+                        type="number" 
+                        step="0.01"
+                        min="0.01"
+                        value={qtdForm}
+                        onChange={(e) => setQtdForm(e.target.value)}
+                        className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[var(--color-aurora-primary)]/50 text-lg transition-all"
+                        placeholder="Ex: 1.5"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center">
+                        <DollarSign size={14} className="mr-1.5" /> Valor Unitário / Total (R$)
+                      </label>
+                      <input 
+                        type="number" 
+                        step="0.01"
+                        min="0"
+                        value={precoForm}
+                        onChange={(e) => setPrecoForm(e.target.value)}
+                        className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[var(--color-aurora-primary)]/50 text-lg transition-all"
+                        placeholder="Ex: 12.90"
+                      />
+                    </div>
+                  </div>
+                  
+                  <button 
+                    onClick={() => handleConfirmarCompra(produto)}
+                    className="w-full flex items-center justify-center space-x-2 bg-[var(--color-aurora-primary)] text-white px-5 py-3.5 rounded-xl hover:bg-[var(--color-aurora-primary-hover)] transition-all font-bold active:scale-[0.98] shadow-lg shadow-[var(--color-aurora-primary)]/30 text-lg"
+                  >
+                    <Check size={22} strokeWidth={2.5} />
+                    <span>Confirmar Compra</span>
+                  </button>
+                </div>
+              ) : (
+                <div className="p-5 md:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="pl-2">
+                    <h3 className="font-semibold text-[var(--color-aurora-text)] text-xl">{produto.nome}</h3>
+                    <p className="text-sm text-[var(--color-aurora-text-muted)] mt-1 font-light">
+                      Estoque atual: {produto.quantidade} <span className="mx-1">•</span> Mínimo: {produto.quantidade_minima}
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={() => handleExcluir(produto.id)}
+                      className="p-3.5 rounded-2xl text-red-500 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40 transition-smooth active:scale-95"
+                      title="Excluir produto definitivamente"
+                    >
+                      <Trash2 size={20} />
+                    </button>
+                    <button 
+                      onClick={() => handleIniciarCompra(produto)}
+                      className="flex-1 md:flex-none flex justify-center items-center space-x-2 bg-[var(--color-aurora-primary)] text-white px-6 py-3.5 rounded-2xl hover:bg-[var(--color-aurora-primary-hover)] transition-smooth font-medium active:scale-95 shadow-lg shadow-[var(--color-aurora-primary)]/20"
+                    >
+                      <Check size={20} strokeWidth={2.5} />
+                      <span>Peguei</span>
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>

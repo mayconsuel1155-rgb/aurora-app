@@ -27,6 +27,7 @@ export interface Produto {
   categoria: string;
   quantidade: number;
   quantidade_minima: number;
+  preco?: number;
   ambiente_id?: number;
   validade?: string;
 }

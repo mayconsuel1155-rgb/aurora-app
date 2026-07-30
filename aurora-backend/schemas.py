@@ -20,6 +20,7 @@ class ProdutoBase(BaseModel):
     categoria: str
     quantidade: float = 0.0
     quantidade_minima: float = 0.0
+    preco: Optional[float] = 0.0
     ambiente_id: Optional[int] = None
     validade: Optional[datetime] = None
 
@@ -28,6 +29,7 @@ class ProdutoUpdate(BaseModel):
     categoria: Optional[str] = None
     quantidade: Optional[float] = None
     quantidade_minima: Optional[float] = None
+    preco: Optional[float] = None
     ambiente_id: Optional[int] = None
     validade: Optional[datetime] = None
 

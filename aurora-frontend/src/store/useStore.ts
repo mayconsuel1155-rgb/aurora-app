@@ -30,7 +30,7 @@ interface StoreState {
   alterarQuantidade: (produtoId: number, delta: number) => Promise<void>;
   adicionarProduto: (produto: Omit<Produto, 'id' | 'casa_id'>) => Promise<void>;
   removerProduto: (produtoId: number) => Promise<void>;
-  marcarComoComprado: (produto: Produto) => Promise<void>;
+  marcarComoComprado: (produto: Produto, quantidadeAdicionada: number, preco: number) => Promise<void>;
   adicionarAmbiente: (ambiente: Omit<Ambiente, 'id' | 'casa_id'>) => Promise<void>;
   removerAmbiente: (ambienteId: number) => Promise<void>;
   adicionarEvento: (evento: { titulo: string, data: string, is_all_day?: boolean }) => Promise<void>;
@@ -201,19 +201,18 @@ export const useStore = create<StoreState>((set, get) => ({
       get().fetchProdutos();
     }
   },
-  marcarComoComprado: async (produto: Produto) => {
+  marcarComoComprado: async (produto: Produto, quantidadeAdicionada: number, preco: number) => {
     if (!produto) return;
     const qtdAtual = produto.quantidade ?? 0;
-    const qtdMin = produto.quantidade_minima ?? 0;
-    const novaQtd = Math.max(qtdAtual + 1, qtdMin + 1);
+    const novaQtd = qtdAtual + quantidadeAdicionada;
 
     const { produtos } = get();
     set({
-      produtos: produtos.map(p => p.id === produto.id ? { ...p, quantidade: novaQtd } : p)
+      produtos: produtos.map(p => p.id === produto.id ? { ...p, quantidade: novaQtd, preco: preco } : p)
     });
 
     try {
-      await updateProduto(produto.id, { quantidade: novaQtd });
+      await updateProduto(produto.id, { quantidade: novaQtd, preco: preco });
       get().fetchInsight();
     } catch (e) {
       console.error('Erro ao marcar como comprado:', e);
