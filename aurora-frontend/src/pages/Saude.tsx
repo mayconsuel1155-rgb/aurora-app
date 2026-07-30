@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useStore } from '../store/useStore';
 import { Activity, Clock, Plus, Trash2, Power, PowerOff } from 'lucide-react';
 
@@ -7,10 +7,15 @@ export default function Saude() {
   const adicionarRemedio = useStore(state => state.adicionarRemedio);
   const toggleRemedio = useStore(state => state.toggleRemedio);
   const removerRemedio = useStore(state => state.removerRemedio);
+  const fetchRemedios = useStore(state => state.fetchRemedios);
   
   const [nome, setNome] = useState('');
   const [horarios, setHorarios] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    fetchRemedios();
+  }, [fetchRemedios]);
 
   // Formata o input de horários. Ex: o usuário digita "0800" vira "08:00". "0800,2000" vira "08:00, 20:00"
   // Para simplificar na UI vamos usar um placeholder claro.

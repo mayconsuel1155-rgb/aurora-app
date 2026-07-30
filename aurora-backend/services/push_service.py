@@ -109,10 +109,17 @@ async def push_worker_loop():
                                 send_push_notification(insc, titulo, corpo)
 
                     # 1.5. Lembretes de Remédios (Hora exata)
-                    remedios = db.query(models.Remedio).filter(
-                        models.Remedio.casa_id == db.query(models.Usuario).filter_by(id=uid).first().casa_id,
-                        models.Remedio.ativo == True
-                    ).all()
+                    usuario_dono = db.query(models.Usuario).filter_by(id=uid).first()
+                    membro_casa = db.query(models.MembroCasa).filter_by(usuario_id=uid).first()
+                    casa_id_dono = membro_casa.casa_id if membro_casa else None
+                    
+                    if casa_id_dono:
+                        remedios = db.query(models.Remedio).filter(
+                            models.Remedio.casa_id == casa_id_dono,
+                            models.Remedio.ativo == True
+                        ).all()
+                    else:
+                        remedios = []
                     
                     hora_agora_str = f"{agora_br.hour:02d}:{agora_br.minute:02d}"
                     
@@ -123,12 +130,13 @@ async def push_worker_loop():
                             corpo_rem = f"Está na hora de tomar: {remedio.nome}"
                             
                             # Notifica a família inteira (todos da casa)
-                            dono = db.query(models.Usuario).filter_by(id=uid).first()
-                            if dono:
-                                familiares = db.query(models.Usuario).filter(models.Usuario.casa_id == dono.casa_id).all()
+                            if casa_id_dono:
+                                membros = db.query(models.MembroCasa).filter_by(casa_id=casa_id_dono).all()
+                                familiares_ids = [m.usuario_id for m in membros]
+                                
                                 alvos_remedio = []
-                                for fam in familiares:
-                                    inscs_fam = [i for i in inscricoes if i.usuario_id == fam.id]
+                                for fam_id in familiares_ids:
+                                    inscs_fam = [i for i in inscricoes if i.usuario_id == fam_id]
                                     alvos_remedio.extend(inscs_fam)
                                 
                                 inscricoes_unicas_rem = {i.id: i for i in alvos_remedio}.values()
