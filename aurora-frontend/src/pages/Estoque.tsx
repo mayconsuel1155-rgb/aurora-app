@@ -44,7 +44,11 @@ export default function Estoque() {
 
   const handleCreateProduto = async (e: React.FormEvent) => {
     e.preventDefault();
-    await adicionarProduto(novoProduto);
+    const payload = { ...novoProduto };
+    if (!payload.validade) {
+      delete (payload as any).validade;
+    }
+    await adicionarProduto(payload);
     setIsModalOpen(false);
     setNovoProduto({
       nome: '',
