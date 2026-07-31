@@ -10,13 +10,13 @@ export default function Layout() {
   const { user, logout, theme, toggleTheme } = useStore();
 
   return (
-    <div className="flex h-screen font-sans relative bg-slate-50 dark:bg-slate-900 transition-colors duration-300">
+    <div className="flex h-screen font-sans relative bg-white dark:bg-slate-950 transition-colors duration-300">
       {/* Sidebar - Desktop */}
-      <aside className="hidden md:flex w-72 flex-col aurora-glass border-r-0 z-10 relative m-4 rounded-3xl overflow-hidden transition-smooth">
+      <aside className="hidden md:flex w-72 flex-col bg-slate-50 dark:bg-slate-900 border-r border-slate-200/60 dark:border-slate-800 z-10 relative transition-smooth">
         <div className="p-8 pt-10">
           <div className="flex items-center gap-3 mb-2">
-            <Sparkles className="text-[var(--color-aurora-primary)]" size={28} />
-            <h1 className="text-2xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-br from-[var(--color-aurora-primary)] to-purple-500 dark:from-indigo-400 dark:to-purple-300">Aurora Home</h1>
+            <Sparkles className="text-blue-600 dark:text-blue-500" size={28} />
+            <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">Aurora</h1>
           </div>
           <p className="text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-widest pl-10">Smart Living</p>
         </div>
@@ -33,7 +33,7 @@ export default function Layout() {
 
         {/* User Profile / Logout */}
         <div className="p-6 pt-2">
-          <div className="flex items-center justify-between px-3 py-3 bg-white/50 dark:bg-black/20 rounded-2xl border border-white/40 dark:border-white/5 shadow-sm transition-smooth group hover:bg-white/80 dark:hover:bg-black/40">
+          <div className="flex items-center justify-between px-3 py-3 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm transition-smooth group">
             <div className="flex items-center space-x-3 overflow-hidden">
               <div className="w-8 h-8 rounded-full bg-[var(--color-aurora-primary)]/10 text-[var(--color-aurora-primary)] dark:text-indigo-400 flex items-center justify-center shrink-0">
                 <User size={16} />
@@ -47,7 +47,7 @@ export default function Layout() {
               <button
                 onClick={toggleTheme}
                 title="Mudar Tema"
-                className="p-2 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-xl transition-colors"
+                className="p-2 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-xl transition-colors"
               >
                 {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
               </button>
@@ -67,13 +67,13 @@ export default function Layout() {
       <div className="md:hidden fixed top-4 right-4 z-50 flex items-center space-x-2">
         <button
           onClick={toggleTheme}
-          className="p-3 aurora-glass rounded-full text-slate-600 dark:text-slate-300 transition-smooth active:scale-95"
+          className="p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm rounded-full text-slate-600 dark:text-slate-300 transition-smooth active:scale-95"
         >
           {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
         </button>
         <button
           onClick={logout}
-          className="p-3 aurora-glass rounded-full text-rose-500 transition-smooth active:scale-95"
+          className="p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm rounded-full text-rose-500 transition-smooth active:scale-95"
         >
           <LogOut size={20} />
         </button>
@@ -81,6 +81,9 @@ export default function Layout() {
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto pb-28 md:pb-0 relative text-slate-800 dark:text-slate-100 transition-colors duration-300 pt-20 md:pt-4 custom-scrollbar">
+        {/* Massive Blue Radial Glow (SaaS signature) */}
+        <div className="absolute top-[-10%] left-[20%] w-[60%] h-[60%] bg-blue-500/10 dark:bg-blue-500/15 blur-[120px] rounded-full pointer-events-none" />
+        
         <div className="p-4 md:p-8 max-w-6xl mx-auto relative z-10">
            <Outlet />
         </div>
@@ -90,11 +93,11 @@ export default function Layout() {
       {!isChatOpen && (
         <button
           onClick={() => setIsChatOpen(true)}
-          className="fixed bottom-24 right-4 md:bottom-8 md:right-8 z-40 bg-gradient-to-r from-[var(--color-aurora-primary)] via-indigo-600 to-purple-600 text-white p-4 rounded-full shadow-2xl hover:shadow-indigo-500/30 hover:scale-105 active:scale-95 transition-all duration-300 flex items-center space-x-2 group border border-white/20"
+          className="fixed bottom-24 right-4 md:bottom-8 md:right-8 z-40 btn-primary px-5 py-4 rounded-full flex items-center space-x-3 group"
           title="Conversar com a IA Aurora"
         >
-          <Sparkles size={24} className="animate-pulse text-amber-300" />
-          <span className="hidden md:inline font-semibold pr-2 text-sm">IA Aurora</span>
+          <Sparkles size={24} className="text-white" />
+          <span className="hidden md:inline font-semibold text-sm">IA Aurora</span>
         </button>
       )}
 
@@ -124,10 +127,10 @@ function NavItem({ to, icon, label }: { to: string; icon: React.ReactNode; label
     <NavLink
       to={to}
       className={({ isActive }) =>
-        `flex items-center space-x-3 px-4 py-3.5 rounded-2xl transition-smooth group ${
+        `flex items-center space-x-3 px-4 py-3 rounded-xl transition-smooth group ${
           isActive
-            ? 'bg-indigo-50 dark:bg-indigo-500/10 text-[var(--color-aurora-primary)] shadow-sm'
-            : 'text-slate-500 dark:text-slate-400 hover:bg-white/50 dark:hover:bg-white/5 hover:text-slate-800 dark:hover:text-slate-200'
+            ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
+            : 'text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100'
         }`
       }
     >

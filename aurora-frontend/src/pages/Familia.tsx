@@ -60,10 +60,10 @@ export default function Familia() {
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="flex justify-between items-end">
+      <div className="flex justify-between items-end mb-10">
         <div>
-          <h2 className="text-3xl font-bold text-[var(--color-aurora-text)] flex items-center">
-            <Users className="mr-3 text-[var(--color-aurora-primary)]" size={32} />
+          <span className="bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-2 inline-block">Membros</span>
+          <h2 className="text-4xl font-black text-slate-900 dark:text-slate-50 tracking-tight flex items-center">
             Minha Família
           </h2>
           <p className="mt-2 text-[var(--color-aurora-text-muted)]">
@@ -74,21 +74,21 @@ export default function Familia() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
         <div className="lg:col-span-2 space-y-4">
-          <div className="aurora-card p-6 shadow-sm border-white/40 dark:border-white/5">
-            <h3 className="text-lg font-semibold text-[var(--color-aurora-text)] mb-4">Membros da Casa</h3>
+          <div className="saas-card p-8">
+            <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-6 tracking-tight">Moradores da Casa</h3>
             
             {membros.length === 0 ? (
-              <div className="py-8 text-center bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-dashed border-slate-200 dark:border-slate-700">
-                <Users className="mx-auto h-12 w-12 text-slate-300 mb-3" />
-                <p className="text-slate-500 dark:text-slate-400 font-medium">Você é o único morador por enquanto.</p>
-                <p className="text-sm text-slate-400 mt-1">Gere um convite ao lado para adicionar familiares.</p>
+              <div className="py-12 text-center bg-slate-50 dark:bg-slate-900 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700">
+                <Users className="mx-auto h-16 w-16 text-slate-300 dark:text-slate-600 mb-4" />
+                <p className="text-slate-600 dark:text-slate-300 font-bold text-lg">Você é o único morador por enquanto.</p>
+                <p className="text-slate-500 dark:text-slate-400 mt-2">Gere um convite ao lado para adicionar familiares.</p>
               </div>
             ) : (
               <ul className="space-y-4">
                 {membros.map((membro) => (
-                  <li key={membro.id} className="flex items-center justify-between p-4 bg-white/40 dark:bg-slate-800/40 rounded-2xl border border-white/60 dark:border-slate-700/50 hover:bg-white/80 dark:hover:bg-slate-800/80 hover:shadow-[0_8px_30px_rgba(0,0,0,0.04)] transition-smooth group">
+                  <li key={membro.id} className="flex items-center justify-between p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 hover:shadow-md transition-smooth group">
                     <div className="flex items-center">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-white ${membro.permissao === 'admin' ? 'bg-gradient-to-tr from-[var(--color-aurora-primary)] to-purple-400 shadow-md shadow-indigo-200' : 'bg-slate-300'}`}>
+                      <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-white text-lg ${membro.permissao === 'admin' ? 'bg-blue-600 shadow-md shadow-blue-500/30' : 'bg-slate-300 dark:bg-slate-600'}`}>
                         {membro.nome?.charAt(0).toUpperCase() || '?'}
                       </div>
                       <div className="ml-4">
@@ -97,7 +97,7 @@ export default function Familia() {
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className={`text-[11px] uppercase tracking-wider px-3 py-1.5 rounded-full font-bold ${membro.permissao === 'admin' ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300' : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'}`}>
+                      <span className={`text-[11px] uppercase tracking-wider px-3 py-1.5 rounded-full font-bold ${membro.permissao === 'admin' ? 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300'}`}>
                         {membro.permissao === 'admin' ? 'Dono' : 'Convidado'}
                       </span>
                       {currentUserIsAdmin && membro.email !== user?.email && (
@@ -118,11 +118,11 @@ export default function Familia() {
         </div>
 
         <div className="space-y-6">
-          <div className="aurora-card p-8 bg-gradient-to-br from-indigo-50/80 to-purple-50/80 dark:from-indigo-900/20 dark:to-purple-900/20 border border-white/60 dark:border-white/5 relative overflow-hidden group">
-            <div className="absolute top-[-20%] right-[-20%] w-[70%] h-[70%] bg-white/60 dark:bg-indigo-500/10 rounded-full blur-[50px] pointer-events-none group-hover:scale-125 transition-transform duration-1000" />
+          <div className="saas-card p-8 bg-slate-50 dark:bg-slate-900 border-none relative overflow-hidden group">
+            <div className="absolute top-[-20%] right-[-20%] w-[70%] h-[70%] bg-blue-500/10 rounded-full blur-[60px] pointer-events-none group-hover:scale-125 transition-transform duration-1000" />
             
-            <h3 className="text-lg font-semibold text-[var(--color-aurora-text)] flex items-center mb-2">
-              <Key className="mr-2 text-[var(--color-aurora-primary)]" size={20} />
+            <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 flex items-center mb-2 tracking-tight">
+              <Key className="mr-2 text-blue-600 dark:text-blue-400" size={24} />
               Convidar Morador
             </h3>
             <p className="text-sm text-slate-600 dark:text-slate-400 mb-6">
@@ -136,10 +136,10 @@ export default function Familia() {
             )}
 
             {codigoConvite ? (
-              <div className="space-y-4">
-                <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md rounded-2xl p-5 border border-white dark:border-slate-700 flex flex-col items-center justify-center relative shadow-sm">
-                  <span className="text-[11px] text-indigo-500 font-bold uppercase tracking-widest mb-2">Código Gerado</span>
-                  <span className="text-4xl font-black bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 tracking-[0.2em] font-mono">
+              <div className="space-y-4 relative z-10">
+                <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center relative">
+                  <span className="text-[11px] text-blue-500 font-bold uppercase tracking-widest mb-2">Código Gerado</span>
+                  <span className="text-4xl font-black text-blue-600 dark:text-blue-400 tracking-[0.2em] font-mono">
                     {codigoConvite}
                   </span>
                 </div>
@@ -147,14 +147,14 @@ export default function Familia() {
                 <div className="flex gap-2">
                   <button
                     onClick={copiarCodigo}
-                    className="flex-1 flex items-center justify-center py-3 px-4 rounded-xl font-medium transition-all active:scale-[0.98] bg-white dark:bg-slate-800 border border-indigo-200 text-indigo-700 hover:bg-indigo-50 shadow-sm text-sm"
+                    className="flex-1 flex items-center justify-center py-3 px-4 rounded-xl font-bold transition-all active:scale-[0.98] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 shadow-sm text-sm"
                   >
                     {copiado ? <Check size={16} className="mr-2 text-green-500" /> : <Copy size={16} className="mr-2" />}
-                    Copiar Código
+                    Copiar
                   </button>
                   <button
                     onClick={copiarLink}
-                    className="flex-1 flex items-center justify-center py-3 px-4 rounded-xl font-medium transition-all active:scale-[0.98] bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 shadow-sm text-sm"
+                    className="flex-1 flex items-center justify-center py-3 px-4 rounded-xl font-bold transition-all active:scale-[0.98] bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 text-blue-700 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-500/20 shadow-sm text-sm"
                   >
                     {copiado ? <Check size={16} className="mr-2 text-green-500" /> : <LinkIcon size={16} className="mr-2" />}
                     Copiar Link
