@@ -20,13 +20,8 @@ export default function Login() {
     try {
       const data = await loginUser({ email, senha });
       
-      // Decodificar JWT basico manual para pegar id caso queira, 
-      // Mas o ideal era retornar o user junto.
-      // O backend /login por enquanto só retorna o token. 
-      // Vamos assumir que a store só precisa do token agora, 
-      // ou podemos fazer uma request extra para /me se existir (não criamos ainda).
-      // Mas vamos salvar um usuario basico e o token.
-      setAuth(data.access_token, { id: 1, email, nome: "Morador" }); 
+      // Agora o backend retorna o user junto com o token
+      setAuth(data.access_token, data.user || { id: 1, email, nome: "Morador" }); 
       navigate('/');
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Erro ao realizar login.');

@@ -65,10 +65,6 @@ class ChatRequest(BaseModel):
     mensagem: str
     historico: Optional[List[ChatMessage]] = []
 
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-
 class TokenData(BaseModel):
     username: Optional[str] = None
 
@@ -85,6 +81,11 @@ class UsuarioResponse(BaseModel):
     
     class Config:
         from_attributes = True
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+    user: Optional[UsuarioResponse] = None
 
 class LoginRequest(BaseModel):
     email: str
