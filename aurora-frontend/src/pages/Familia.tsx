@@ -60,10 +60,10 @@ export default function Familia() {
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="flex justify-between items-end mb-10">
+      <div className="flex justify-between items-end mb-8">
         <div>
-          <span className="bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-2 inline-block">Membros</span>
-          <h2 className="text-4xl font-black text-slate-900 dark:text-slate-50 tracking-tight flex items-center">
+          <span className="ui-label ui-label-gray mb-3">Família</span>
+          <h2 className="text-3xl font-bold text-[#171717] dark:text-[#EDEDED] tracking-tight">
             Minha Família
           </h2>
           <p className="mt-2 text-[var(--color-aurora-text-muted)]">
@@ -74,39 +74,39 @@ export default function Familia() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
         <div className="lg:col-span-2 space-y-4">
-          <div className="saas-card p-8">
-            <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-6 tracking-tight">Moradores da Casa</h3>
+          <div className="aurora-card p-6">
+            <h3 className="text-lg font-bold text-[#171717] dark:text-[#EDEDED] mb-6 tracking-tight">Moradores</h3>
             
             {membros.length === 0 ? (
-              <div className="py-12 text-center bg-slate-50 dark:bg-slate-900 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700">
-                <Users className="mx-auto h-16 w-16 text-slate-300 dark:text-slate-600 mb-4" />
-                <p className="text-slate-600 dark:text-slate-300 font-bold text-lg">Você é o único morador por enquanto.</p>
-                <p className="text-slate-500 dark:text-slate-400 mt-2">Gere um convite ao lado para adicionar familiares.</p>
+              <div className="py-10 text-center bg-[#FAFAFA] dark:bg-[#0A0A0A] rounded-lg border border-dashed border-[#EAEAEA] dark:border-[#262626]">
+                <Users className="mx-auto h-10 w-10 text-[#A1A1AA] dark:text-[#666666] mb-3" />
+                <p className="text-[#171717] dark:text-[#EDEDED] font-medium text-sm">Você é o único morador por enquanto.</p>
+                <p className="text-[#666666] dark:text-[#A1A1AA] text-xs mt-1">Gere um convite ao lado para adicionar familiares.</p>
               </div>
             ) : (
-              <ul className="space-y-4">
+              <ul className="space-y-3">
                 {membros.map((membro) => (
-                  <li key={membro.id} className="flex items-center justify-between p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 hover:shadow-md transition-smooth group">
+                  <li key={membro.id} className="flex items-center justify-between p-3 bg-transparent rounded-lg border border-[#EAEAEA] dark:border-[#262626] hover:bg-[#FAFAFA] dark:hover:bg-[#111111] transition-smooth group">
                     <div className="flex items-center">
-                      <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-white text-lg ${membro.permissao === 'admin' ? 'bg-blue-600 shadow-md shadow-blue-500/30' : 'bg-slate-300 dark:bg-slate-600'}`}>
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs border ${membro.permissao === 'admin' ? 'bg-[#171717] text-white border-[#000000] dark:bg-[#EDEDED] dark:text-black' : 'bg-[#FAFAFA] text-[#666666] border-[#EAEAEA] dark:bg-[#171717] dark:border-[#262626] dark:text-[#A1A1AA]'}`}>
                         {membro.nome?.charAt(0).toUpperCase() || '?'}
                       </div>
-                      <div className="ml-4">
-                        <p className="font-semibold text-slate-800 dark:text-slate-200">{membro.nome} {membro.id === user?.id ? '(Você)' : ''}</p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">{membro.email}</p>
+                      <div className="ml-3">
+                        <p className="text-sm font-medium text-[#171717] dark:text-[#EDEDED]">{membro.nome} {membro.id === user?.id ? <span className="text-[#666666] dark:text-[#A1A1AA] font-normal">(Você)</span> : ''}</p>
+                        <p className="text-[10px] text-[#666666] dark:text-[#A1A1AA]">{membro.email}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className={`text-[11px] uppercase tracking-wider px-3 py-1.5 rounded-full font-bold ${membro.permissao === 'admin' ? 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300'}`}>
+                      <span className="ui-label ui-label-gray">
                         {membro.permissao === 'admin' ? 'Dono' : 'Convidado'}
                       </span>
                       {currentUserIsAdmin && membro.email !== user?.email && (
                         <button
                           onClick={() => handleRemover(membro.id)}
-                          className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"
+                          className="p-1.5 text-[#A1A1AA] hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-md transition-colors"
                           title="Remover morador"
                         >
-                          <Trash2 size={18} />
+                          <Trash2 size={14} />
                         </button>
                       )}
                     </div>
@@ -118,15 +118,14 @@ export default function Familia() {
         </div>
 
         <div className="space-y-6">
-          <div className="saas-card p-8 bg-slate-50 dark:bg-slate-900 border-none relative overflow-hidden group">
-            <div className="absolute top-[-20%] right-[-20%] w-[70%] h-[70%] bg-blue-500/10 rounded-full blur-[60px] pointer-events-none group-hover:scale-125 transition-transform duration-1000" />
+          <div className="aurora-card p-6 bg-[#FAFAFA] dark:bg-[#0A0A0A]">
             
-            <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 flex items-center mb-2 tracking-tight">
-              <Key className="mr-2 text-blue-600 dark:text-blue-400" size={24} />
+            <h3 className="text-sm font-bold text-[#171717] dark:text-[#EDEDED] flex items-center mb-1 tracking-tight">
+              <Key className="mr-2 text-[#171717] dark:text-[#EDEDED]" size={16} />
               Convidar Morador
             </h3>
-            <p className="text-sm text-slate-600 dark:text-slate-400 mb-6">
-              Gere um código seguro de 6 dígitos. Seu familiar deve inseri-lo no momento do cadastro para entrar na sua casa.
+            <p className="text-xs text-[#666666] dark:text-[#A1A1AA] mb-6">
+              Gere um código seguro de 6 dígitos. Seu familiar deve inseri-lo no cadastro.
             </p>
             
             {erro && (
@@ -136,10 +135,10 @@ export default function Familia() {
             )}
 
             {codigoConvite ? (
-              <div className="space-y-4 relative z-10">
-                <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center relative">
-                  <span className="text-[11px] text-blue-500 font-bold uppercase tracking-widest mb-2">Código Gerado</span>
-                  <span className="text-4xl font-black text-blue-600 dark:text-blue-400 tracking-[0.2em] font-mono">
+              <div className="space-y-3 relative z-10">
+                <div className="bg-white dark:bg-[#111111] rounded-lg p-4 border border-[#EAEAEA] dark:border-[#262626] flex flex-col items-center justify-center">
+                  <span className="text-[10px] text-[#666666] dark:text-[#A1A1AA] font-bold uppercase tracking-widest mb-1">Código Gerado</span>
+                  <span className="text-2xl font-mono font-bold text-[#171717] dark:text-[#EDEDED] tracking-[0.2em]">
                     {codigoConvite}
                   </span>
                 </div>
@@ -147,29 +146,29 @@ export default function Familia() {
                 <div className="flex gap-2">
                   <button
                     onClick={copiarCodigo}
-                    className="flex-1 flex items-center justify-center py-3 px-4 rounded-xl font-bold transition-all active:scale-[0.98] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 shadow-sm text-sm"
+                    className="flex-1 btn-primary py-2 px-3 text-xs"
                   >
-                    {copiado ? <Check size={16} className="mr-2 text-green-500" /> : <Copy size={16} className="mr-2" />}
+                    {copiado ? <Check size={14} className="inline mr-1" /> : <Copy size={14} className="inline mr-1" />}
                     Copiar
                   </button>
                   <button
                     onClick={copiarLink}
-                    className="flex-1 flex items-center justify-center py-3 px-4 rounded-xl font-bold transition-all active:scale-[0.98] bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 text-blue-700 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-500/20 shadow-sm text-sm"
+                    className="flex-1 btn-outline py-2 px-3 text-xs bg-white dark:bg-[#0A0A0A]"
                   >
-                    {copiado ? <Check size={16} className="mr-2 text-green-500" /> : <LinkIcon size={16} className="mr-2" />}
-                    Copiar Link
+                    {copiado ? <Check size={14} className="inline mr-1 text-green-500" /> : <LinkIcon size={14} className="inline mr-1" />}
+                    Link
                   </button>
                 </div>
-                <p className="text-xs text-center text-slate-500 dark:text-slate-400 mt-2">Envie o link para a pessoa. Válido por 24h.</p>
+                <p className="text-[10px] text-center text-[#666666] dark:text-[#A1A1AA] mt-2">Válido por 24h.</p>
               </div>
             ) : (
               <button
                 onClick={handleGerarConvite}
                 disabled={loading}
-                className="w-full flex justify-center items-center py-4 px-6 rounded-2xl text-sm font-bold text-white btn-primary shadow-[0_4px_14px_0_rgba(79,70,229,0.39)] hover:shadow-[0_6px_20px_rgba(79,70,229,0.23)] disabled:opacity-70 group"
+                className="w-full btn-primary py-2.5 px-4 flex justify-center items-center"
               >
                 {loading ? (
-                  <RefreshCw className="animate-spin" size={18} />
+                  <RefreshCw className="animate-spin" size={16} />
                 ) : (
                   <>
                     Gerar Novo Código
