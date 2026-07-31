@@ -54,11 +54,11 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return (
     <>
       {showNotificationBanner && (
-        <div className="bg-indigo-600 px-4 py-3 text-white flex justify-between items-center z-40 sticky top-0">
-          <p className="text-sm font-medium">Ative as notificações para ser avisado sobre vencimentos na geladeira e despensa.</p>
-          <div className="flex space-x-3 ml-4 flex-shrink-0">
-            <button onClick={() => setShowNotificationBanner(false)} className="text-indigo-200 hover:text-white text-sm">Depois</button>
-            <button onClick={handleEnableNotifications} className="bg-white dark:bg-slate-800 text-indigo-600 px-3 py-1 rounded-full text-sm font-bold hover:bg-indigo-50">Ativar</button>
+        <div className="bg-indigo-600 px-4 pt-3 pb-4 text-white flex flex-col md:flex-row gap-3 justify-between items-start md:items-center z-[70] fixed md:sticky top-0 left-0 right-0 shadow-lg">
+          <p className="text-sm font-medium pr-12 md:pr-0">Ative as notificações para ser avisado sobre vencimentos na geladeira e despensa.</p>
+          <div className="flex space-x-3 self-end flex-shrink-0">
+            <button onClick={() => setShowNotificationBanner(false)} className="text-indigo-200 hover:text-white text-sm px-2 py-1">Depois</button>
+            <button onClick={handleEnableNotifications} className="bg-white dark:bg-slate-800 text-indigo-600 px-4 py-1.5 rounded-full text-sm font-bold hover:bg-indigo-50 shadow-sm">Ativar</button>
           </div>
         </div>
       )}

@@ -96,7 +96,7 @@ export default function AIChatModal({ isOpen, onClose }: AIChatModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 sm:inset-auto sm:bottom-6 sm:right-6 sm:w-[420px] sm:h-[600px] z-50 flex flex-col bg-white dark:bg-slate-800/95 backdrop-blur-2xl sm:rounded-3xl border border-slate-200 dark:border-slate-700/80 shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-6 duration-300">
+    <div className="fixed inset-0 sm:inset-auto sm:bottom-6 sm:right-6 sm:w-[420px] sm:h-[600px] z-[70] flex flex-col bg-white dark:bg-slate-800/95 backdrop-blur-2xl sm:rounded-3xl border border-slate-200 dark:border-slate-700/80 shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-6 duration-300">
       {/* Header */}
       <div className="p-4 md:p-5 bg-gradient-to-r from-[var(--color-aurora-primary)] via-indigo-600 to-purple-600 text-white flex items-center justify-between shadow-md shrink-0">
         <div className="flex items-center space-x-3">
