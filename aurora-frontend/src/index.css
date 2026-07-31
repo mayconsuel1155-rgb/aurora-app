@@ -36,9 +36,13 @@ body {
   min-height: 100vh;
 }
 
-.dark body {
-  background-color: var(--color-aurora-bg-dark);
-  color: var(--color-aurora-text-dark);
+.dark {
+  --color-aurora-bg: var(--color-aurora-bg-dark);
+  --color-aurora-surface: var(--color-aurora-surface-dark);
+  --color-aurora-border: var(--color-aurora-border-dark);
+  --color-aurora-text: var(--color-aurora-text-dark);
+  --color-aurora-text-muted: var(--color-aurora-text-muted-dark);
+  --color-aurora-primary: var(--color-aurora-primary-dark);
 }
 
 h1, h2, h3, h4, h5, h6 {
