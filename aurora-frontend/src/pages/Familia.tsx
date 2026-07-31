@@ -10,7 +10,8 @@ export default function Familia() {
   const [copiado, setCopiado] = useState(false);
   const [erro, setErro] = useState('');
 
-  const currentUserIsAdmin = membros.find(m => m.permissao === 'admin')?.id === user?.id;
+  // Use email for comparison to avoid bugs with legacy mock ID 1 in localStorage
+  const currentUserIsAdmin = membros.find(m => m.permissao === 'admin')?.email === user?.email;
 
   const handleRemover = async (id: number) => {
     if (window.confirm("Deseja realmente remover este membro da casa? Ele perderá acesso imediato.")) {
@@ -99,7 +100,7 @@ export default function Familia() {
                       <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${membro.permissao === 'admin' ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'}`}>
                         {membro.permissao === 'admin' ? 'Dono' : 'Convidado'}
                       </span>
-                      {currentUserIsAdmin && membro.id !== user?.id && (
+                      {currentUserIsAdmin && membro.email !== user?.email && (
                         <button
                           onClick={() => handleRemover(membro.id)}
                           className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"
