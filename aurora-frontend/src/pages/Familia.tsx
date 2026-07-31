@@ -72,9 +72,9 @@ export default function Familia() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
         <div className="lg:col-span-2 space-y-4">
-          <div className="aurora-card p-6 shadow-sm">
+          <div className="aurora-card p-6 shadow-sm border-white/40 dark:border-white/5">
             <h3 className="text-lg font-semibold text-[var(--color-aurora-text)] mb-4">Membros da Casa</h3>
             
             {membros.length === 0 ? (
@@ -84,9 +84,9 @@ export default function Familia() {
                 <p className="text-sm text-slate-400 mt-1">Gere um convite ao lado para adicionar familiares.</p>
               </div>
             ) : (
-              <ul className="space-y-3">
+              <ul className="space-y-4">
                 {membros.map((membro) => (
-                  <li key={membro.id} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-700 hover:border-slate-200 dark:border-slate-700 transition-colors">
+                  <li key={membro.id} className="flex items-center justify-between p-4 bg-white/40 dark:bg-slate-800/40 rounded-2xl border border-white/60 dark:border-slate-700/50 hover:bg-white/80 dark:hover:bg-slate-800/80 hover:shadow-[0_8px_30px_rgba(0,0,0,0.04)] transition-smooth group">
                     <div className="flex items-center">
                       <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-white ${membro.permissao === 'admin' ? 'bg-gradient-to-tr from-[var(--color-aurora-primary)] to-purple-400 shadow-md shadow-indigo-200' : 'bg-slate-300'}`}>
                         {membro.nome?.charAt(0).toUpperCase() || '?'}
@@ -97,7 +97,7 @@ export default function Familia() {
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${membro.permissao === 'admin' ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'}`}>
+                      <span className={`text-[11px] uppercase tracking-wider px-3 py-1.5 rounded-full font-bold ${membro.permissao === 'admin' ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300' : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'}`}>
                         {membro.permissao === 'admin' ? 'Dono' : 'Convidado'}
                       </span>
                       {currentUserIsAdmin && membro.email !== user?.email && (
@@ -118,8 +118,8 @@ export default function Familia() {
         </div>
 
         <div className="space-y-6">
-          <div className="aurora-card p-6 bg-gradient-to-br from-indigo-50 to-purple-50 border border-indigo-100 shadow-sm relative overflow-hidden group">
-            <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-white dark:bg-slate-800/40 rounded-full blur-[40px] pointer-events-none group-hover:scale-150 transition-transform duration-700" />
+          <div className="aurora-card p-8 bg-gradient-to-br from-indigo-50/80 to-purple-50/80 dark:from-indigo-900/20 dark:to-purple-900/20 border border-white/60 dark:border-white/5 relative overflow-hidden group">
+            <div className="absolute top-[-20%] right-[-20%] w-[70%] h-[70%] bg-white/60 dark:bg-indigo-500/10 rounded-full blur-[50px] pointer-events-none group-hover:scale-125 transition-transform duration-1000" />
             
             <h3 className="text-lg font-semibold text-[var(--color-aurora-text)] flex items-center mb-2">
               <Key className="mr-2 text-[var(--color-aurora-primary)]" size={20} />
@@ -137,9 +137,9 @@ export default function Familia() {
 
             {codigoConvite ? (
               <div className="space-y-4">
-                <div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-indigo-100 flex flex-col items-center justify-center relative">
-                  <span className="text-xs text-indigo-400 font-semibold uppercase tracking-wider mb-1">Código Gerado</span>
-                  <span className="text-3xl font-extrabold text-[var(--color-aurora-primary)] tracking-widest font-mono">
+                <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md rounded-2xl p-5 border border-white dark:border-slate-700 flex flex-col items-center justify-center relative shadow-sm">
+                  <span className="text-[11px] text-indigo-500 font-bold uppercase tracking-widest mb-2">Código Gerado</span>
+                  <span className="text-4xl font-black bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 tracking-[0.2em] font-mono">
                     {codigoConvite}
                   </span>
                 </div>
@@ -166,7 +166,7 @@ export default function Familia() {
               <button
                 onClick={handleGerarConvite}
                 disabled={loading}
-                className="w-full flex justify-center items-center py-3.5 px-4 rounded-xl shadow-lg shadow-indigo-200/50 text-sm font-medium text-white bg-[var(--color-aurora-primary)] hover:bg-[var(--color-aurora-primary-hover)] transition-all active:scale-[0.98] disabled:opacity-70 group"
+                className="w-full flex justify-center items-center py-4 px-6 rounded-2xl text-sm font-bold text-white btn-primary shadow-[0_4px_14px_0_rgba(79,70,229,0.39)] hover:shadow-[0_6px_20px_rgba(79,70,229,0.23)] disabled:opacity-70 group"
               >
                 {loading ? (
                   <RefreshCw className="animate-spin" size={18} />

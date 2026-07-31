@@ -12,9 +12,13 @@ export default function Layout() {
   return (
     <div className="flex h-screen font-sans relative bg-slate-50 dark:bg-slate-900 transition-colors duration-300">
       {/* Sidebar - Desktop */}
-      <aside className="hidden md:flex w-64 flex-col bg-[var(--color-aurora-surface-solid)] dark:bg-slate-800 border-r border-slate-100 dark:border-slate-700/50 shadow-[4px_0_24px_rgba(0,0,0,0.02)] z-10 relative transition-colors duration-300">
-        <div className="p-8">
-          <h1 className="text-2xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-[var(--color-aurora-primary)] to-indigo-400 dark:from-indigo-400 dark:to-purple-300">Aurora Home</h1>
+      <aside className="hidden md:flex w-72 flex-col aurora-glass border-r-0 z-10 relative m-4 rounded-3xl overflow-hidden transition-smooth">
+        <div className="p-8 pt-10">
+          <div className="flex items-center gap-3 mb-2">
+            <Sparkles className="text-[var(--color-aurora-primary)]" size={28} />
+            <h1 className="text-2xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-br from-[var(--color-aurora-primary)] to-purple-500 dark:from-indigo-400 dark:to-purple-300">Aurora Home</h1>
+          </div>
+          <p className="text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-widest pl-10">Smart Living</p>
         </div>
         <nav className="flex-1 px-4 space-y-2 mt-4 overflow-y-auto custom-scrollbar pb-4">
           <NavItem to="/" icon={<Home size={22} strokeWidth={1.5} />} label="Rotina" />
@@ -28,8 +32,8 @@ export default function Layout() {
         </nav>
 
         {/* User Profile / Logout */}
-        <div className="p-4 border-t border-slate-100 dark:border-slate-700/50">
-          <div className="flex items-center justify-between px-2 py-3 bg-slate-50 dark:bg-slate-900/50 rounded-2xl transition-colors">
+        <div className="p-6 pt-2">
+          <div className="flex items-center justify-between px-3 py-3 bg-white/50 dark:bg-black/20 rounded-2xl border border-white/40 dark:border-white/5 shadow-sm transition-smooth group hover:bg-white/80 dark:hover:bg-black/40">
             <div className="flex items-center space-x-3 overflow-hidden">
               <div className="w-8 h-8 rounded-full bg-[var(--color-aurora-primary)]/10 text-[var(--color-aurora-primary)] dark:text-indigo-400 flex items-center justify-center shrink-0">
                 <User size={16} />
@@ -63,22 +67,21 @@ export default function Layout() {
       <div className="md:hidden fixed top-4 right-4 z-50 flex items-center space-x-2">
         <button
           onClick={toggleTheme}
-          className="p-2.5 bg-white/80 dark:bg-slate-800/90 backdrop-blur-md rounded-full shadow-lg border border-slate-200/50 dark:border-slate-700/50 text-slate-600 dark:text-slate-300 transition-colors"
+          className="p-3 aurora-glass rounded-full text-slate-600 dark:text-slate-300 transition-smooth active:scale-95"
         >
           {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
         </button>
         <button
           onClick={logout}
-          className="p-2.5 bg-white/80 dark:bg-slate-800/90 backdrop-blur-md rounded-full shadow-lg border border-slate-200/50 dark:border-slate-700/50 text-rose-500 transition-colors"
+          className="p-3 aurora-glass rounded-full text-rose-500 transition-smooth active:scale-95"
         >
           <LogOut size={20} />
         </button>
       </div>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto pb-24 md:pb-0 relative text-slate-800 dark:text-slate-100 transition-colors duration-300 pt-16 md:pt-0">
-        <div className="absolute inset-0 bg-gradient-to-b from-white/40 dark:from-transparent to-transparent pointer-events-none" />
-        <div className="p-4 md:p-10 max-w-5xl mx-auto mt-2 md:mt-0 relative z-10">
+      <main className="flex-1 overflow-y-auto pb-28 md:pb-0 relative text-slate-800 dark:text-slate-100 transition-colors duration-300 pt-20 md:pt-4 custom-scrollbar">
+        <div className="p-4 md:p-8 max-w-6xl mx-auto relative z-10">
            <Outlet />
         </div>
       </main>
@@ -102,7 +105,7 @@ export default function Layout() {
       <IosInstallPrompt />
 
       {/* Bottom Nav - Mobile with Glassmorphism */}
-      <nav className="md:hidden fixed bottom-6 left-4 right-4 bg-white/70 dark:bg-slate-800/80 backdrop-blur-xl border border-white dark:border-slate-700 shadow-xl rounded-3xl flex overflow-x-auto justify-start sm:justify-around p-2 z-50 transition-colors duration-300 custom-scrollbar gap-1 hide-scroll">
+      <nav className="md:hidden fixed bottom-6 left-4 right-4 aurora-glass rounded-3xl flex overflow-x-auto justify-start sm:justify-around p-2 z-50 transition-smooth custom-scrollbar gap-1 hide-scroll shadow-[0_8px_32px_rgba(0,0,0,0.1)]">
           <MobileNavItem to="/" icon={<Home size={22} />} label="Início" />
           <MobileNavItem to="/estoque" icon={<Package size={22} />} label="Estoque" />
           <MobileNavItem to="/compras" icon={<ShoppingCart size={22} />} label="Compras" />
@@ -121,10 +124,10 @@ function NavItem({ to, icon, label }: { to: string; icon: React.ReactNode; label
     <NavLink
       to={to}
       className={({ isActive }) =>
-        `flex items-center space-x-3 px-4 py-3 rounded-2xl transition-smooth ${
+        `flex items-center space-x-3 px-4 py-3.5 rounded-2xl transition-smooth group ${
           isActive
-            ? 'bg-[var(--color-aurora-primary)] text-white shadow-lg shadow-[var(--color-aurora-primary)]/20'
-            : 'text-[var(--color-aurora-text-muted)] dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:text-[var(--color-aurora-text)] dark:hover:text-slate-200'
+            ? 'bg-indigo-50 dark:bg-indigo-500/10 text-[var(--color-aurora-primary)] shadow-sm'
+            : 'text-slate-500 dark:text-slate-400 hover:bg-white/50 dark:hover:bg-white/5 hover:text-slate-800 dark:hover:text-slate-200'
         }`
       }
     >

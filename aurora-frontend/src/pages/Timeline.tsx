@@ -63,9 +63,11 @@ export default function Timeline() {
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
-      <header className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100 flex items-center gap-3 transition-colors">
-          <Clock className="text-[var(--color-aurora-primary)] dark:text-indigo-400" size={32} strokeWidth={2} />
+      <header className="space-y-2 mb-10">
+        <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-slate-50 flex items-center gap-3 transition-colors">
+          <div className="p-2.5 bg-indigo-50 dark:bg-indigo-500/10 rounded-2xl">
+            <Clock className="text-[var(--color-aurora-primary)] dark:text-indigo-400" size={32} strokeWidth={2.5} />
+          </div>
           Sua Rotina
         </h1>
         <p className="text-slate-500 dark:text-slate-400 text-lg font-light max-w-2xl transition-colors">
@@ -77,16 +79,16 @@ export default function Timeline() {
         
         {/* BLOCO: HOJE */}
         <div className="relative">
-          <div className="absolute -left-[25px] bg-white dark:bg-slate-900 p-1 rounded-full border-2 border-[var(--color-aurora-primary)] dark:border-indigo-500 transition-colors">
-            <div className="w-4 h-4 bg-[var(--color-aurora-primary)] dark:bg-indigo-400 rounded-full animate-pulse"></div>
+          <div className="absolute -left-[25px] bg-slate-50 dark:bg-slate-900 p-1.5 rounded-full border border-indigo-200 dark:border-indigo-500/30 transition-colors shadow-[0_0_15px_rgba(79,70,229,0.3)]">
+            <div className="w-3 h-3 bg-[var(--color-aurora-primary)] dark:bg-indigo-400 rounded-full animate-pulse"></div>
           </div>
           <div className="pl-8">
-            <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-200 mb-4 transition-colors">Hoje</h2>
+            <h2 className="text-3xl font-bold text-slate-800 dark:text-slate-100 mb-6 transition-colors tracking-tight">Hoje</h2>
             
             <div className="space-y-4">
               {/* Alertas de Compras */}
               {timelineData.hoje.produtosFalta.length > 0 && (
-                <div className="relative overflow-hidden bg-white dark:bg-slate-800/90 rounded-2xl border border-rose-100 dark:border-rose-900/40 shadow-sm hover:shadow-md transition-all p-5">
+                <div className="relative overflow-hidden aurora-card p-6 border-rose-200/50 dark:border-rose-900/40 hover:shadow-rose-500/10 dark:hover:shadow-rose-900/20">
                   <div className="absolute top-0 left-0 w-1 h-full bg-rose-500"></div>
                   <div className="flex items-start gap-4 pl-1">
                     <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center bg-rose-50 dark:bg-rose-500/10 rounded-xl border border-rose-100/50 dark:border-rose-500/20">
@@ -109,9 +111,9 @@ export default function Timeline() {
                            </span>
                         )}
                       </div>
-                      <div className="mt-5">
-                         <Link to="/estoque" className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white text-sm font-medium rounded-lg transition-colors shadow-sm shadow-rose-500/20">
-                           Repor Estoque <ArrowRight size={16} />
+                      <div className="mt-6">
+                         <Link to="/estoque" className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white text-sm font-bold rounded-xl transition-all shadow-[0_4px_14px_0_rgba(244,63,94,0.39)] hover:shadow-[0_6px_20px_rgba(244,63,94,0.23)] hover:-translate-y-0.5 active:translate-y-0">
+                           Repor Estoque <ArrowRight size={18} strokeWidth={2.5} />
                          </Link>
                       </div>
                     </div>
@@ -121,7 +123,7 @@ export default function Timeline() {
 
               {/* Eventos de Hoje */}
               {timelineData.hoje.eventos.map(evt => (
-                <div key={evt.id} className="relative group bg-white dark:bg-slate-800/90 rounded-2xl border border-slate-100 dark:border-slate-700/60 shadow-sm hover:shadow-md transition-all p-4">
+                <div key={evt.id} className="relative group aurora-card p-5">
                   <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500 rounded-l-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   <div className="flex items-center gap-4 pl-1">
                     <div className="flex-shrink-0 w-12 h-12 flex items-center justify-center bg-indigo-50/50 dark:bg-indigo-500/10 rounded-xl border border-indigo-50 dark:border-indigo-500/10">
@@ -141,7 +143,7 @@ export default function Timeline() {
               ))}
 
               {timelineData.hoje.eventos.length === 0 && timelineData.hoje.produtosFalta.length === 0 && (
-                <div className="p-8 bg-slate-50 dark:bg-slate-800/30 border border-dashed border-slate-200 dark:border-slate-700/50 text-center rounded-3xl transition-colors">
+                <div className="p-10 aurora-glass border border-dashed border-slate-300 dark:border-slate-700 text-center rounded-3xl transition-colors">
                   <CheckCircle2 size={36} className="mx-auto text-emerald-400 dark:text-emerald-500/80 mb-3" />
                   <h3 className="font-semibold text-slate-700 dark:text-slate-300">Tudo limpo por hoje!</h3>
                   <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Nenhum compromisso ou alerta pendente.</p>
@@ -159,9 +161,9 @@ export default function Timeline() {
           <div className="pl-8">
             <h2 className="text-xl font-bold text-slate-400 dark:text-slate-500 mb-4 transition-colors">Amanhã</h2>
             
-            <div className="space-y-3">
+            <div className="space-y-4">
               {timelineData.amanha.eventos.map(evt => (
-                <div key={evt.id} className="group p-4 bg-transparent border border-slate-200 dark:border-slate-700/50 rounded-2xl hover:bg-white dark:hover:bg-slate-800/80 hover:shadow-sm transition-all flex items-center gap-4">
+                <div key={evt.id} className="group p-5 aurora-glass rounded-2xl flex items-center gap-5 hover:-translate-y-1 transition-smooth cursor-default">
                   <div className="p-2.5 bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 rounded-xl group-hover:bg-indigo-50 dark:group-hover:bg-indigo-500/10 group-hover:text-indigo-500 transition-colors">
                     <Calendar size={18} />
                   </div>
@@ -190,9 +192,9 @@ export default function Timeline() {
             <div className="pl-8">
               <h2 className="text-xl font-bold text-slate-400 dark:text-slate-500 mb-4 transition-colors">Próximos Dias</h2>
               
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {timelineData.futuro.eventos.map(evt => (
-                  <div key={evt.id} className="group p-3 bg-transparent hover:bg-white dark:hover:bg-slate-800/80 border border-transparent hover:border-slate-200 dark:hover:border-slate-700/50 rounded-xl flex items-center justify-between transition-all">
+                  <div key={evt.id} className="group p-4 aurora-glass rounded-xl flex items-center justify-between transition-smooth hover:-translate-y-0.5">
                       <span className="font-medium text-slate-500 dark:text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-300 transition-colors">{evt.titulo}</span>
                       <span className="text-xs text-slate-400 dark:text-slate-500 font-medium bg-slate-100 dark:bg-slate-800/50 px-2.5 py-1 rounded-md transition-colors">
                           {evt.data ? new Date(evt.data.includes('T') ? evt.data : evt.data + "T12:00:00").toLocaleDateString('pt-BR', {day: '2-digit', month: 'short'}) : ''}
