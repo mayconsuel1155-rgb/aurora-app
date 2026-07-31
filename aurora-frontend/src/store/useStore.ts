@@ -23,6 +23,7 @@ interface StoreState {
   fetchProdutos: () => Promise<void>;
   fetchAmbientes: () => Promise<void>;
   fetchMembros: () => Promise<void>;
+  removerMembro: (id: number) => Promise<void>;
   fetchEventos: () => Promise<void>;
   fetchInboxEvents: () => Promise<void>;
   fetchRemedios: () => Promise<void>;
@@ -122,6 +123,16 @@ export const useStore = create<StoreState>((set, get) => ({
     } catch (e) {
       console.error(e);
       set({ membros: [] });
+    }
+  },
+  removerMembro: async (id: number) => {
+    try {
+      const { removerMembro } = await import('../api/client');
+      await removerMembro(id);
+      get().fetchMembros();
+    } catch (e) {
+      console.error('Erro ao remover membro:', e);
+      throw e;
     }
   },
   fetchEventos: async () => {

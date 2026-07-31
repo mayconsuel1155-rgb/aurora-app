@@ -1,14 +1,26 @@
 import { useEffect, useState } from 'react';
 import { useStore } from '../store/useStore';
-import { Users, Copy, Check, RefreshCw, Key, Link as LinkIcon } from 'lucide-react';
+import { Users, Copy, Check, RefreshCw, Key, Link as LinkIcon, Trash2 } from 'lucide-react';
 import { gerarConvite } from '../api/client';
 
 export default function Familia() {
-  const { membros, fetchMembros, user } = useStore();
+  const { membros, fetchMembros, removerMembro, user } = useStore();
   const [codigoConvite, setCodigoConvite] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [copiado, setCopiado] = useState(false);
   const [erro, setErro] = useState('');
+
+  const currentUserIsAdmin = membros.find(m => m.permissao === 'admin')?.id === user?.id;
+
+  const handleRemover = async (id: number) => {
+    if (window.confirm("Deseja realmente remover este membro da casa? Ele perderá acesso imediato.")) {
+      try {
+        await removerMembro(id);
+      } catch (e: any) {
+        alert(e.response?.data?.detail || "Erro ao remover membro.");
+      }
+    }
+  };
 
   useEffect(() => {
     fetchMembros();
@@ -87,6 +99,15 @@ export default function Familia() {
                       <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${membro.permissao === 'admin' ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'}`}>
                         {membro.permissao === 'admin' ? 'Dono' : 'Convidado'}
                       </span>
+                      {currentUserIsAdmin && membro.id !== user?.id && (
+                        <button
+                          onClick={() => handleRemover(membro.id)}
+                          className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"
+                          title="Remover morador"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      )}
                     </div>
                   </li>
                 ))}

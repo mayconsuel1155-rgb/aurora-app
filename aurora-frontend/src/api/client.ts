@@ -340,6 +340,10 @@ export const entrarEmCasa = async (codigo: string): Promise<any> => {
   return response.data;
 };
 
+export const removerMembro = async (usuarioId: number): Promise<void> => {
+  await api.delete(`/casas/membros/${usuarioId}`);
+};
+
 export interface InboxEvent {
   id: string;
   email_assunto: string;

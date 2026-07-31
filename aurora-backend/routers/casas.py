@@ -113,3 +113,26 @@ def listar_membros(db: Session = Depends(get_db), current_user: models.Usuario =
             })
             
     return membros
+
+@router.delete("/membros/{usuario_id}", status_code=204)
+def remover_membro(usuario_id: int, db: Session = Depends(get_db), current_user: models.Usuario = Depends(security.get_current_user)):
+    # Somente o dono da casa pode remover membros
+    if not current_user.casas:
+        raise HTTPException(status_code=403, detail="Apenas o dono da casa pode remover membros")
+        
+    casa = current_user.casas[0]
+    
+    if usuario_id == current_user.id:
+        raise HTTPException(status_code=400, detail="O dono não pode se remover da própria casa")
+        
+    membro = db.query(models.MembroCasa).filter(
+        models.MembroCasa.casa_id == casa.id,
+        models.MembroCasa.usuario_id == usuario_id
+    ).first()
+    
+    if not membro:
+        raise HTTPException(status_code=404, detail="Membro não encontrado nesta casa")
+        
+    db.delete(membro)
+    db.commit()
+    return None
