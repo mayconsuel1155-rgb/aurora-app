@@ -6,7 +6,7 @@ import { GestaoCategoriasModal } from '../components/GestaoCategoriasModal';
 import type { Produto } from '../api/client';
 
 export default function Estoque() {
-  const { produtos, ambientes, categoriasProduto, loading, fetchProdutos, fetchAmbientes, alterarQuantidade, adicionarProduto, removerProduto } = useStore();
+  const { produtos, ambientes, categoriasProduto, loading, fetchProdutos, fetchAmbientes, fetchCategoriasProduto, alterarQuantidade, adicionarProduto, removerProduto } = useStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isGestaoAmbientesModalOpen, setIsGestaoAmbientesModalOpen] = useState(false);
   const [isGestaoCategoriasModalOpen, setIsGestaoCategoriasModalOpen] = useState(false);
@@ -27,7 +27,8 @@ export default function Estoque() {
   useEffect(() => {
     fetchProdutos();
     fetchAmbientes();
-  }, [fetchProdutos, fetchAmbientes]);
+    fetchCategoriasProduto();
+  }, [fetchProdutos, fetchAmbientes, fetchCategoriasProduto]);
 
   useEffect(() => {
     if (ambientes.length > 0 && novoProduto.ambiente_id === 0) {
