@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Outlet, NavLink } from 'react-router-dom';
-import { Home, Package, ShoppingCart, Sparkles, LogOut, User, Users, Network, Calendar, Moon, Sun, Activity, LayoutGrid } from 'lucide-react';
+import { Home, Package, ShoppingCart, Sparkles, LogOut, User, Users, Network, Calendar, Moon, Sun, Activity, Wallet } from 'lucide-react';
 import AIChatModal from './AIChatModal';
 import { useStore } from '../store/useStore';
 import { IosInstallPrompt } from './IosInstallPrompt';
