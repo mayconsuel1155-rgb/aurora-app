@@ -24,8 +24,8 @@ export default function Layout() {
           <NavItem to="/" icon={<Home size={18} strokeWidth={1.5} />} label="Rotina" />
           <NavItem to="/estoque" icon={<Package size={18} strokeWidth={1.5} />} label="Estoque" />
           <NavItem to="/compras" icon={<ShoppingCart size={18} strokeWidth={1.5} />} label="Compras" />
+          <NavItem to="/despesas" icon={<Wallet size={18} strokeWidth={1.5} />} label="Despesas" />
           <NavItem to="/familia" icon={<Users size={18} strokeWidth={1.5} />} label="Família" />
-          <NavItem to="/ambientes" icon={<LayoutGrid size={18} strokeWidth={1.5} />} label="Ambientes" />
           <NavItem to="/agenda" icon={<Calendar size={18} strokeWidth={1.5} />} label="Agenda" />
           <NavItem to="/saude" icon={<Activity size={18} strokeWidth={1.5} />} label="Saúde & Remédios" />
           <NavItem to="/integracoes" icon={<Network size={18} strokeWidth={1.5} />} label="Aurora Connect" />
@@ -109,8 +109,8 @@ export default function Layout() {
           <MobileNavItem to="/" icon={<Home size={20} />} label="Início" />
           <MobileNavItem to="/estoque" icon={<Package size={20} />} label="Estoque" />
           <MobileNavItem to="/compras" icon={<ShoppingCart size={20} />} label="Compras" />
+          <MobileNavItem to="/despesas" icon={<Wallet size={20} />} label="Despesas" />
           <MobileNavItem to="/familia" icon={<Users size={20} />} label="Família" />
-          <MobileNavItem to="/ambientes" icon={<LayoutGrid size={20} />} label="Ambientes" />
           <MobileNavItem to="/agenda" icon={<Calendar size={20} />} label="Agenda" />
           <MobileNavItem to="/saude" icon={<Activity size={20} />} label="Saúde" />
           <MobileNavItem to="/integracoes" icon={<Network size={20} />} label="Connect" />
