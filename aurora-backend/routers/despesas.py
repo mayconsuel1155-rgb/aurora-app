@@ -6,7 +6,7 @@ from datetime import datetime
 from database import get_db
 import models
 import schemas
-from utils.auth import get_current_user
+import security
 
 router = APIRouter(
     prefix="/despesas",
@@ -14,11 +14,11 @@ router = APIRouter(
 )
 
 @router.get("/", response_model=List[schemas.DespesaResponse])
-def get_despesas(db: Session = Depends(get_db), current_user: models.Usuario = Depends(get_current_user)):
+def get_despesas(db: Session = Depends(get_db), current_user: models.Usuario = Depends(security.get_current_user)):
     return db.query(models.Despesa).filter(models.Despesa.casa_id == current_user.casa_id).all()
 
 @router.post("/", response_model=schemas.DespesaResponse, status_code=status.HTTP_201_CREATED)
-def create_despesa(despesa: schemas.DespesaCreate, db: Session = Depends(get_db), current_user: models.Usuario = Depends(get_current_user)):
+def create_despesa(despesa: schemas.DespesaCreate, db: Session = Depends(get_db), current_user: models.Usuario = Depends(security.get_current_user)):
     nova_despesa = models.Despesa(
         casa_id=current_user.casa_id,
         descricao=despesa.descricao,
@@ -34,7 +34,7 @@ def create_despesa(despesa: schemas.DespesaCreate, db: Session = Depends(get_db)
     return nova_despesa
 
 @router.put("/{despesa_id}", response_model=schemas.DespesaResponse)
-def update_despesa(despesa_id: int, despesa_update: schemas.DespesaUpdate, db: Session = Depends(get_db), current_user: models.Usuario = Depends(get_current_user)):
+def update_despesa(despesa_id: int, despesa_update: schemas.DespesaUpdate, db: Session = Depends(get_db), current_user: models.Usuario = Depends(security.get_current_user)):
     despesa = db.query(models.Despesa).filter(
         models.Despesa.id == despesa_id, 
         models.Despesa.casa_id == current_user.casa_id
@@ -52,7 +52,7 @@ def update_despesa(despesa_id: int, despesa_update: schemas.DespesaUpdate, db: S
     return despesa
 
 @router.delete("/{despesa_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_despesa(despesa_id: int, db: Session = Depends(get_db), current_user: models.Usuario = Depends(get_current_user)):
+def delete_despesa(despesa_id: int, db: Session = Depends(get_db), current_user: models.Usuario = Depends(security.get_current_user)):
     despesa = db.query(models.Despesa).filter(
         models.Despesa.id == despesa_id, 
         models.Despesa.casa_id == current_user.casa_id
