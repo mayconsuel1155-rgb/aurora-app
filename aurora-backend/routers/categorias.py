@@ -14,12 +14,14 @@ router = APIRouter(
 
 @router.get("/", response_model=List[schemas.CategoriaProdutoResponse])
 def get_categorias(db: Session = Depends(get_db), current_user: models.Usuario = Depends(security.get_current_user)):
-    return db.query(models.CategoriaProduto).filter(models.CategoriaProduto.casa_id == current_user.casa_id).all()
+    casa = security.get_user_casa(current_user)
+    return db.query(models.CategoriaProduto).filter(models.CategoriaProduto.casa_id == casa.id).all()
 
 @router.post("/", response_model=schemas.CategoriaProdutoResponse, status_code=status.HTTP_201_CREATED)
 def create_categoria(categoria: schemas.CategoriaProdutoCreate, db: Session = Depends(get_db), current_user: models.Usuario = Depends(security.get_current_user)):
+    casa = security.get_user_casa(current_user)
     nova_categoria = models.CategoriaProduto(
-        casa_id=current_user.casa_id,
+        casa_id=casa.id,
         nome=categoria.nome
     )
     db.add(nova_categoria)
@@ -29,9 +31,10 @@ def create_categoria(categoria: schemas.CategoriaProdutoCreate, db: Session = De
 
 @router.delete("/{categoria_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_categoria(categoria_id: int, db: Session = Depends(get_db), current_user: models.Usuario = Depends(security.get_current_user)):
+    casa = security.get_user_casa(current_user)
     categoria = db.query(models.CategoriaProduto).filter(
         models.CategoriaProduto.id == categoria_id, 
-        models.CategoriaProduto.casa_id == current_user.casa_id
+        models.CategoriaProduto.casa_id == casa.id
     ).first()
     
     if not categoria:
