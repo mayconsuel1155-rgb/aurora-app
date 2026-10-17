@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useStore } from '../store/useStore';
 import { X, Plus, Tag, Trash2 } from 'lucide-react';
+import ConfirmDialog from './ConfirmDialog';
 
 interface Props {
   isOpen: boolean;
@@ -10,6 +11,7 @@ interface Props {
 export function GestaoCategoriasModal({ isOpen, onClose }: Props) {
   const { categoriasProduto, adicionarCategoriaProduto, removerCategoriaProduto } = useStore();
   const [novaCategoria, setNovaCategoria] = useState('');
+  const [categoriaParaExcluir, setCategoriaParaExcluir] = useState<{ id: number; nome: string } | null>(null);
 
   if (!isOpen) return null;
 
@@ -20,15 +22,15 @@ export function GestaoCategoriasModal({ isOpen, onClose }: Props) {
     setNovaCategoria('');
   };
 
-  const handleRemove = async (id: number) => {
-    if (window.confirm("Deseja realmente excluir esta categoria?")) {
-      await removerCategoriaProduto(id);
-    }
+  const handleRemove = async () => {
+    if (!categoriaParaExcluir) return;
+    await removerCategoriaProduto(categoriaParaExcluir.id);
+    setCategoriaParaExcluir(null);
   };
 
   return (
-    <div role="dialog" aria-modal="true" aria-labelledby="categories-title" className="fixed inset-0 z-50 flex items-center justify-center bg-[#101713]/55 p-4">
-      <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 w-full max-w-md shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+    <div role="dialog" aria-modal="true" aria-labelledby="categories-title" className="modal-backdrop">
+      <div className="modal-panel max-w-md p-6">
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center space-x-2 text-[var(--color-aurora-text)]">
             <Tag aria-hidden="true" size={24} className="text-[var(--color-aurora-primary)]" />
@@ -70,7 +72,7 @@ export function GestaoCategoriasModal({ isOpen, onClose }: Props) {
               <div key={cat.id} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-700/50">
                 <span className="font-medium text-slate-700 dark:text-slate-300">{cat.nome}</span>
                 <button
-                  onClick={() => handleRemove(cat.id)}
+                  onClick={() => setCategoriaParaExcluir({ id: cat.id, nome: cat.nome })}
                   className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-lg transition-colors"
                   aria-label={`Excluir categoria ${cat.nome}`}
                 >
@@ -87,6 +89,14 @@ export function GestaoCategoriasModal({ isOpen, onClose }: Props) {
           </div>
         </div>
       </div>
+
+      <ConfirmDialog
+        isOpen={Boolean(categoriaParaExcluir)}
+        title="Excluir categoria"
+        description={`A categoria ${categoriaParaExcluir?.nome ?? ''} será removida. Os produtos existentes não serão apagados.`}
+        onConfirm={handleRemove}
+        onCancel={() => setCategoriaParaExcluir(null)}
+      />
     </div>
   );
 }

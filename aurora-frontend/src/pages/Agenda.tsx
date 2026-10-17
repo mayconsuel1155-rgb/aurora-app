@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useStore } from '../store/useStore';
 import { Calendar, CheckCircle2, Clock, Video, Plus, Edit2, Trash2, X, Check } from 'lucide-react';
-import type { Evento } from '../api/client';
+import { getApiErrorMessage, type Evento } from '../api/client';
+import PageHeader from '../components/PageHeader';
+import ConfirmDialog from '../components/ConfirmDialog';
 
 export default function Agenda() {
   const { eventos, fetchEventos, adicionarEvento, editarEvento, excluirEvento, concluirEvento } = useStore();
@@ -13,6 +15,8 @@ export default function Agenda() {
   const [dataLocal, setDataLocal] = useState('');
   const [isAllDay, setIsAllDay] = useState(false);
   const [loadingAction, setLoadingAction] = useState(false);
+  const [actionError, setActionError] = useState('');
+  const [eventoParaExcluir, setEventoParaExcluir] = useState<Evento | null>(null);
 
   useEffect(() => {
     fetchEventos();
@@ -53,6 +57,7 @@ export default function Agenda() {
   const salvarEvento = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoadingAction(true);
+    setActionError('');
     try {
         let dt = dataLocal;
         if (!isAllDay && dt.length === 16) {
@@ -65,22 +70,22 @@ export default function Agenda() {
             await adicionarEvento({ titulo, data: dt, is_all_day: isAllDay });
         }
         setIsModalOpen(false);
-    } catch (err: any) {
-        const msg = err.response?.data?.detail || err.message || "Erro desconhecido";
-        alert(`Não foi possível salvar o compromisso: ${msg}\n\nSe necessário, reconecte sua conta do Google e tente novamente.`);
+    } catch (err: unknown) {
+        const msg = getApiErrorMessage(err, 'Erro desconhecido');
+        setActionError(`Não foi possível salvar: ${msg}. Se necessário, reconecte sua conta do Google.`);
     } finally {
         setLoadingAction(false);
     }
   };
 
-  const handleExcluir = async (id: string) => {
-      if (confirm("Tem certeza que deseja excluir este compromisso?")) {
-          try {
-             await excluirEvento(id);
-          } catch (err: any) {
-             const msg = err.response?.data?.detail || err.message || "Erro desconhecido";
-             alert(`Erro ao excluir: ${msg}`);
-          }
+  const handleExcluir = async () => {
+      if (!eventoParaExcluir) return;
+      try {
+        await excluirEvento(eventoParaExcluir.id);
+        setEventoParaExcluir(null);
+      } catch (err: unknown) {
+        const msg = getApiErrorMessage(err, 'Erro desconhecido');
+        setActionError(`Não foi possível excluir: ${msg}`);
       }
   };
 
@@ -88,38 +93,34 @@ export default function Agenda() {
       if (tituloAtual.startsWith('[Concluído]')) return;
       try {
           await concluirEvento(id, tituloAtual);
-      } catch (err: any) {
-          const msg = err.response?.data?.detail || err.message || "Erro desconhecido";
-          alert(`Erro ao concluir: ${msg}`);
+      } catch (err: unknown) {
+          const msg = getApiErrorMessage(err, 'Erro desconhecido');
+          setActionError(`Não foi possível concluir: ${msg}`);
       }
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
-        <div>
-          <h2 className="text-3xl font-bold text-[var(--color-aurora-text)] flex items-center">
-            <Calendar className="mr-3 text-[var(--color-aurora-primary)]" size={32} />
-            Agenda
-          </h2>
-          <p className="mt-2 text-[var(--color-aurora-text-muted)] max-w-xl">
-            Organize compromissos e acompanhe o que está previsto para os próximos dias.
-          </p>
-        </div>
-        <button
+    <div className="page-stack">
+      <PageHeader
+        eyebrow="Rotina"
+        title="Agenda da casa"
+        description="Organize compromissos e acompanhe o que está previsto para os próximos dias."
+        action={<button
           onClick={abrirModalNovo}
-          className="flex items-center rounded-xl bg-[var(--color-aurora-primary)] px-4 py-2 text-sm font-bold text-white shadow-md transition-[background-color,transform] hover:bg-[var(--color-aurora-primary-hover)] active:scale-95"
+          className="btn-primary flex w-full items-center justify-center px-4 py-3 sm:w-auto"
         >
-          <Plus className="mr-2" size={18} />
+          <Plus aria-hidden="true" className="mr-2" size={18} />
           Adicionar compromisso
-        </button>
-      </div>
+        </button>}
+      />
+
+      {actionError && <div role="alert" className="status-danger rounded-xl border border-current/15 p-4 text-sm font-medium">{actionError}</div>}
       
-      <div className="aurora-card border-t-4 border-t-[var(--color-aurora-accent)] p-6 shadow-sm">
+      <section className="aurora-panel p-4 sm:p-6" aria-label="Compromissos">
         {eventos.length === 0 ? (
-          <div className="py-12 text-center bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-dashed border-slate-200 dark:border-slate-700">
-             <CheckCircle2 className="mx-auto h-12 w-12 text-slate-300 mb-3" />
-             <p className="text-slate-600 dark:text-slate-400 font-medium">Nenhum compromisso agendado.</p>
+          <div className="empty-state">
+             <span className="empty-state-icon mb-3"><CheckCircle2 aria-hidden="true" size={23} /></span>
+             <p className="font-semibold">Nenhum compromisso agendado.</p>
              <button onClick={abrirModalNovo} className="text-action mt-4 font-semibold hover:underline">
                  Adicionar um compromisso
              </button>
@@ -129,7 +130,7 @@ export default function Agenda() {
              {eventos.map(evt => {
                  const isConcluido = evt.titulo.startsWith('[Concluído]');
                  return (
-                 <div key={evt.id} className={`p-4 border rounded-xl bg-white dark:bg-slate-800 shadow-sm flex flex-col sm:flex-row sm:items-center gap-4 hover:shadow-md transition-shadow relative overflow-hidden ${isConcluido ? 'border-emerald-200 bg-emerald-50/30' : 'border-slate-100 dark:border-slate-700'}`}>
+                 <article key={evt.id} className={`render-item relative flex flex-col gap-4 overflow-hidden rounded-xl border p-4 transition-[background-color,border-color] sm:flex-row sm:items-center ${isConcluido ? 'border-[var(--color-aurora-success)]/25 bg-[var(--color-aurora-success-soft)]' : 'border-[var(--color-aurora-border)] bg-[var(--color-aurora-surface)]'}`}>
                      {isConcluido && (
                          <div className="absolute top-0 left-0 w-1 h-full bg-emerald-500"></div>
                      )}
@@ -161,6 +162,7 @@ export default function Agenda() {
                              <button 
                                onClick={() => handleConcluir(evt.id, evt.titulo)}
                                title="Marcar como Concluído"
+                               aria-label={`Concluir ${evt.titulo}`}
                                className="p-2 text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors flex items-center gap-1 text-xs font-bold"
                              >
                                  <Check size={16} /> <span className="sm:hidden">Concluir</span>
@@ -169,34 +171,36 @@ export default function Agenda() {
                          <button 
                            onClick={() => abrirModalEditar(evt)}
                            title="Editar/Reagendar"
+                           aria-label={`Editar ${evt.titulo}`}
                            className="surface-primary-soft flex items-center gap-1 rounded-lg p-2 text-xs font-bold transition-colors hover:bg-[var(--color-aurora-soft)]"
                          >
                              <Edit2 size={16} /> <span className="sm:hidden">Editar</span>
                          </button>
                          <button 
-                           onClick={() => handleExcluir(evt.id)}
+                           onClick={() => setEventoParaExcluir(evt)}
                            title="Excluir"
+                           aria-label={`Excluir ${evt.titulo}`}
                            className="p-2 text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-lg transition-colors flex items-center gap-1 text-xs font-bold"
                          >
                              <Trash2 size={16} /> <span className="sm:hidden">Excluir</span>
                          </button>
                      </div>
-                 </div>
+                 </article>
              )})}
           </div>
         )}
-      </div>
+      </section>
 
       {/* Modal de Criação / Edição */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#101713]/55 p-4 animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-slate-800 rounded-3xl w-full max-w-md shadow-2xl overflow-hidden">
-            <div className="flex justify-between items-center p-6 border-b border-slate-100 dark:border-slate-700">
-              <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200">
+        <div className="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="agenda-dialog-title">
+          <div className="modal-panel max-w-md overflow-hidden">
+            <div className="flex items-center justify-between border-b border-[var(--color-aurora-border)] p-6">
+              <h3 id="agenda-dialog-title" className="text-xl font-bold">
                 {eventoEditando ? 'Reagendar / Editar' : 'Novo Compromisso'}
               </h3>
-              <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600 dark:text-slate-400 p-2 bg-slate-50 dark:bg-slate-900/50 hover:bg-slate-100 dark:bg-slate-800 rounded-full transition-colors">
-                <X size={20} />
+              <button type="button" onClick={() => setIsModalOpen(false)} aria-label="Fechar" className="icon-button bg-[var(--color-aurora-soft)]">
+                <X aria-hidden="true" size={20} />
               </button>
             </div>
             
@@ -243,14 +247,14 @@ export default function Agenda() {
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="flex-1 px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl hover:bg-slate-50 dark:bg-slate-900/50 transition-colors"
+                  className="btn-outline flex-1 px-4 py-3"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={loadingAction}
-                  className="flex flex-1 items-center justify-center rounded-xl bg-[var(--color-aurora-primary)] px-4 py-3 font-bold text-white shadow-md transition-colors hover:bg-[var(--color-aurora-primary-hover)]"
+                  className="btn-primary flex flex-1 items-center justify-center px-4 py-3"
                 >
                   {loadingAction ? 'Salvando…' : 'Salvar'}
                 </button>
@@ -259,6 +263,14 @@ export default function Agenda() {
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        isOpen={Boolean(eventoParaExcluir)}
+        title="Excluir compromisso"
+        description={`O compromisso ${eventoParaExcluir?.titulo.replace('[Concluído] ', '') ?? ''} será removido da agenda.`}
+        onConfirm={handleExcluir}
+        onCancel={() => setEventoParaExcluir(null)}
+      />
     </div>
   );
 }

@@ -38,24 +38,24 @@ export function GestaoAmbientesModal({ isOpen, onClose }: GestaoAmbientesModalPr
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#101713]/55 p-4">
-      <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 w-full max-w-lg shadow-2xl animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+    <div className="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="rooms-title">
+      <div className="modal-panel flex max-w-lg flex-col p-6">
         
         <div className="flex justify-between items-center mb-6 shrink-0">
           <div className="flex items-center space-x-2">
             <div className="p-2 bg-[var(--color-aurora-primary)]/10 text-[var(--color-aurora-primary)] rounded-xl">
               <MapPin size={24} />
             </div>
-            <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200">Gerenciar Ambientes</h2>
+            <h2 id="rooms-title" className="text-xl font-bold">Gerenciar ambientes</h2>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 p-2 rounded-full transition-colors">
-            <X size={20} />
+          <button type="button" onClick={onClose} aria-label="Fechar" className="icon-button bg-[var(--color-aurora-soft)]">
+            <X aria-hidden="true" size={20} />
           </button>
         </div>
 
         {/* Adicionar Novo Ambiente */}
-        <div className="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-2xl mb-6 shrink-0 border border-slate-100 dark:border-slate-700">
-          <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3 uppercase tracking-wider">Criar Novo</h3>
+        <div className="mb-6 shrink-0 rounded-xl border border-[var(--color-aurora-border)] bg-[var(--color-aurora-soft)] p-4">
+          <h3 className="mb-3 text-sm font-semibold">Criar novo</h3>
           <form onSubmit={handleCriar} className="flex flex-col space-y-3">
             <div className="flex space-x-3">
               <div className="relative">
@@ -86,14 +86,14 @@ export function GestaoAmbientesModal({ isOpen, onClose }: GestaoAmbientesModalPr
               disabled={!novoNome.trim()}
               className="btn-primary flex items-center justify-center gap-2 p-3 active:scale-95"
             >
-              <Plus size={18} /> Adicionar Ambiente
+              <Plus size={18} /> Adicionar ambiente
             </button>
           </form>
         </div>
 
         {/* Lista de Ambientes Existentes */}
         <div className="flex-1 overflow-y-auto min-h-0">
-          <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3 uppercase tracking-wider sticky top-0 bg-white dark:bg-slate-800 py-2">Seus Ambientes ({ambientes.length})</h3>
+          <h3 className="sticky top-0 mb-3 bg-[var(--color-aurora-surface)] py-2 text-sm font-semibold">Seus ambientes ({ambientes.length})</h3>
           
           {ambientes.length === 0 ? (
              <div className="text-center p-6 text-slate-400 text-sm">
@@ -109,8 +109,9 @@ export function GestaoAmbientesModal({ isOpen, onClose }: GestaoAmbientesModalPr
                   </div>
                   <button 
                     onClick={() => setAmbienteParaExcluir(amb.id)}
-                    className="rounded-xl p-2 text-slate-300 opacity-100 transition-[color,background-color,opacity] hover:bg-rose-50 hover:text-rose-600 group-hover:opacity-100 md:opacity-0"
+                    className="rounded-xl p-2 text-slate-300 opacity-100 transition-[color,background-color,opacity] hover:bg-rose-50 hover:text-rose-600 focus-visible:opacity-100 md:opacity-0 md:group-hover:opacity-100"
                     title="Excluir ambiente"
+                    aria-label={`Excluir ${amb.nome}`}
                   >
                     <Trash2 size={18} />
                   </button>
@@ -123,13 +124,13 @@ export function GestaoAmbientesModal({ isOpen, onClose }: GestaoAmbientesModalPr
 
       {/* Modal Confirmação de Exclusão Aninhado */}
       {ambienteParaExcluir !== null && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-[#101713]/68 p-4">
-          <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 w-full max-w-sm shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+        <div className="modal-backdrop !z-[60]" role="alertdialog" aria-modal="true" aria-labelledby="delete-room-title">
+          <div className="modal-panel max-w-sm p-6">
             <div className="flex flex-col items-center text-center space-y-3">
-              <div className="p-3 bg-rose-100 text-rose-600 rounded-full">
+              <div className="status-danger rounded-xl p-3">
                 <AlertTriangle size={32} />
               </div>
-              <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200">Excluir Ambiente</h3>
+              <h3 id="delete-room-title" className="text-xl font-bold">Excluir ambiente</h3>
               <p className="text-sm text-slate-500 dark:text-slate-400">
                 Tem certeza? Os produtos que estão neste ambiente ficarão "Sem ambiente", mas <strong className="text-slate-800 dark:text-slate-200">não serão excluídos</strong>.
               </p>

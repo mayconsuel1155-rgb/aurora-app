@@ -66,15 +66,38 @@ export interface CategoriaProduto {
   nome: string;
 }
 
+export interface RegisterPayload {
+  nome: string;
+  email: string;
+  senha: string;
+  codigo_convite?: string;
+}
 
+export interface LoginPayload {
+  email: string;
+  senha: string;
+}
 
-export const registerUser = async (data: any) => {
-  const response = await api.post('/auth/register', data);
+export interface AuthResponse {
+  access_token: string;
+  token_type: string;
+  user?: Usuario;
+}
+
+export function getApiErrorMessage(error: unknown, fallback: string) {
+  if (axios.isAxiosError<{ detail?: string }>(error)) {
+    return error.response?.data?.detail || error.message || fallback;
+  }
+  return error instanceof Error ? error.message : fallback;
+}
+
+export const registerUser = async (data: RegisterPayload): Promise<Usuario> => {
+  const response = await api.post<Usuario>('/auth/register', data);
   return response.data;
 };
 
-export const loginUser = async (data: any) => {
-  const response = await api.post('/auth/login', data);
+export const loginUser = async (data: LoginPayload): Promise<AuthResponse> => {
+  const response = await api.post<AuthResponse>('/auth/login', data);
   return response.data;
 };
 
@@ -340,8 +363,8 @@ export const gerarConvite = async (): Promise<Convite> => {
   return response.data;
 };
 
-export const entrarEmCasa = async (codigo: string): Promise<any> => {
-  const response = await api.post('/casas/entrar', { codigo });
+export const entrarEmCasa = async (codigo: string): Promise<{ message: string }> => {
+  const response = await api.post<{ message: string }>('/casas/entrar', { codigo });
   return response.data;
 };
 

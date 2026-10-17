@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { getProdutos, getInsights, updateProduto, createProduto, deleteProduto, getAmbientes, createAmbiente, deleteAmbiente, getMembros, getEventos, createGoogleEvent, updateGoogleEvent, deleteGoogleEvent, getInboxEvents, getRemedios, createRemedio, deleteRemedio, toggleRemedio as toggleRemedioApi, getDespesas, createDespesa, updateDespesa, deleteDespesa, getCategoriasProduto, createCategoriaProduto, deleteCategoriaProduto, type Produto, type Insight, type Ambiente, type Usuario, type Membro, type Evento, type InboxEvent, type Remedio, type Despesa, type CategoriaProduto } from '../api/client';
+import { getProdutos, getInsights, updateProduto, createProduto, deleteProduto, getAmbientes, createAmbiente, deleteAmbiente, getMembros, removerMembro as removerMembroApi, getEventos, createGoogleEvent, updateGoogleEvent, deleteGoogleEvent, getInboxEvents, getRemedios, createRemedio, deleteRemedio, toggleRemedio as toggleRemedioApi, getDespesas, createDespesa, updateDespesa, deleteDespesa, getCategoriasProduto, createCategoriaProduto, deleteCategoriaProduto, type Produto, type Insight, type Ambiente, type Usuario, type Membro, type Evento, type InboxEvent, type Remedio, type Despesa, type CategoriaProduto } from '../api/client';
 import { NotificationService } from '../services/NotificationService';
 
 interface StoreState {
@@ -127,8 +127,7 @@ export const useStore = create<StoreState>((set, get) => ({
   },
   removerMembro: async (id: number) => {
     try {
-      const { removerMembro } = await import('../api/client');
-      await removerMembro(id);
+      await removerMembroApi(id);
       get().fetchMembros();
     } catch (e) {
       console.error('Erro ao remover membro:', e);

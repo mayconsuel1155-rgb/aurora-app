@@ -17,11 +17,11 @@ export default defineConfig({
       },
       includeAssets: ['favicon.svg', 'icons.svg'],
       manifest: {
-        name: 'Aurora Home',
+        name: 'Aurora | Sua casa em ordem',
         short_name: 'Aurora',
-        description: 'Gerencie sua casa inteligente e estoque com IA',
-        theme_color: '#4f46e5',
-        background_color: '#f8fafc',
+        description: 'Organize estoque, compras, agenda e rotina da sua casa.',
+        theme_color: '#173e2d',
+        background_color: '#f3f4ef',
         display: 'standalone',
         icons: [
           {

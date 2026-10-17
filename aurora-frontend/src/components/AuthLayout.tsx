@@ -22,8 +22,8 @@ export default function AuthLayout({ eyebrow, title, description, children, foot
         CASA
       </div>
 
-      <div className="relative mx-auto grid min-h-[calc(100dvh-40px)] w-full min-w-0 max-w-[1320px] content-start grid-cols-1 gap-8 lg:min-h-[calc(100dvh-80px)] lg:grid-cols-12 lg:content-normal lg:items-center lg:gap-8">
-        <section className="flex flex-col pt-1 lg:col-span-7 lg:min-h-[72vh] lg:justify-between lg:py-4">
+      <div className="relative mx-auto grid min-h-[calc(100dvh-40px)] w-full min-w-0 max-w-[1320px] content-start grid-cols-1 gap-8 lg:min-h-[calc(100dvh-80px)] lg:grid-cols-[minmax(0,1fr)_minmax(360px,440px)] lg:content-normal lg:items-center lg:gap-14">
+        <section className="flex flex-col pt-1 lg:min-h-[72vh] lg:justify-between lg:py-4">
           <div className="flex items-center gap-3">
             <div className="brand-mark"><Sparkles aria-hidden="true" size={18} /></div>
             <div>
@@ -52,7 +52,7 @@ export default function AuthLayout({ eyebrow, title, description, children, foot
           </div>
         </section>
 
-        <section className="box-border w-[calc(100vw-2rem)] min-w-0 max-w-full self-center overflow-hidden rounded-[24px] bg-[var(--color-aurora-surface)] px-5 py-8 text-[var(--color-aurora-text)] shadow-[0_28px_80px_rgba(6,24,16,.3)] sm:w-full sm:px-9 sm:py-10 lg:col-span-5 lg:-ml-4 lg:px-10 xl:px-12">
+        <section className="box-border w-full min-w-0 self-center overflow-hidden rounded-[24px] border border-white/10 bg-[var(--color-aurora-surface)] px-5 py-8 text-[var(--color-aurora-text)] shadow-[0_28px_80px_rgba(6,24,16,.3)] sm:px-9 sm:py-10 lg:px-10 xl:px-12">
           <div className="mx-auto w-full min-w-0 max-w-md">
             <span className="ui-label surface-primary-soft">{eyebrow}</span>
             <h2 className="mt-5 text-3xl font-semibold tracking-[-.045em] sm:text-4xl">{title}</h2>

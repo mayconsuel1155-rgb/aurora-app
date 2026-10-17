@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useStore } from '../store/useStore';
 import { Users, Copy, Check, RefreshCw, Key, Link as LinkIcon, Trash2 } from 'lucide-react';
-import { gerarConvite } from '../api/client';
+import { gerarConvite, getApiErrorMessage } from '../api/client';
+import PageHeader from '../components/PageHeader';
+import ConfirmDialog from '../components/ConfirmDialog';
 
 export default function Familia() {
   const { membros, fetchMembros, removerMembro, user } = useStore();
@@ -9,17 +11,19 @@ export default function Familia() {
   const [loading, setLoading] = useState(false);
   const [copiado, setCopiado] = useState(false);
   const [erro, setErro] = useState('');
+  const [membroParaRemover, setMembroParaRemover] = useState<{ id: number; nome: string } | null>(null);
 
   // Use email for comparison to avoid bugs with legacy mock ID 1 in localStorage
   const currentUserIsAdmin = membros.find(m => m.permissao === 'admin')?.email === user?.email;
 
-  const handleRemover = async (id: number) => {
-    if (window.confirm("Deseja realmente remover este membro da casa? Ele perderá acesso imediato.")) {
-      try {
-        await removerMembro(id);
-      } catch (e: any) {
-        alert(e.response?.data?.detail || "Erro ao remover membro.");
-      }
+  const handleRemover = async () => {
+    if (!membroParaRemover) return;
+    setErro('');
+    try {
+      await removerMembro(membroParaRemover.id);
+      setMembroParaRemover(null);
+    } catch (error: unknown) {
+      setErro(getApiErrorMessage(error, 'Não foi possível remover o morador.'));
     }
   };
 
@@ -34,8 +38,8 @@ export default function Familia() {
       const convite = await gerarConvite();
       setCodigoConvite(convite.codigo);
       setCopiado(false);
-    } catch (e: any) {
-      setErro(e.response?.data?.detail || 'Erro ao gerar convite.');
+    } catch (error: unknown) {
+      setErro(getApiErrorMessage(error, 'Não foi possível gerar o convite.'));
     } finally {
       setLoading(false);
     }
@@ -59,34 +63,30 @@ export default function Familia() {
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="flex justify-between items-end mb-8">
-        <div>
-          <span className="ui-label ui-label-gray mb-3">Família</span>
-          <h2 className="text-3xl font-bold text-[#171717] dark:text-[#EDEDED] tracking-tight">
-            Pessoas da casa
-          </h2>
-          <p className="mt-2 text-[var(--color-aurora-text-muted)]">
-            Gerencie quem pode acessar e atualizar as informações da casa.
-          </p>
-        </div>
-      </div>
+    <div className="page-stack">
+      <PageHeader
+        eyebrow="Família"
+        title="Pessoas da casa"
+        description="Gerencie quem pode acessar e atualizar as informações compartilhadas."
+      />
+
+      {erro && <div role="alert" className="status-danger rounded-xl border border-current/15 p-4 text-sm font-medium">{erro}</div>}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
         <div className="lg:col-span-2 space-y-4">
-          <div className="aurora-card p-6">
-            <h3 className="text-lg font-bold text-[#171717] dark:text-[#EDEDED] mb-6 tracking-tight">Moradores</h3>
+          <div className="aurora-panel p-6">
+            <h3 className="section-title mb-6">Moradores</h3>
             
             {membros.length === 0 ? (
-              <div className="py-10 text-center bg-[#FAFAFA] dark:bg-[#0A0A0A] rounded-lg border border-dashed border-[#EAEAEA] dark:border-[#262626]">
-                <Users className="mx-auto h-10 w-10 text-[#A1A1AA] dark:text-[#666666] mb-3" />
-                <p className="text-[#171717] dark:text-[#EDEDED] font-medium text-sm">Somente você tem acesso no momento.</p>
-                <p className="text-[#666666] dark:text-[#A1A1AA] text-xs mt-1">Crie um convite para adicionar outra pessoa.</p>
+              <div className="empty-state min-h-64">
+                <span className="empty-state-icon mb-3"><Users aria-hidden="true" size={22} /></span>
+                <p className="text-sm font-semibold">Somente você tem acesso no momento.</p>
+                <p className="section-copy">Crie um convite para adicionar outra pessoa.</p>
               </div>
             ) : (
               <ul className="space-y-3">
                 {membros.map((membro) => (
-                  <li key={membro.id} className="flex items-center justify-between p-3 bg-transparent rounded-lg border border-[#EAEAEA] dark:border-[#262626] hover:bg-[#FAFAFA] dark:hover:bg-[#111111] transition-smooth group">
+                  <li key={membro.id} className="render-item group flex items-center justify-between rounded-xl border border-[var(--color-aurora-border)] p-3 transition-colors hover:bg-[var(--color-aurora-soft)]">
                     <div className="flex items-center">
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs border ${membro.permissao === 'admin' ? 'bg-[#171717] text-white border-[#000000] dark:bg-[#EDEDED] dark:text-black' : 'bg-[#FAFAFA] text-[#666666] border-[#EAEAEA] dark:bg-[#171717] dark:border-[#262626] dark:text-[#A1A1AA]'}`}>
                         {membro.nome?.charAt(0).toUpperCase() || '?'}
@@ -102,9 +102,10 @@ export default function Familia() {
                       </span>
                       {currentUserIsAdmin && membro.email !== user?.email && (
                         <button
-                          onClick={() => handleRemover(membro.id)}
+                          onClick={() => setMembroParaRemover({ id: membro.id, nome: membro.nome })}
                           className="p-1.5 text-[#A1A1AA] hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-md transition-colors"
                           title="Remover morador"
+                          aria-label={`Remover ${membro.nome}`}
                         >
                           <Trash2 size={14} />
                         </button>
@@ -118,7 +119,7 @@ export default function Familia() {
         </div>
 
         <div className="space-y-6">
-          <div className="aurora-card p-6 bg-[#FAFAFA] dark:bg-[#0A0A0A]">
+          <div className="aurora-panel p-6">
             
             <h3 className="text-sm font-bold text-[#171717] dark:text-[#EDEDED] flex items-center mb-1 tracking-tight">
               <Key className="mr-2 text-[#171717] dark:text-[#EDEDED]" size={16} />
@@ -179,6 +180,15 @@ export default function Familia() {
           </div>
         </div>
       </div>
+
+      <ConfirmDialog
+        isOpen={Boolean(membroParaRemover)}
+        title="Remover morador"
+        description={`${membroParaRemover?.nome ?? 'Esta pessoa'} perderá o acesso imediato às informações da casa.`}
+        confirmLabel="Remover"
+        onConfirm={handleRemover}
+        onCancel={() => setMembroParaRemover(null)}
+      />
     </div>
   );
 }
