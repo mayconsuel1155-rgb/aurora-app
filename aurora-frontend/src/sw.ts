@@ -22,7 +22,7 @@ self.addEventListener('push', (event) => {
     };
 
     event.waitUntil(self.registration.showNotification(title, options));
-  } catch (e) {
+  } catch {
     // Caso não seja json
     event.waitUntil(
       self.registration.showNotification('Aurora Home', {

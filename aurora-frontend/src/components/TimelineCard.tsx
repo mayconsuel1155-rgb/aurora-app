@@ -43,7 +43,7 @@ export default function TimelineCard({ eventos }: TimelineCardProps) {
     <div className="aurora-card p-6 md:p-8 flex flex-col justify-between transition-smooth hover:translate-y-[-2px] hover:shadow-xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
       <div>
         <div className="flex items-center justify-between mb-6">
-          <div className="p-4 rounded-3xl bg-blue-50 text-blue-600 backdrop-blur-md">
+          <div className="surface-primary-soft rounded-xl p-4">
             <Calendar size={32} strokeWidth={1.5} />
           </div>
           <span className="text-xs font-semibold px-3 py-1 bg-blue-50 text-blue-700 rounded-full flex items-center gap-1">
@@ -53,7 +53,7 @@ export default function TimelineCard({ eventos }: TimelineCardProps) {
         </div>
 
         <div className="space-y-1 mb-6">
-          <h2 className="text-2xl font-semibold">Próximos Compromissos</h2>
+          <h2 className="text-2xl font-semibold">Próximos compromissos</h2>
           <p className="text-[var(--color-aurora-text-muted)] text-sm">
             {safeEventos.length > 0 
               ? `Você tem ${safeEventos.length} eventos chegando.`
@@ -89,7 +89,7 @@ export default function TimelineCard({ eventos }: TimelineCardProps) {
         ) : (
           <div className="py-8 text-center bg-slate-50 dark:bg-slate-900/50 rounded-2xl mb-6 border border-slate-100 dark:border-slate-700 border-dashed">
             <Calendar size={24} className="mx-auto text-slate-300 mb-2" />
-            <p className="text-sm text-slate-500 dark:text-slate-400">Sua agenda está livre!</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">Nenhum compromisso agendado.</p>
             <Link to="/integracoes" className="text-xs text-blue-600 hover:underline mt-2 inline-block">
               Verificar Conexões
             </Link>

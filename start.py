@@ -54,18 +54,18 @@ def print_status():
     safe_print("=" * 60)
     safe_print("📊 VERIFICAÇÃO DE STATUS DOS SERVIÇOS AURORA")
     safe_print("=" * 60)
-    backend_up = check_port_open("http://127.0.0.1:8000/")
-    frontend_up = check_port_open("http://127.0.0.1:5173/")
+    backend_up = check_port_open("http://localhost:8000/") or check_port_open("http://127.0.0.1:8000/")
+    frontend_up = check_port_open("http://localhost:5173/") or check_port_open("http://127.0.0.1:5173/")
 
     if backend_up:
-        safe_print("✅ Backend FastAPI: RODANDO (http://127.0.0.1:8000)")
+        safe_print("✅ Backend FastAPI: RODANDO (http://localhost:8000)")
     else:
-        safe_print("❌ Backend FastAPI: PARADO (http://127.0.0.1:8000)")
+        safe_print("❌ Backend FastAPI: PARADO (http://localhost:8000)")
 
     if frontend_up:
-        safe_print("✅ Frontend React Vite: RODANDO (http://127.0.0.1:5173)")
+        safe_print("✅ Frontend React Vite: RODANDO (http://localhost:5173)")
     else:
-        safe_print("❌ Frontend React Vite: PARADO (http://127.0.0.1:5173)")
+        safe_print("❌ Frontend React Vite: PARADO (http://localhost:5173)")
 
     safe_print("=" * 60)
     return backend_up and frontend_up

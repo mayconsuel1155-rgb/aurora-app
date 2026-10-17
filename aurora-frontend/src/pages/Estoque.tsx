@@ -34,13 +34,13 @@ export default function Estoque() {
     if (ambientes.length > 0 && novoProduto.ambiente_id === 0) {
       setNovoProduto(prev => ({ ...prev, ambiente_id: ambientes[0].id }));
     }
-  }, [ambientes]);
+  }, [ambientes, novoProduto.ambiente_id]);
 
   useEffect(() => {
     if (categoriasProduto.length > 0 && novoProduto.categoria === '') {
       setNovoProduto(prev => ({ ...prev, categoria: categoriasProduto[0].nome }));
     }
-  }, [categoriasProduto]);
+  }, [categoriasProduto, novoProduto.categoria]);
 
   const handleCreateProduto = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -106,45 +106,45 @@ export default function Estoque() {
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Inventário da Casa</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Estoque da casa</h1>
           <p className="text-[var(--color-aurora-text-muted)] mt-1 font-light">
-            Organizado por ambientes e categorias da sua residência.
+            Acompanhe quantidades, validade e valor dos produtos.
           </p>
         </div>
         <button 
           onClick={() => setIsModalOpen(true)}
           className="bg-[var(--color-aurora-primary)] text-white px-5 py-3 rounded-2xl font-medium hover:bg-[var(--color-aurora-primary-hover)] transition-smooth shadow-lg shadow-[var(--color-aurora-primary)]/20 active:scale-95 flex items-center"
         >
-          <Plus size={18} strokeWidth={2} className="mr-2" /> Novo Item
+          <Plus size={18} strokeWidth={2} className="mr-2" /> Adicionar produto
         </button>
       </header>
 
       {/* Dashboard Financeiro */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-3xl p-6 text-white shadow-lg shadow-emerald-500/20 relative overflow-hidden group hover:scale-[1.01] transition-transform duration-300">
+        <div className="group relative overflow-hidden rounded-2xl bg-[var(--color-aurora-primary)] p-6 text-white shadow-md transition-transform duration-300 hover:-translate-y-0.5">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none group-hover:scale-110 transition-transform"></div>
           <div className="flex items-center space-x-3 mb-4">
-            <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
+            <div className="rounded-xl bg-white/12 p-2">
               <Wallet size={20} className="text-white" />
             </div>
-            <h3 className="font-medium text-emerald-50 tracking-wide text-sm uppercase">Valor Total em Estoque</h3>
+            <h3 className="font-medium text-emerald-50 tracking-wide text-sm">Valor total do estoque</h3>
           </div>
           <div className="flex items-baseline space-x-2">
             <span className="text-2xl font-semibold opacity-80">R$</span>
             <span className="text-5xl font-extrabold tracking-tight">{valorTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
           </div>
           <p className="mt-3 text-emerald-100 text-sm opacity-90 flex items-center">
-            <TrendingUp size={14} className="mr-1.5" /> O patrimônio da sua casa
+            <TrendingUp size={14} className="mr-1.5" /> Soma estimada dos produtos cadastrados
           </p>
         </div>
 
         {produtoMaisValioso && ((produtoMaisValioso.quantidade ?? 0) * (produtoMaisValioso.preco ?? 0)) > 0 && (
           <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 border border-slate-200 dark:border-slate-700/80 shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow">
             <div className="flex items-center space-x-3 mb-4">
-              <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl">
-                <DollarSign size={20} className="text-indigo-500" />
+              <div className="surface-primary-soft rounded-xl p-2">
+                <DollarSign size={20} />
               </div>
-              <h3 className="font-medium text-slate-500 dark:text-slate-400 tracking-wide text-sm uppercase">Item Mais Valioso</h3>
+              <h3 className="font-medium text-slate-500 dark:text-slate-400 tracking-wide text-sm">Produto de maior valor</h3>
             </div>
             <div>
               <h4 className="text-2xl font-bold text-[var(--color-aurora-text)] truncate">{produtoMaisValioso.nome}</h4>
@@ -165,11 +165,14 @@ export default function Estoque() {
         <div className="relative">
           <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
+            id="busca-estoque"
+            name="busca"
+            aria-label="Buscar produto"
             type="text"
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
-            placeholder="Buscar produto por nome ou categoria..."
-            className="w-full pl-12 pr-4 py-3.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-2xl shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-aurora-primary)]/40 transition-all text-slate-800 dark:text-slate-200 placeholder-slate-400"
+            placeholder="Buscar produto por nome ou categoria…"
+            className="form-input w-full py-3.5 pl-12 pr-4"
           />
           {busca && (
             <button onClick={() => setBusca('')} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:text-slate-400">
@@ -183,20 +186,20 @@ export default function Estoque() {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2 text-xs font-semibold uppercase text-[var(--color-aurora-text-muted)] tracking-wider">
               <MapPin size={14} />
-              <span>Filtrar por Ambiente:</span>
+              <span>Ambiente</span>
             </div>
             <button 
               onClick={() => setIsGestaoAmbientesModalOpen(true)}
               className="flex items-center space-x-1 text-xs font-medium text-[var(--color-aurora-primary)] hover:text-[var(--color-aurora-primary-hover)] transition-colors"
             >
               <Settings2 size={14} />
-              <span>Gerenciar Ambientes</span>
+              <span>Gerenciar ambientes</span>
             </button>
           </div>
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setAmbienteFiltroId(null)}
-              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+              className={`rounded-xl px-4 py-2 text-sm font-medium transition-[color,background-color,border-color] ${
                 ambienteFiltroId === null
                   ? 'bg-[var(--color-aurora-primary)] text-white shadow-md shadow-[var(--color-aurora-primary)]/20'
                   : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700/80 hover:bg-slate-50 dark:bg-slate-900/50'
@@ -208,7 +211,7 @@ export default function Estoque() {
               <button
                 key={amb.id}
                 onClick={() => setAmbienteFiltroId(amb.id)}
-                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                className={`rounded-xl px-4 py-2 text-sm font-medium transition-[color,background-color,border-color] ${
                   ambienteFiltroId === amb.id
                     ? 'bg-[var(--color-aurora-primary)] text-white shadow-md shadow-[var(--color-aurora-primary)]/20'
                     : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700/80 hover:bg-slate-50 dark:bg-slate-900/50'
@@ -225,14 +228,14 @@ export default function Estoque() {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2 text-xs font-semibold uppercase text-[var(--color-aurora-text-muted)] tracking-wider">
               <Tag size={14} />
-              <span>Filtrar por Categoria:</span>
+              <span>Categoria</span>
             </div>
             <button 
               onClick={() => setIsGestaoCategoriasModalOpen(true)}
               className="flex items-center space-x-1 text-xs font-medium text-[var(--color-aurora-primary)] hover:text-[var(--color-aurora-primary-hover)] transition-colors"
             >
               <Settings2 size={14} />
-              <span>Gerenciar Categorias</span>
+              <span>Gerenciar categorias</span>
             </button>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -240,7 +243,7 @@ export default function Estoque() {
               <button
                 key={cat}
                 onClick={() => setCategoriaFiltro(cat)}
-                className={`px-4 py-2 rounded-xl text-xs font-medium transition-all ${
+                className={`rounded-xl px-4 py-2 text-xs font-medium transition-[color,background-color,border-color] ${
                   categoriaFiltro === cat
                     ? 'bg-slate-900 text-white'
                     : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:bg-slate-700'
@@ -267,8 +270,8 @@ export default function Estoque() {
            <h3 className="text-xl font-medium text-[var(--color-aurora-text)] mb-2">Nenhum produto encontrado</h3>
            <p className="text-[var(--color-aurora-text-muted)] text-center max-w-sm">
              {safeProdutos.length === 0
-               ? 'Sua casa ainda não possui produtos mapeados. Adicione o primeiro item para começar.'
-               : 'Nenhum item corresponde aos filtros selecionados. Tente limpar os filtros de busca.'}
+               ? 'Adicione o primeiro produto para começar a acompanhar o estoque.'
+               : 'Nenhum produto corresponde à busca ou aos filtros selecionados.'}
            </p>
         </div>
       ) : (
@@ -279,7 +282,7 @@ export default function Estoque() {
                 <div className="flex justify-between items-start mb-3">
                   <h3 className="font-semibold text-lg leading-tight text-[var(--color-aurora-text)] pr-2">{produto?.nome ?? ''}</h3>
                   <div className="flex items-center space-x-2">
-                    <span className={`text-[10px] uppercase tracking-wider px-2.5 py-1 rounded-full font-bold backdrop-blur-sm ${
+                    <span className={`rounded-md px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${
                       (produto?.quantidade ?? 0) <= (produto?.quantidade_minima ?? 0) 
                         ? 'bg-amber-100/60 text-amber-700' 
                         : 'bg-emerald-100/60 text-emerald-700'
@@ -299,7 +302,7 @@ export default function Estoque() {
                 <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--color-aurora-text-muted)] mt-1.5">
                   <span className="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md font-medium">{produto?.categoria ?? 'Outro'}</span>
                   {produto?.ambiente_id && (
-                    <span className="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-md font-medium flex items-center gap-1">
+                    <span className="surface-primary-soft flex items-center gap-1 rounded-md px-2 py-0.5 font-medium">
                       {ambientes.find(a => a.id === produto.ambiente_id)?.icone ?? '🏠'} {ambientes.find(a => a.id === produto.ambiente_id)?.nome ?? 'Desconhecido'}
                     </span>
                   )}
@@ -320,20 +323,20 @@ export default function Estoque() {
               </div>
               
               <div className="mt-8 flex items-center justify-between">
-                <span className="text-[var(--color-aurora-text)] font-medium bg-slate-100 dark:bg-slate-800/50 px-4 py-2 rounded-xl backdrop-blur-md">
+                <span className="rounded-xl bg-[var(--color-aurora-soft)] px-4 py-2 font-medium text-[var(--color-aurora-text)]">
                   {produto?.quantidade ?? 0} {produto?.quantidade === 1 ? 'unid' : 'unids'}
                 </span>
-                <div className="flex space-x-1.5 bg-slate-100 dark:bg-slate-800/50 p-1.5 rounded-2xl backdrop-blur-md">
+                <div className="flex space-x-1.5 rounded-2xl bg-[var(--color-aurora-soft)] p-1.5">
                   <button 
                     onClick={() => alterarQuantidade(produto.id, -1)} 
                     disabled={(produto?.quantidade ?? 0) === 0}
-                    className="p-2.5 text-[var(--color-aurora-text-muted)] hover:bg-white dark:bg-slate-800 hover:text-[var(--color-aurora-text)] hover:shadow-sm rounded-xl transition-all active:scale-90 disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:shadow-none disabled:active:scale-100"
+                    className="rounded-xl p-2.5 text-[var(--color-aurora-text-muted)] transition-[color,background-color,transform] hover:bg-[var(--color-aurora-surface)] hover:text-[var(--color-aurora-text)] active:scale-90 disabled:opacity-50 disabled:hover:bg-transparent disabled:active:scale-100"
                   >
                     <Minus size={18} strokeWidth={2.5} />
                   </button>
                   <button 
                     onClick={() => alterarQuantidade(produto.id, 1)} 
-                    className="p-2.5 text-[var(--color-aurora-text-muted)] hover:bg-white dark:bg-slate-800 hover:text-[var(--color-aurora-text)] hover:shadow-sm rounded-xl transition-all active:scale-90"
+                    className="rounded-xl p-2.5 text-[var(--color-aurora-text-muted)] transition-[color,background-color,transform] hover:bg-[var(--color-aurora-surface)] hover:text-[var(--color-aurora-text)] active:scale-90"
                   >
                     <Plus size={18} strokeWidth={2.5} />
                   </button>
@@ -346,7 +349,7 @@ export default function Estoque() {
 
       {/* Modal Confirmação de Exclusão */}
       {produtoParaExcluir && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#101713]/55 p-4">
           <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 w-full max-w-sm shadow-2xl animate-in fade-in zoom-in-95 duration-200">
             <div className="flex flex-col items-center text-center space-y-3">
               <div className="p-3 bg-rose-100 text-rose-600 rounded-full">
@@ -378,30 +381,30 @@ export default function Estoque() {
 
       {/* Modal Novo Item */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#101713]/55 p-4">
           <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 w-full max-w-md shadow-2xl animate-in fade-in zoom-in-95 duration-200">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold">Novo Item do Inventário</h2>
+              <h2 className="text-xl font-bold">Adicionar produto</h2>
               <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 p-2 rounded-full">
                 <X size={20} />
               </button>
             </div>
             <form onSubmit={handleCreateProduto} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nome do Produto</label>
-                <input required autoFocus type="text" value={novoProduto.nome} onChange={e => setNovoProduto({...novoProduto, nome: e.target.value})} className="w-full border border-slate-200 dark:border-slate-700 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[var(--color-aurora-primary)]/50" placeholder="Ex: Café em pó" />
+                <label htmlFor="produto-nome" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nome do produto</label>
+                <input id="produto-nome" name="nome" required autoFocus type="text" value={novoProduto.nome} onChange={e => setNovoProduto({...novoProduto, nome: e.target.value})} className="form-input p-3" placeholder="Ex.: Café em pó" />
               </div>
               
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Categoria</label>
                   <div className="flex items-center space-x-2">
-                    <select required value={novoProduto.categoria} onChange={e => setNovoProduto({...novoProduto, categoria: e.target.value})} className="flex-1 w-full border border-slate-200 dark:border-slate-700 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[var(--color-aurora-primary)]/50 bg-white dark:bg-slate-800">
+                    <select required value={novoProduto.categoria} onChange={e => setNovoProduto({...novoProduto, categoria: e.target.value})} className="form-input w-full flex-1 p-3">
                       {categoriasProduto.map(c => (
                         <option key={c.id} value={c.nome}>{c.nome}</option>
                       ))}
                     </select>
-                    <button type="button" onClick={() => setIsGestaoCategoriasModalOpen(true)} className="p-3 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-xl hover:bg-indigo-100 transition-colors" title="Nova Categoria">
+                    <button type="button" onClick={() => setIsGestaoCategoriasModalOpen(true)} className="surface-primary-soft rounded-xl p-3 transition-colors hover:bg-[var(--color-aurora-soft)]" title="Nova categoria">
                       <Plus size={20} />
                     </button>
                   </div>
@@ -410,12 +413,12 @@ export default function Estoque() {
                 <div>
                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Ambiente</label>
                   <div className="flex items-center space-x-2">
-                    <select required value={novoProduto.ambiente_id} onChange={e => setNovoProduto({...novoProduto, ambiente_id: Number(e.target.value)})} className="flex-1 w-full border border-slate-200 dark:border-slate-700 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[var(--color-aurora-primary)]/50 bg-white dark:bg-slate-800">
+                    <select required value={novoProduto.ambiente_id} onChange={e => setNovoProduto({...novoProduto, ambiente_id: Number(e.target.value)})} className="form-input w-full flex-1 p-3">
                       {ambientes.map(amb => (
                         <option key={amb.id} value={amb.id}>{amb.nome} {amb.icone}</option>
                       ))}
                     </select>
-                    <button type="button" onClick={() => setIsGestaoAmbientesModalOpen(true)} className="p-3 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-xl hover:bg-indigo-100 transition-colors" title="Novo Ambiente">
+                    <button type="button" onClick={() => setIsGestaoAmbientesModalOpen(true)} className="surface-primary-soft rounded-xl p-3 transition-colors hover:bg-[var(--color-aurora-soft)]" title="Novo ambiente">
                       <Plus size={20} />
                     </button>
                   </div>
@@ -424,18 +427,18 @@ export default function Estoque() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Qtd Atual</label>
-                  <input required type="number" min="0" step="any" value={novoProduto.quantidade} onChange={e => setNovoProduto({...novoProduto, quantidade: Number(e.target.value)})} className="w-full border border-slate-200 dark:border-slate-700 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[var(--color-aurora-primary)]/50" />
+                  <label htmlFor="produto-quantidade" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Quantidade atual</label>
+                  <input id="produto-quantidade" name="quantidade" required type="number" min="0" step="any" value={novoProduto.quantidade} onChange={e => setNovoProduto({...novoProduto, quantidade: Number(e.target.value)})} className="form-input p-3" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Estoque Mínimo</label>
-                  <input required type="number" min="0" step="any" value={novoProduto.quantidade_minima} onChange={e => setNovoProduto({...novoProduto, quantidade_minima: Number(e.target.value)})} className="w-full border border-slate-200 dark:border-slate-700 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[var(--color-aurora-primary)]/50" />
+                  <label htmlFor="produto-minimo" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Estoque mínimo</label>
+                  <input id="produto-minimo" name="quantidade_minima" required type="number" min="0" step="any" value={novoProduto.quantidade_minima} onChange={e => setNovoProduto({...novoProduto, quantidade_minima: Number(e.target.value)})} className="form-input p-3" />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Validade (Opcional)</label>
-                <input type="date" value={novoProduto.validade} onChange={e => setNovoProduto({...novoProduto, validade: e.target.value})} className="w-full border border-slate-200 dark:border-slate-700 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[var(--color-aurora-primary)]/50 bg-white dark:bg-slate-800" />
+                <label htmlFor="produto-validade" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Validade (opcional)</label>
+                <input id="produto-validade" name="validade" type="date" value={novoProduto.validade} onChange={e => setNovoProduto({...novoProduto, validade: e.target.value})} className="form-input p-3" />
               </div>
 
               <button type="submit" className="w-full bg-[var(--color-aurora-primary)] text-white p-4 rounded-xl font-medium mt-2 hover:bg-[var(--color-aurora-primary-hover)] transition-smooth active:scale-95 shadow-md">

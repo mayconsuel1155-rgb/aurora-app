@@ -19,14 +19,28 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const produtos = useStore(state => state.produtos);
   const eventos = useStore(state => state.eventos);
   const [showNotificationBanner, setShowNotificationBanner] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState('Ative as notificações para ser avisado sobre vencimentos na geladeira e despensa.');
+  const [enablingNotifications, setEnablingNotifications] = useState(false);
 
   useEffect(() => {
-    if ('Notification' in window) {
-      if (Notification.permission === 'default') {
-        setShowNotificationBanner(true);
-      } else if (Notification.permission === 'granted') {
-        NotificationService.subscribeToWebPush();
+    if (!('Notification' in window)) {
+      setNotificationMessage('Este navegador não suporta notificações.');
+      setShowNotificationBanner(true);
+      return;
+    }
+
+    if (Notification.permission === 'granted') {
+      NotificationService.subscribeToWebPush()
+        .then(() => setShowNotificationBanner(false))
+        .catch((error: Error) => {
+          setNotificationMessage(error.message);
+          setShowNotificationBanner(true);
+        });
+    } else {
+      if (Notification.permission === 'denied') {
+        setNotificationMessage('As notificações estão bloqueadas. Clique no cadeado da barra de endereços e altere a permissão para Permitir.');
       }
+      setShowNotificationBanner(true);
     }
   }, []);
 
@@ -40,10 +54,18 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   }, [eventos, token]);
 
   const handleEnableNotifications = async () => {
-    const granted = await NotificationService.requestPermission();
-    if (granted) {
-      setShowNotificationBanner(false);
-      NotificationService.checkExpirations(produtos);
+    setEnablingNotifications(true);
+    try {
+      const granted = await NotificationService.requestPermission();
+      if (granted) {
+        setShowNotificationBanner(false);
+        await NotificationService.checkExpirations(produtos);
+      }
+    } catch (error) {
+      setNotificationMessage(error instanceof Error ? error.message : 'Não foi possível ativar as notificações.');
+      setShowNotificationBanner(true);
+    } finally {
+      setEnablingNotifications(false);
     }
   };
 
@@ -54,11 +76,17 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return (
     <>
       {showNotificationBanner && (
-        <div className="bg-indigo-600 px-4 pt-3 pb-4 text-white flex flex-col md:flex-row gap-3 justify-between items-start md:items-center z-[70] fixed md:sticky top-0 left-0 right-0 shadow-lg">
-          <p className="text-sm font-medium pr-12 md:pr-0">Ative as notificações para ser avisado sobre vencimentos na geladeira e despensa.</p>
+        <div role="status" aria-live="polite" className="fixed left-0 right-0 top-0 z-[70] flex flex-col items-start justify-between gap-3 bg-[var(--color-aurora-primary)] px-4 pb-4 pt-3 text-white shadow-[var(--shadow-float)] md:sticky md:flex-row md:items-center">
+          <p className="text-sm font-medium pr-12 md:pr-0">{notificationMessage}</p>
           <div className="flex space-x-3 self-end flex-shrink-0">
-            <button onClick={() => setShowNotificationBanner(false)} className="text-indigo-200 hover:text-white text-sm px-2 py-1">Depois</button>
-            <button onClick={handleEnableNotifications} className="bg-white dark:bg-slate-800 text-indigo-600 px-4 py-1.5 rounded-full text-sm font-bold hover:bg-indigo-50 shadow-sm">Ativar</button>
+            <button type="button" onClick={() => setShowNotificationBanner(false)} className="rounded-md px-2 py-1 text-sm text-white/70 transition-colors hover:text-white">Depois</button>
+            <button
+              onClick={handleEnableNotifications}
+              disabled={enablingNotifications}
+              className="rounded-lg bg-white px-4 py-2 text-sm font-bold text-[#173e2d] shadow-sm transition-colors hover:bg-[#f3f4ef] disabled:cursor-wait disabled:opacity-70"
+            >
+              {enablingNotifications ? 'Ativando…' : 'Ativar notificações'}
+            </button>
           </div>
         </div>
       )}

@@ -16,7 +16,7 @@ export default function Agenda() {
 
   useEffect(() => {
     fetchEventos();
-  }, []);
+  }, [fetchEventos]);
 
   const abrirModalNovo = () => {
     setEventoEditando(null);
@@ -67,7 +67,7 @@ export default function Agenda() {
         setIsModalOpen(false);
     } catch (err: any) {
         const msg = err.response?.data?.detail || err.message || "Erro desconhecido";
-        alert(`Erro ao salvar o evento: ${msg}\n\nLembre-se de reconectar sua conta do Google se ainda não fez isso!`);
+        alert(`Não foi possível salvar o compromisso: ${msg}\n\nSe necessário, reconecte sua conta do Google e tente novamente.`);
     } finally {
         setLoadingAction(false);
     }
@@ -100,27 +100,27 @@ export default function Agenda() {
         <div>
           <h2 className="text-3xl font-bold text-[var(--color-aurora-text)] flex items-center">
             <Calendar className="mr-3 text-[var(--color-aurora-primary)]" size={32} />
-            Sua Agenda
+            Agenda
           </h2>
           <p className="mt-2 text-[var(--color-aurora-text-muted)] max-w-xl">
-            Adicione, edite ou conclua compromissos sincronizados em tempo real com o Google Calendar.
+            Organize compromissos e acompanhe o que está previsto para os próximos dias.
           </p>
         </div>
         <button
           onClick={abrirModalNovo}
-          className="flex items-center px-4 py-2 bg-[var(--color-aurora-primary)] text-white rounded-xl text-sm font-bold shadow-md shadow-indigo-200 hover:scale-105 active:scale-95 transition-all"
+          className="flex items-center rounded-xl bg-[var(--color-aurora-primary)] px-4 py-2 text-sm font-bold text-white shadow-md transition-[background-color,transform] hover:bg-[var(--color-aurora-primary-hover)] active:scale-95"
         >
           <Plus className="mr-2" size={18} />
-          Novo Compromisso
+          Adicionar compromisso
         </button>
       </div>
       
-      <div className="aurora-card p-6 shadow-sm border-t-4 border-t-indigo-400">
+      <div className="aurora-card border-t-4 border-t-[var(--color-aurora-accent)] p-6 shadow-sm">
         {eventos.length === 0 ? (
           <div className="py-12 text-center bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-dashed border-slate-200 dark:border-slate-700">
              <CheckCircle2 className="mx-auto h-12 w-12 text-slate-300 mb-3" />
-             <p className="text-slate-600 dark:text-slate-400 font-medium">Sua agenda está livre.</p>
-             <button onClick={abrirModalNovo} className="mt-4 text-indigo-600 font-semibold hover:underline">
+             <p className="text-slate-600 dark:text-slate-400 font-medium">Nenhum compromisso agendado.</p>
+             <button onClick={abrirModalNovo} className="text-action mt-4 font-semibold hover:underline">
                  Adicionar um compromisso
              </button>
           </div>
@@ -134,7 +134,7 @@ export default function Agenda() {
                          <div className="absolute top-0 left-0 w-1 h-full bg-emerald-500"></div>
                      )}
                      
-                     <div className={`p-3 rounded-lg shrink-0 ${isConcluido ? 'bg-emerald-100 text-emerald-600' : 'bg-indigo-50 text-indigo-600'}`}>
+                     <div className={`shrink-0 rounded-lg p-3 ${isConcluido ? 'bg-emerald-100 text-emerald-600' : 'surface-primary-soft'}`}>
                          {isConcluido ? <CheckCircle2 size={24} /> : <Calendar size={24} />}
                      </div>
                      
@@ -149,7 +149,7 @@ export default function Agenda() {
                                </span>
                              )}
                              {evt.link_meet && (
-                               <a href={evt.link_meet} target="_blank" rel="noreferrer" className="flex items-center text-indigo-600 font-medium hover:underline hover:text-indigo-800">
+                               <a href={evt.link_meet} target="_blank" rel="noreferrer" className="text-action flex items-center font-medium hover:underline">
                                    <Video size={16} className="mr-1"/> Entrar na Reunião
                                </a>
                              )}
@@ -169,7 +169,7 @@ export default function Agenda() {
                          <button 
                            onClick={() => abrirModalEditar(evt)}
                            title="Editar/Reagendar"
-                           className="p-2 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors flex items-center gap-1 text-xs font-bold"
+                           className="surface-primary-soft flex items-center gap-1 rounded-lg p-2 text-xs font-bold transition-colors hover:bg-[var(--color-aurora-soft)]"
                          >
                              <Edit2 size={16} /> <span className="sm:hidden">Editar</span>
                          </button>
@@ -189,7 +189,7 @@ export default function Agenda() {
 
       {/* Modal de Criação / Edição */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#101713]/55 p-4 animate-in fade-in duration-200">
           <div className="bg-white dark:bg-slate-800 rounded-3xl w-full max-w-md shadow-2xl overflow-hidden">
             <div className="flex justify-between items-center p-6 border-b border-slate-100 dark:border-slate-700">
               <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200">
@@ -202,14 +202,16 @@ export default function Agenda() {
             
             <form onSubmit={salvarEvento} className="p-6 space-y-5">
               <div>
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Título do Compromisso</label>
+                <label htmlFor="evento-titulo" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Título do compromisso</label>
                 <input
+                  id="evento-titulo"
+                  name="titulo"
                   type="text"
                   required
                   value={titulo}
                   onChange={e => setTitulo(e.target.value)}
-                  placeholder="Ex: Consulta Médica"
-                  className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-[var(--color-aurora-primary)] focus:border-transparent outline-none transition-all"
+                  placeholder="Ex.: Consulta médica"
+                  className="form-input px-4 py-3"
                 />
               </div>
               
@@ -219,19 +221,21 @@ export default function Agenda() {
                       id="allday"
                       checked={isAllDay}
                       onChange={e => setIsAllDay(e.target.checked)}
-                      className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500"
+                      className="h-5 w-5 rounded text-[var(--color-aurora-primary)] focus:ring-[var(--color-aurora-primary)]"
                   />
                   <label htmlFor="allday" className="text-sm font-semibold text-slate-700 dark:text-slate-300">Evento de dia inteiro (sem horário)</label>
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Data {isAllDay ? '' : 'e Hora'}</label>
+                <label htmlFor="evento-data" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Data {isAllDay ? '' : 'e hora'}</label>
                 <input
+                  id="evento-data"
+                  name="data"
                   type={isAllDay ? "date" : "datetime-local"}
                   required
                   value={dataLocal}
                   onChange={e => setDataLocal(e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-[var(--color-aurora-primary)] focus:border-transparent outline-none transition-all"
+                  className="form-input px-4 py-3"
                 />
               </div>
 
@@ -246,9 +250,9 @@ export default function Agenda() {
                 <button
                   type="submit"
                   disabled={loadingAction}
-                  className="flex-1 px-4 py-3 bg-gradient-to-r from-[var(--color-aurora-primary)] to-indigo-600 text-white font-bold rounded-xl hover:opacity-90 transition-opacity shadow-lg shadow-indigo-200 flex justify-center items-center"
+                  className="flex flex-1 items-center justify-center rounded-xl bg-[var(--color-aurora-primary)] px-4 py-3 font-bold text-white shadow-md transition-colors hover:bg-[var(--color-aurora-primary-hover)]"
                 >
-                  {loadingAction ? 'Salvando...' : 'Salvar'}
+                  {loadingAction ? 'Salvando…' : 'Salvar'}
                 </button>
               </div>
             </form>

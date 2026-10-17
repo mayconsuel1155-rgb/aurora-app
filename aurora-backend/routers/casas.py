@@ -71,7 +71,7 @@ def entrar_em_casa(req: schemas.EntrarCasaRequest, db: Session = Depends(get_db)
     convite.usado = True
     db.commit()
     
-    return {"message": "Bem-vindo à casa digital!"}
+    return {"message": "Você entrou na casa."}
 
 @router.get("/membros", response_model=list[schemas.MembroResponse])
 def listar_membros(db: Session = Depends(get_db), current_user: models.Usuario = Depends(security.get_current_user)):

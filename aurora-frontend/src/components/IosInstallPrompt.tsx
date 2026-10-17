@@ -34,17 +34,19 @@ export function IosInstallPrompt() {
 
   return (
     <div className="fixed bottom-24 left-4 right-4 z-50 animate-in slide-in-from-bottom-8 fade-in duration-500">
-      <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border border-indigo-100 dark:border-indigo-900 shadow-2xl rounded-2xl p-4 flex flex-col gap-3 relative">
+      <div className="relative flex flex-col gap-3 rounded-2xl border border-[var(--color-aurora-border)] bg-[var(--color-aurora-surface)] p-4 shadow-[var(--shadow-float)]">
         <button 
           onClick={handleDismiss}
-          className="absolute top-2 right-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+          type="button"
+          aria-label="Fechar instruções de instalação"
+          className="icon-button absolute right-2 top-2"
         >
           <X size={18} />
         </button>
         
         <div className="flex items-start gap-3">
-          <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shrink-0 shadow-inner">
-            <img src="/pwa-192x192.png" alt="Icone Aurora" className="w-8 h-8 object-contain" />
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[var(--color-aurora-primary)]">
+            <img src="/pwa-192x192.png" alt="Ícone Aurora" width="32" height="32" className="h-8 w-8 object-contain" />
           </div>
           <div className="pr-4">
             <h3 className="font-bold text-slate-800 dark:text-slate-100 text-sm">Instale o Aurora no iPhone</h3>

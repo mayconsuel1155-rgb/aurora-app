@@ -61,4 +61,4 @@ def get_user_casa(user: models.Usuario):
     elif user.casas_membro:
         return user.casas_membro[0].casa
     
-    raise HTTPException(status_code=400, detail="Usuário não possui uma Casa Digital vinculada.")
+        raise HTTPException(status_code=400, detail="Sua conta ainda não está vinculada a uma casa.")

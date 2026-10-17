@@ -16,8 +16,17 @@ export default function Integracoes() {
     const status = params.get('status');
     
     if (status === 'success') {
-      setAlertMsg({ type: 'success', text: 'Conexão com Google estabelecida com sucesso!' });
-      // Remover a query da URL sem recarregar
+      setAlertMsg({ type: 'success', text: 'Google Calendar conectado com sucesso!' });
+      window.history.replaceState({}, document.title, location.pathname);
+    } else if (status === 'missing_credentials') {
+      setAlertMsg({ type: 'error', text: 'Credenciais do Google não configuradas no backend (.env: GOOGLE_CLIENT_ID e GOOGLE_CLIENT_SECRET).' });
+      window.history.replaceState({}, document.title, location.pathname);
+    } else if (status === 'invalid_credentials') {
+      setAlertMsg({ type: 'error', text: 'As credenciais do Google OAuth são inválidas. Atualize GOOGLE_CLIENT_ID e GOOGLE_CLIENT_SECRET no backend e reinicie o Aurora.' });
+      window.history.replaceState({}, document.title, location.pathname);
+    } else if (status === 'insufficient_scope') {
+      setAlertMsg({ type: 'error', text: 'O Google Calendar foi conectado sem permissão para editar eventos. Reconecte e autorize o acesso solicitado.' });
+      setGoogleStatus('not_connected');
       window.history.replaceState({}, document.title, location.pathname);
     } else if (status === 'session_error' || status === 'provider_error') {
       setAlertMsg({ type: 'error', text: 'Falha ao conectar. Tente novamente.' });
@@ -54,11 +63,11 @@ export default function Integracoes() {
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out pb-24">
       <header className="space-y-2">
         <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100 flex items-center gap-3">
-          <Network className="text-indigo-600" size={32} strokeWidth={1.5} />
-          Aurora Connect
+          <Network className="text-[var(--color-aurora-primary)]" size={32} strokeWidth={1.5} />
+          Integrações
         </h1>
         <p className="text-slate-500 dark:text-slate-400 text-lg font-light">
-          Conecte a Aurora aos seus serviços para automação da rotina.
+          Conecte seus calendários para reunir os compromissos da casa.
         </p>
       </header>
 
@@ -70,10 +79,10 @@ export default function Integracoes() {
       )}
 
       <section className="space-y-6">
-        <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-200">Calendários e Agendas</h2>
+        <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-200">Calendários</h2>
         
         {/* Card Google Calendar */}
-        <div className="aurora-card p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 transition-all hover:shadow-xl hover:translate-y-[-2px]">
+        <div className="aurora-card flex flex-col justify-between gap-6 p-6 transition-[box-shadow,transform] hover:-translate-y-0.5 hover:shadow-lg md:flex-row md:items-center">
           <div className="flex items-start gap-4">
             <div className="w-14 h-14 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex items-center justify-center shrink-0">
               {/* Google G Logo simplificado SVG */}
@@ -87,24 +96,33 @@ export default function Integracoes() {
             <div>
               <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">Google Calendar</h3>
               <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                Permita que a Aurora leia seus compromissos para planejar a sua semana e enviar lembretes antecipados.
+                Importe seus compromissos para visualizá-los na agenda da Aurora.
               </p>
             </div>
           </div>
           
           <div className="shrink-0 w-full md:w-auto">
             {googleStatus === 'connected' ? (
-              <div className="flex items-center justify-center md:justify-end gap-2 text-emerald-600 font-medium px-6 py-3 bg-emerald-50 rounded-xl w-full">
-                <CheckCircle2 size={20} />
-                Conectado
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <div className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-50 px-6 py-3 font-medium text-emerald-600">
+                  <CheckCircle2 size={20} />
+                  Conectado
+                </div>
+                <button
+                  onClick={conectarGoogle}
+                  className="btn-outline flex w-full items-center justify-center gap-2 px-6 py-3"
+                >
+                  <RefreshCw size={18} />
+                  Reconectar
+                </button>
               </div>
             ) : (
               <button 
                 onClick={conectarGoogle}
                 disabled={googleStatus === 'connecting'}
-                className="w-full md:w-auto px-8 py-3 bg-slate-900 hover:bg-slate-800 text-white font-medium rounded-xl transition-all shadow-md active:scale-95 disabled:opacity-70 flex justify-center items-center gap-2"
+                className="btn-primary flex w-full items-center justify-center gap-2 px-8 py-3 md:w-auto"
               >
-                {googleStatus === 'connecting' ? <RefreshCw className="animate-spin" size={20} /> : 'Conectar Agora'}
+                {googleStatus === 'connecting' ? <><RefreshCw className="animate-spin" size={20} />Conectando…</> : 'Conectar Google Calendar'}
               </button>
             )}
           </div>
@@ -119,13 +137,13 @@ export default function Integracoes() {
             <div>
               <h3 className="text-lg font-bold text-slate-500 dark:text-slate-400">Microsoft Outlook</h3>
               <p className="text-sm text-slate-400 mt-1">
-                Integração nativa com o calendário do Office 365 e Outlook.
+                Sincronização com calendários do Microsoft 365 e Outlook.
               </p>
             </div>
           </div>
           <div className="shrink-0">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full">
-              Em Breve
+              Em breve
             </span>
           </div>
         </div>

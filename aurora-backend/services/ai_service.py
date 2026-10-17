@@ -32,7 +32,7 @@ def gerar_insight_mock(produtos):
     if not em_falta:
         return {
             "tipo": "sucesso",
-            "mensagem": "Sua casa está perfeitamente abastecida. Nenhuma compra necessária."
+            "mensagem": "Nenhum produto precisa de reposição no momento."
         }
     
     nomes_em_falta = [p.nome for p in em_falta]
@@ -40,12 +40,12 @@ def gerar_insight_mock(produtos):
     if any("café" in n.lower() for n in nomes_em_falta):
          return {
             "tipo": "alerta",
-            "mensagem": "Notei que o Café está no limite. Gostaria de repor antes do final de semana?"
+            "mensagem": "O café chegou ao limite mínimo. Adicione-o à próxima compra."
          }
          
     return {
         "tipo": "info",
-        "mensagem": f"Você tem {len(em_falta)} itens aguardando reposição na Lista de Compras. Recomendo reposição em breve."
+        "mensagem": f"{len(em_falta)} {'produto precisa' if len(em_falta) == 1 else 'produtos precisam'} de reposição. Confira a lista de compras."
     }
 
 def conversar_com_aurora_mock(produtos, mensagem_usuario, eventos_agenda=None):
@@ -57,29 +57,29 @@ def conversar_com_aurora_mock(produtos, mensagem_usuario, eventos_agenda=None):
     
     if "falta" in mensagem_lower or "comprar" in mensagem_lower or "acabando" in mensagem_lower or "preciso" in mensagem_lower:
         if not em_falta:
-            return {"resposta": "[Modo Offline] Não há nada em falta no momento. Seu estoque está em níveis adequados!"}
+            return {"resposta": "Nenhum produto precisa de reposição no momento."}
         nomes = [p.nome for p in em_falta]
-        return {"resposta": f"[Modo Offline] Os seguintes itens estão em falta ou no limite mínimo: {', '.join(nomes)}."}
+        return {"resposta": f"Para repor: {', '.join(nomes)}."}
         
     if "estoque" in mensagem_lower or "inventário" in mensagem_lower or "produtos" in mensagem_lower or "temos" in mensagem_lower:
         if not em_falta:
-            return {"resposta": f"[Modo Offline] Você possui {len(produtos)} produtos cadastrados. Nenhum precisa de reposição."}
+            return {"resposta": f"Há {len(produtos)} {'produto cadastrado' if len(produtos) == 1 else 'produtos cadastrados'}. Nenhum precisa de reposição."}
         nomes = [p.nome for p in em_falta]
-        return {"resposta": f"[Modo Offline] Você possui {len(produtos)} produtos cadastrados. Precisam de reposição: {', '.join(nomes)}."}
+        return {"resposta": f"Há {len(produtos)} {'produto cadastrado' if len(produtos) == 1 else 'produtos cadastrados'}. Para repor: {', '.join(nomes)}."}
         
     if "agenda" in mensagem_lower or "reunião" in mensagem_lower or "compromisso" in mensagem_lower or "hoje" in mensagem_lower or "amanhã" in mensagem_lower:
         if not eventos_agenda:
-            return {"resposta": "[Modo Offline] Você não possui compromissos agendados próximos."}
+            return {"resposta": "Nenhum compromisso próximo foi encontrado."}
         titulos = [e.get("titulo", "") for e in eventos_agenda]
-        return {"resposta": f"[Modo Offline] Seus próximos compromissos são: {', '.join(titulos)}."}
+        return {"resposta": f"Próximos compromissos: {', '.join(titulos)}."}
         
-    return {"resposta": f"[Modo Offline] Sou a Aurora. Meus servidores principais estão inacessíveis no momento, então estou respondendo localmente. Você tem {len(produtos)} produtos e {len(eventos_agenda)} compromissos. Como posso ajudar?"}
+    return {"resposta": f"No momento, posso consultar os dados salvos localmente: {len(produtos)} {'produto' if len(produtos) == 1 else 'produtos'} e {len(eventos_agenda)} {'compromisso' if len(eventos_agenda) == 1 else 'compromissos'}."}
 
 def gerar_insight_llm(produtos):
     if not produtos:
         return {
             "tipo": "info",
-            "mensagem": "Sua casa ainda não tem produtos cadastrados. Adicione o primeiro no Inventário!"
+            "mensagem": "O estoque ainda está vazio. Adicione o primeiro produto para começar."
         }
 
     resumo_produtos = []
@@ -90,16 +90,18 @@ def gerar_insight_llm(produtos):
     lista_texto = "\n".join(resumo_produtos)
     
     prompt_sistema = (
-        "Você é a IA Aurora, uma assistente doméstica com tom profissional, claro e objetivo. "
-        "Seu objetivo é gerar um alerta ou relatório de status sobre o inventário de forma direta e formal (1 a 2 frases no máximo).\n"
+        "Você é a IA Aurora. Escreva em português do Brasil com tom natural, calmo e objetivo. "
+        "Gere uma orientação útil sobre o estoque em uma ou duas frases curtas. "
+        "Evite elogios exagerados, perguntas retóricas, exclamações, termos técnicos e frases promocionais. "
+        "Use singular e plural corretamente. Chame a área de 'estoque', nunca de 'inventário'.\n"
         "Retorne APENAS um objeto JSON válido sem qualquer texto antes ou depois, no seguinte formato estrito:\n"
         '{"tipo": "sucesso", "mensagem": "texto do insight em português"}\n'
         'onde "tipo" DEVE ser obrigatoriamente um destes três valores: "sucesso", "alerta" ou "info".'
     )
     
     prompt_usuario = (
-        f"Inventário Atual da Casa:\n{lista_texto}\n\n"
-        f"Gere o insight ideal para os moradores agora."
+        f"Estoque atual da casa:\n{lista_texto}\n\n"
+        "Escreva a orientação mais útil para este momento."
     )
     
     payload = {
@@ -164,13 +166,15 @@ def conversar_com_aurora(db: Session, casa_id: int, mensagem_usuario: str, histo
     lista_eventos = "\n".join(resumo_eventos) if resumo_eventos else "Não há eventos agendados ou a agenda não está conectada."
 
     prompt_sistema = (
-        "Você é a IA Aurora, uma assistente virtual profissional, objetiva e clara, especializada em gestão doméstica e organização de rotina.\n"
-        "Sua missão é fornecer informações sobre o inventário da casa e a agenda de compromissos do usuário de forma direta e útil.\n\n"
+        "Você é a IA Aurora. Responda em português do Brasil com tom natural, respeitoso e direto.\n"
+        "Ajude a pessoa a consultar o estoque e os compromissos da casa.\n\n"
         "REGRAS DE ESTILO E FORMATAÇÃO DE RESPOSTA:\n"
-        "1. RESPOSTAS ULTRA-CURTAS E DIRETAS: Você deve ser extremamente minimalista para economizar tokens. Nunca gere textos explicativos, introduções ou conclusões.\n"
-        "2. APENAS OS NOMES: Se o usuário perguntar o que falta no estoque ou o que comprar, liste APENAS OS NOMES dos itens em bullet points. Não inclua frases como 'Você precisa repor' ou 'De acordo com o inventário'. Apenas entregue os nomes dos produtos em falta.\n"
-        "3. AGENDA OBJETIVA: Para compromissos, liste apenas '[Horário] - [Nome do Compromisso]'. Nada mais.\n"
-        "4. PRECISÃO ABSOLUTA: Baseie-se ESTRITAMENTE no inventário e agenda reais fornecidos abaixo. Nunca invente dados. Se a agenda estiver vazia, responda apenas 'Agenda livre'.\n\n"
+        "1. Responda em até quatro frases curtas, salvo quando uma lista for mais clara.\n"
+        "2. Para itens em falta, apresente os nomes em uma lista simples e informe apenas o necessário.\n"
+        "3. Para compromissos, use o formato '[horário] · [nome do compromisso]'.\n"
+        "4. Use somente os dados fornecidos. Não invente produtos, datas ou compromissos.\n"
+        "5. Evite exclamações, linguagem promocional, diminutivos, perguntas retóricas e o termo 'inventário'.\n"
+        "6. Se não houver compromissos, responda 'Nenhum compromisso agendado.'.\n\n"
         f"INVENTÁRIO ATUAL DA CASA (CASA ID {casa_id}):\n"
         f"{lista_texto}\n\n"
         f"AGENDA DO USUÁRIO (PRÓXIMOS COMPROMISSOS):\n"

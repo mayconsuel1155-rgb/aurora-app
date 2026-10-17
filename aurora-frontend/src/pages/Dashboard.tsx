@@ -52,8 +52,8 @@ export default function Dashboard() {
       <MorningBriefingModal />
       
       <header className="space-y-2">
-        <h1 className="text-3xl md:text-4xl font-bold tracking-tight">Olá, bem-vindo(a)</h1>
-        <p className="text-[var(--color-aurora-text-muted)] text-lg md:text-xl font-light">Sua casa está sendo gerenciada silenciosamente.</p>
+        <h1 className="text-3xl md:text-4xl font-bold tracking-tight">Resumo da casa</h1>
+        <p className="text-[var(--color-aurora-text-muted)] text-lg md:text-xl font-light">Confira o estoque, os alertas e os próximos compromissos.</p>
       </header>
 
       {/* Main Status Grid */}
@@ -62,7 +62,7 @@ export default function Dashboard() {
         <div className="aurora-card p-6 md:p-8 flex flex-col justify-between transition-smooth hover:translate-y-[-2px] hover:shadow-xl col-span-1 lg:col-span-1">
           <div>
             <div className="flex items-start justify-between mb-6">
-              <div className={`p-4 rounded-3xl backdrop-blur-md ${itensEmFalta.length > 0 ? 'bg-amber-100/60 text-amber-600' : 'bg-emerald-100/60 text-emerald-600'}`}>
+              <div className={`rounded-xl p-4 ${itensEmFalta.length > 0 ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'}`}>
                 {itensEmFalta.length > 0 ? <PackageX size={32} strokeWidth={1.5} /> : <CheckCircle2 size={32} strokeWidth={1.5} />}
               </div>
               <span className="text-xs font-semibold px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-full">
@@ -71,7 +71,7 @@ export default function Dashboard() {
             </div>
             
             <div className="space-y-1 mb-6">
-              <h2 className="text-2xl font-semibold">Status do Estoque</h2>
+              <h2 className="text-2xl font-semibold">Situação do estoque</h2>
               <p className="text-[var(--color-aurora-text-muted)]">
                   {itensEmFalta.length > 0 ? `${itensEmFalta.length} itens precisam de reposição` : 'Tudo abastecido e tranquilo para hoje.'}
               </p>
@@ -91,31 +91,31 @@ export default function Dashboard() {
         </div>
 
         {/* Card 2: Inteligência Aurora (Insights) */}
-        <div className="aurora-card p-6 md:p-8 flex flex-col justify-between transition-smooth hover:translate-y-[-2px] hover:shadow-xl bg-gradient-to-br from-indigo-50/40 via-white to-purple-50/30 col-span-1 lg:col-span-1">
+        <div className="aurora-card col-span-1 flex flex-col justify-between bg-[var(--color-aurora-primary-soft)] p-6 transition-smooth hover:-translate-y-0.5 hover:shadow-lg md:p-8 lg:col-span-1">
           <div>
             <div className="flex items-center justify-between mb-6">
-              <div className="p-4 rounded-3xl bg-indigo-100/70 text-[var(--color-aurora-primary)] backdrop-blur-md">
+              <div className="surface-primary-soft rounded-xl p-4">
                 <Sparkles size={32} strokeWidth={1.5} />
               </div>
-              <span className="text-xs font-semibold px-3 py-1 bg-indigo-100/80 text-indigo-700 rounded-full">
+              <span className="surface-primary-soft rounded-md px-3 py-1 text-xs font-semibold">
                 Inteligência Aurora
               </span>
             </div>
 
             <div className="space-y-2 mb-6">
-              <h2 className="text-2xl font-semibold">Insight da Casa</h2>
+              <h2 className="text-2xl font-semibold">Sugestão da Aurora</h2>
               {insight ? (
                 <div className="flex items-start space-x-3 mt-3">
                   {insight.tipo === 'alerta' && <AlertTriangle size={20} className="text-amber-500 shrink-0 mt-0.5" />}
                   {insight.tipo === 'sucesso' && <CheckCircle2 size={20} className="text-emerald-500 shrink-0 mt-0.5" />}
-                  {insight.tipo === 'info' && <Info size={20} className="text-indigo-500 shrink-0 mt-0.5" />}
+                  {insight.tipo === 'info' && <Info size={20} className="mt-0.5 shrink-0 text-[var(--color-aurora-primary)]" />}
                   <p className="text-slate-700 dark:text-slate-300 leading-relaxed font-normal">
                     {insight.mensagem}
                   </p>
                 </div>
               ) : (
                 <p className="text-[var(--color-aurora-text-muted)]">
-                  Analisando padrões de consumo da sua residência...
+                  Analisando o consumo da casa para preparar uma sugestão…
                 </p>
               )}
             </div>
@@ -174,14 +174,14 @@ export default function Dashboard() {
                   <button 
                     onClick={() => alterarQuantidade(produto.id, -1)}
                     disabled={produto.quantidade === 0}
-                    className="p-2 text-slate-500 dark:text-slate-400 hover:bg-white dark:bg-slate-800 hover:text-slate-800 dark:text-slate-200 rounded-xl transition-all disabled:opacity-40"
+                    className="rounded-xl p-2 text-slate-500 transition-[color,background-color,transform] hover:bg-white hover:text-slate-800 disabled:opacity-40 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200"
                   >
                     <Minus size={16} />
                   </button>
                   <span className="text-xs font-semibold px-2 text-slate-700 dark:text-slate-300">{produto.quantidade}</span>
                   <button 
                     onClick={() => alterarQuantidade(produto.id, 1)}
-                    className="p-2 text-slate-500 dark:text-slate-400 hover:bg-white dark:bg-slate-800 hover:text-slate-800 dark:text-slate-200 rounded-xl transition-all"
+                    className="rounded-xl p-2 text-slate-500 transition-[color,background-color,transform] hover:bg-white hover:text-slate-800 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200"
                   >
                     <Plus size={16} />
                   </button>

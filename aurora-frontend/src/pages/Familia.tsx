@@ -64,10 +64,10 @@ export default function Familia() {
         <div>
           <span className="ui-label ui-label-gray mb-3">Família</span>
           <h2 className="text-3xl font-bold text-[#171717] dark:text-[#EDEDED] tracking-tight">
-            Minha Família
+            Pessoas da casa
           </h2>
           <p className="mt-2 text-[var(--color-aurora-text-muted)]">
-            Gerencie as pessoas que têm acesso à sua Casa Digital.
+            Gerencie quem pode acessar e atualizar as informações da casa.
           </p>
         </div>
       </div>
@@ -80,8 +80,8 @@ export default function Familia() {
             {membros.length === 0 ? (
               <div className="py-10 text-center bg-[#FAFAFA] dark:bg-[#0A0A0A] rounded-lg border border-dashed border-[#EAEAEA] dark:border-[#262626]">
                 <Users className="mx-auto h-10 w-10 text-[#A1A1AA] dark:text-[#666666] mb-3" />
-                <p className="text-[#171717] dark:text-[#EDEDED] font-medium text-sm">Você é o único morador por enquanto.</p>
-                <p className="text-[#666666] dark:text-[#A1A1AA] text-xs mt-1">Gere um convite ao lado para adicionar familiares.</p>
+                <p className="text-[#171717] dark:text-[#EDEDED] font-medium text-sm">Somente você tem acesso no momento.</p>
+                <p className="text-[#666666] dark:text-[#A1A1AA] text-xs mt-1">Crie um convite para adicionar outra pessoa.</p>
               </div>
             ) : (
               <ul className="space-y-3">
@@ -122,10 +122,10 @@ export default function Familia() {
             
             <h3 className="text-sm font-bold text-[#171717] dark:text-[#EDEDED] flex items-center mb-1 tracking-tight">
               <Key className="mr-2 text-[#171717] dark:text-[#EDEDED]" size={16} />
-              Convidar Morador
+              Convidar pessoa
             </h3>
             <p className="text-xs text-[#666666] dark:text-[#A1A1AA] mb-6">
-              Gere um código seguro de 6 dígitos. Seu familiar deve inseri-lo no cadastro.
+              Gere um código de 6 dígitos para outra pessoa usar ao criar a conta.
             </p>
             
             {erro && (
@@ -137,7 +137,7 @@ export default function Familia() {
             {codigoConvite ? (
               <div className="space-y-3 relative z-10">
                 <div className="bg-white dark:bg-[#111111] rounded-lg p-4 border border-[#EAEAEA] dark:border-[#262626] flex flex-col items-center justify-center">
-                  <span className="text-[10px] text-[#666666] dark:text-[#A1A1AA] font-bold uppercase tracking-widest mb-1">Código Gerado</span>
+                  <span className="text-[10px] text-[#666666] dark:text-[#A1A1AA] font-bold uppercase tracking-widest mb-1">Código do convite</span>
                   <span className="text-2xl font-mono font-bold text-[#171717] dark:text-[#EDEDED] tracking-[0.2em]">
                     {codigoConvite}
                   </span>
@@ -159,7 +159,7 @@ export default function Familia() {
                     Link
                   </button>
                 </div>
-                <p className="text-[10px] text-center text-[#666666] dark:text-[#A1A1AA] mt-2">Válido por 24h.</p>
+                <p className="text-[10px] text-center text-[#666666] dark:text-[#A1A1AA] mt-2">Válido por 24 horas.</p>
               </div>
             ) : (
               <button

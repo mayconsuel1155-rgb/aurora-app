@@ -27,14 +27,14 @@ export function GestaoCategoriasModal({ isOpen, onClose }: Props) {
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div role="dialog" aria-modal="true" aria-labelledby="categories-title" className="fixed inset-0 z-50 flex items-center justify-center bg-[#101713]/55 p-4">
       <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 w-full max-w-md shadow-2xl animate-in fade-in zoom-in-95 duration-200">
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center space-x-2 text-[var(--color-aurora-text)]">
-            <Tag size={24} className="text-indigo-500" />
-            <h2 className="text-xl font-bold">Gerenciar Categorias</h2>
+            <Tag aria-hidden="true" size={24} className="text-[var(--color-aurora-primary)]" />
+            <h2 id="categories-title" className="text-xl font-bold">Gerenciar categorias</h2>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 bg-slate-100 dark:bg-slate-800 p-2 rounded-full transition-colors">
+          <button type="button" onClick={onClose} aria-label="Fechar categorias" className="icon-button bg-[var(--color-aurora-soft)]">
             <X size={20} />
           </button>
         </div>
@@ -43,17 +43,22 @@ export function GestaoCategoriasModal({ isOpen, onClose }: Props) {
           {/* Add Form */}
           <form onSubmit={handleAdd} className="flex space-x-2">
             <input 
+              id="nova-categoria"
+              name="categoria"
+              aria-label="Nome da nova categoria"
               type="text"
               required
               value={novaCategoria}
               onChange={e => setNovaCategoria(e.target.value)}
-              placeholder="Ex: Frios e Laticínios"
-              className="flex-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+              autoComplete="off"
+              placeholder="Ex.: Frios e laticínios"
+              className="form-input min-w-0 flex-1 text-sm"
             />
             <button 
               type="submit"
               disabled={!novaCategoria.trim()}
-              className="bg-indigo-600 text-white p-3 rounded-xl hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-md shadow-indigo-600/20"
+              aria-label="Adicionar categoria"
+              className="rounded-xl bg-[var(--color-aurora-primary)] p-3 text-white shadow-md transition-colors hover:bg-[var(--color-aurora-primary-hover)] disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Plus size={20} />
             </button>
@@ -67,7 +72,7 @@ export function GestaoCategoriasModal({ isOpen, onClose }: Props) {
                 <button
                   onClick={() => handleRemove(cat.id)}
                   className="p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-lg transition-colors"
-                  title="Excluir categoria"
+                  aria-label={`Excluir categoria ${cat.nome}`}
                 >
                   <Trash2 size={16} />
                 </button>

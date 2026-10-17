@@ -38,7 +38,7 @@ export function GestaoAmbientesModal({ isOpen, onClose }: GestaoAmbientesModalPr
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#101713]/55 p-4">
       <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 w-full max-w-lg shadow-2xl animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
         
         <div className="flex justify-between items-center mb-6 shrink-0">
@@ -62,7 +62,7 @@ export function GestaoAmbientesModal({ isOpen, onClose }: GestaoAmbientesModalPr
                 <select 
                   value={novoIcone} 
                   onChange={(e) => setNovoIcone(e.target.value)}
-                  className="appearance-none w-14 h-12 text-center text-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--color-aurora-primary)]/50 cursor-pointer shadow-sm"
+                  className="form-input h-12 w-14 cursor-pointer appearance-none text-center text-xl"
                 >
                   {ICONES_DISPONIVEIS.map(icone => (
                     <option key={icone} value={icone}>{icone}</option>
@@ -70,18 +70,21 @@ export function GestaoAmbientesModal({ isOpen, onClose }: GestaoAmbientesModalPr
                 </select>
               </div>
               <input
+                id="novo-ambiente"
+                name="ambiente"
+                aria-label="Nome do novo ambiente"
                 type="text"
-                placeholder="Ex: Fruteira, Armarinho..."
+                placeholder="Ex.: Fruteira, armário…"
                 value={novoNome}
                 onChange={(e) => setNovoNome(e.target.value)}
-                className="flex-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 focus:outline-none focus:ring-2 focus:ring-[var(--color-aurora-primary)]/50 shadow-sm text-slate-700 dark:text-slate-300 placeholder-slate-400"
+                className="form-input min-w-0 flex-1 px-4"
                 required
               />
             </div>
             <button 
               type="submit" 
               disabled={!novoNome.trim()}
-              className="bg-[var(--color-aurora-primary)] text-white p-3 rounded-xl font-medium hover:bg-[var(--color-aurora-primary-hover)] transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2 shadow-md shadow-[var(--color-aurora-primary)]/20"
+              className="btn-primary flex items-center justify-center gap-2 p-3 active:scale-95"
             >
               <Plus size={18} /> Adicionar Ambiente
             </button>
@@ -99,14 +102,14 @@ export function GestaoAmbientesModal({ isOpen, onClose }: GestaoAmbientesModalPr
           ) : (
             <div className="space-y-2 pb-2">
               {ambientes.map(amb => (
-                <div key={amb.id} className="flex items-center justify-between p-3.5 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl hover:border-slate-200 dark:border-slate-700 hover:shadow-sm transition-all group">
+                <div key={amb.id} className="group flex items-center justify-between rounded-2xl border border-[var(--color-aurora-border)] bg-[var(--color-aurora-surface)] p-3.5 transition-[border-color,box-shadow] hover:shadow-sm">
                   <div className="flex items-center space-x-3">
                     <span className="text-2xl bg-slate-50 dark:bg-slate-900/50 w-10 h-10 flex items-center justify-center rounded-xl">{amb.icone}</span>
                     <span className="font-medium text-slate-800 dark:text-slate-200">{amb.nome}</span>
                   </div>
                   <button 
                     onClick={() => setAmbienteParaExcluir(amb.id)}
-                    className="p-2 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all opacity-100 md:opacity-0 group-hover:opacity-100"
+                    className="rounded-xl p-2 text-slate-300 opacity-100 transition-[color,background-color,opacity] hover:bg-rose-50 hover:text-rose-600 group-hover:opacity-100 md:opacity-0"
                     title="Excluir ambiente"
                   >
                     <Trash2 size={18} />
@@ -120,7 +123,7 @@ export function GestaoAmbientesModal({ isOpen, onClose }: GestaoAmbientesModalPr
 
       {/* Modal Confirmação de Exclusão Aninhado */}
       {ambienteParaExcluir !== null && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[60] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-[#101713]/68 p-4">
           <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 w-full max-w-sm shadow-2xl animate-in fade-in zoom-in-95 duration-200">
             <div className="flex flex-col items-center text-center space-y-3">
               <div className="p-3 bg-rose-100 text-rose-600 rounded-full">

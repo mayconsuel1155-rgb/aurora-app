@@ -9,7 +9,7 @@ def seed():
     casa = db.query(models.Casa).filter(models.Casa.id == 1).first()
     if not casa:
         print("Criando Usuário e Casa...")
-        user = models.Usuario(nome="Usuário Teste", email="teste@aurora.com", hash_senha="123")
+        user = models.Usuario(nome="Morador", email="teste@aurora.com", hash_senha="123")
         db.add(user)
         db.commit()
         db.refresh(user)

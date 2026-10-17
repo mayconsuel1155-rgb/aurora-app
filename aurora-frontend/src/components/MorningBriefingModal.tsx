@@ -3,7 +3,7 @@ import { useStore } from '../store/useStore';
 import { Sun, CheckCircle2, Calendar as CalendarIcon, Package, X } from 'lucide-react';
 
 export default function MorningBriefingModal() {
-  const { user, eventos, produtos, insight } = useStore();
+  const { eventos, produtos, insight } = useStore();
   const [isOpen, setIsOpen] = useState(() => {
     const today = new Date().toDateString();
     const lastShown = localStorage.getItem('aurora-morning-briefing');
@@ -33,11 +33,11 @@ export default function MorningBriefingModal() {
   const itensEmFalta = produtos.filter(p => (p.quantidade ?? 0) <= (p.quantidade_minima ?? 0));
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#101713]/55 p-4 animate-in fade-in duration-300">
       <div className="bg-white dark:bg-slate-800 w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500">
         
         {/* Header (Gradient) */}
-        <div className="bg-gradient-to-br from-amber-200 via-orange-100 to-amber-50 p-6 relative">
+        <div className="relative bg-[#f0d7a2] p-6">
           <button 
             onClick={() => setIsOpen(false)}
             className="absolute top-4 right-4 p-2 bg-white dark:bg-slate-800/40 hover:bg-white dark:bg-slate-800/60 rounded-full text-amber-700 transition-colors"
@@ -47,7 +47,7 @@ export default function MorningBriefingModal() {
           
           <div className="flex items-center space-x-3 mb-2">
             <Sun size={28} className="text-amber-500 animate-spin-slow" />
-            <h2 className="text-2xl font-bold text-amber-900">Bom dia, {user?.nome?.split(' ')?.[0] || ''}!</h2>
+            <h2 className="text-2xl font-bold text-amber-900">Seu resumo da manhã</h2>
           </div>
           <p className="text-amber-800 text-sm opacity-90 font-medium">
             Aqui está o seu resumo para hoje, {hoje.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}.
@@ -63,11 +63,11 @@ export default function MorningBriefingModal() {
               <CalendarIcon size={24} />
             </div>
             <div>
-              <h3 className="font-semibold text-slate-900 dark:text-slate-100 text-lg">Sua Agenda</h3>
+              <h3 className="font-semibold text-slate-900 dark:text-slate-100 text-lg">Agenda de hoje</h3>
               {eventosHoje.length > 0 ? (
-                <p className="text-slate-600 dark:text-slate-400">Você tem <span className="font-bold text-blue-600">{eventosHoje.length} compromisso(s)</span> agendados para hoje.</p>
+                <p className="text-slate-600 dark:text-slate-400">Você tem <span className="font-bold text-blue-600">{eventosHoje.length} {eventosHoje.length === 1 ? 'compromisso' : 'compromissos'}</span> para hoje.</p>
               ) : (
-                <p className="text-slate-600 dark:text-slate-400">Sua agenda está livre para hoje. Respire fundo e aproveite!</p>
+                <p className="text-slate-600 dark:text-slate-400">Você não tem compromissos agendados para hoje.</p>
               )}
             </div>
           </div>
@@ -78,20 +78,20 @@ export default function MorningBriefingModal() {
               <Package size={24} />
             </div>
             <div>
-              <h3 className="font-semibold text-slate-900 dark:text-slate-100 text-lg">Sua Casa</h3>
+              <h3 className="font-semibold text-slate-900 dark:text-slate-100 text-lg">Estoque da casa</h3>
               {itensEmFalta.length > 0 ? (
-                <p className="text-slate-600 dark:text-slate-400">Há <span className="font-bold text-amber-600">{itensEmFalta.length} item(ns)</span> precisando de reposição na sua despensa.</p>
+                <p className="text-slate-600 dark:text-slate-400"><span className="font-bold text-amber-600">{itensEmFalta.length} {itensEmFalta.length === 1 ? 'item precisa' : 'itens precisam'}</span> de reposição.</p>
               ) : (
-                <p className="text-slate-600 dark:text-slate-400">Sua despensa está completamente abastecida.</p>
+                <p className="text-slate-600 dark:text-slate-400">Nenhum item precisa de reposição.</p>
               )}
             </div>
           </div>
 
           {/* Insight da IA */}
           {insight && (
-            <div className="bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100/50">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-indigo-800 mb-1">Dica do Aurora</h3>
-              <p className="text-indigo-900/80 text-sm font-medium">{insight.mensagem}</p>
+            <div className="rounded-2xl border border-[var(--color-aurora-primary)]/15 bg-[var(--color-aurora-primary-soft)] p-4">
+              <h3 className="mb-1 text-xs font-bold text-[var(--color-aurora-primary)]">Dica da Aurora</h3>
+              <p className="text-sm font-medium text-[var(--color-aurora-text)]">{insight.mensagem}</p>
             </div>
           )}
 
@@ -101,10 +101,10 @@ export default function MorningBriefingModal() {
         <div className="p-4 bg-slate-50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-700 flex justify-end">
           <button 
             onClick={() => setIsOpen(false)}
-            className="flex items-center space-x-2 bg-slate-900 text-white px-6 py-3 rounded-xl font-medium hover:bg-slate-800 active:scale-95 transition-all shadow-lg shadow-slate-900/20"
+            className="btn-primary flex items-center space-x-2 px-6 py-3 active:scale-95"
           >
             <CheckCircle2 size={18} />
-            <span>Vamos nessa!</span>
+            <span>Ver minha rotina</span>
           </button>
         </div>
 

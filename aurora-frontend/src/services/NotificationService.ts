@@ -4,39 +4,51 @@ export class NotificationService {
   private static eventMonitorInterval: number | null = null;
   static async requestPermission(): Promise<boolean> {
     if (!('Notification' in window)) {
-      console.warn('Este navegador não suporta notificações de desktop.');
-      return false;
+      throw new Error('Este navegador não suporta notificações.');
     }
 
-    if (Notification.permission === 'granted') {
-      return true;
+    if (Notification.permission === 'denied') {
+      throw new Error('As notificações estão bloqueadas. Clique no cadeado da barra de endereços e permita as notificações para este site.');
     }
 
-    if (Notification.permission !== 'denied') {
+    if (Notification.permission !== 'granted') {
       const permission = await Notification.requestPermission();
-      if (permission === 'granted') {
-        await this.subscribeToWebPush();
-        return true;
+      if (permission !== 'granted') {
+        throw new Error('A permissão para notificações não foi concedida.');
       }
     }
 
-    return false;
+    await this.subscribeToWebPush();
+    return true;
   }
 
-  static async subscribeToWebPush() {
+  static async subscribeToWebPush(): Promise<boolean> {
     try {
-      const registration = await navigator.serviceWorker.ready;
-      const vapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
+      if (!('serviceWorker' in navigator)) {
+        throw new Error('Este navegador não oferece suporte ao service worker necessário para notificações.');
+      }
+
+      const registration = await Promise.race([
+        navigator.serviceWorker.ready,
+        new Promise<never>((_, reject) => {
+          window.setTimeout(() => reject(new Error('O serviço de notificações não iniciou. Recarregue a página e tente novamente.')), 10000);
+        }),
+      ]);
+
+      let vapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
       if (!vapidKey) {
-        console.warn('VAPID Key não encontrada. Web Push não será ativado.');
-        return;
+        const { getVapidPublicKey } = await import('../api/client');
+        vapidKey = await getVapidPublicKey();
+      }
+      if (!vapidKey) {
+        throw new Error('A chave de notificações não foi configurada.');
       }
 
       // Função para converter VAPID base64 para Uint8Array
       const urlBase64ToUint8Array = (base64String: string) => {
         const padding = '='.repeat((4 - base64String.length % 4) % 4);
         const base64 = (base64String + padding)
-          .replace(/\-/g, '+')
+          .replace(/-/g, '+')
           .replace(/_/g, '/');
         const rawData = window.atob(base64);
         const outputArray = new Uint8Array(rawData.length);
@@ -46,17 +58,20 @@ export class NotificationService {
         return outputArray;
       };
 
-      const subscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(vapidKey)
-      });
+      const subscription = await registration.pushManager.getSubscription()
+        || await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(vapidKey)
+        });
 
       // Envia a subscription para o backend
       const { subscribeToPush } = await import('../api/client');
       await subscribeToPush(subscription);
       console.log('Web Push ativado com sucesso!');
+      return true;
     } catch (e) {
       console.error('Erro ao assinar Web Push:', e);
+      throw e instanceof Error ? e : new Error('Não foi possível ativar as notificações.');
     }
   }
 
@@ -91,14 +106,14 @@ export class NotificationService {
       const vencidos = expirando.filter(p => new Date(p.validade!) < new Date(new Date().setHours(0,0,0,0)));
       const quaseVencendo = expirando.filter(p => !vencidos.includes(p));
 
-      let title = '⚠️ Alerta de Vencimento';
+      const title = 'Produtos próximos da validade';
       let body = '';
 
       if (vencidos.length > 0) {
-        body += `${vencidos.length} produto(s) já venceram! `;
+        body += vencidos.length === 1 ? '1 produto venceu. ' : `${vencidos.length} produtos venceram. `;
       }
       if (quaseVencendo.length > 0) {
-        body += `${quaseVencendo.length} produto(s) vencem em breve.`;
+        body += quaseVencendo.length === 1 ? '1 produto vence em breve.' : `${quaseVencendo.length} produtos vencem em breve.`;
       }
 
       await this.sendNotification(title, body);

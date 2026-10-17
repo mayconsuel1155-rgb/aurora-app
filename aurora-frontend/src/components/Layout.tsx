@@ -1,156 +1,215 @@
-import { useState } from 'react';
-import { Outlet, NavLink } from 'react-router-dom';
-import { Home, Package, ShoppingCart, Sparkles, LogOut, User, Users, Network, Calendar, Moon, Sun, Activity, Wallet } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import {
+  Activity,
+  CalendarDays,
+  ChevronRight,
+  Home,
+  LogOut,
+  Menu,
+  Moon,
+  Network,
+  Package,
+  ShoppingBasket,
+  Sparkles,
+  Sun,
+  User,
+  Users,
+  Wallet,
+  X,
+} from 'lucide-react';
 import AIChatModal from './AIChatModal';
 import { useStore } from '../store/useStore';
 import { IosInstallPrompt } from './IosInstallPrompt';
 
+const primaryNavigation = [
+  { to: '/', icon: Home, label: 'Visão geral', end: true },
+  { to: '/estoque', icon: Package, label: 'Estoque' },
+  { to: '/compras', icon: ShoppingBasket, label: 'Compras' },
+  { to: '/agenda', icon: CalendarDays, label: 'Agenda' },
+];
+
+const secondaryNavigation = [
+  { to: '/despesas', icon: Wallet, label: 'Despesas' },
+  { to: '/familia', icon: Users, label: 'Família' },
+  { to: '/saude', icon: Activity, label: 'Saúde' },
+  { to: '/integracoes', icon: Network, label: 'Integrações' },
+];
+
+const pageNames: Record<string, string> = {
+  '/': 'Visão geral',
+  '/estoque': 'Estoque',
+  '/compras': 'Compras',
+  '/agenda': 'Agenda',
+  '/despesas': 'Despesas',
+  '/familia': 'Família',
+  '/saude': 'Saúde',
+  '/integracoes': 'Integrações',
+};
+
 export default function Layout() {
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isMoreOpen, setIsMoreOpen] = useState(false);
   const { user, logout, theme, toggleTheme } = useStore();
+  const location = useLocation();
+  const currentPage = pageNames[location.pathname] || 'Aurora';
+  const displayName = user?.nome && !/^(usuário\s+)?teste$/i.test(user.nome.trim()) ? user.nome : 'Morador';
+  const currentDate = useMemo(() => new Intl.DateTimeFormat('pt-BR', {
+    weekday: 'long',
+    day: '2-digit',
+    month: 'long',
+  }).format(new Date()), []);
 
   return (
-    <div className="flex h-screen font-sans relative transition-colors duration-300">
-      {/* Sidebar - Desktop */}
-      <aside className="hidden md:flex w-64 flex-col bg-[#FAFAFA] dark:bg-[#000000] border-r border-[#EAEAEA] dark:border-[#262626] z-10 relative transition-smooth">
-        <div className="p-6 pt-8">
-          <div className="flex items-center gap-2 mb-1">
-            <Sparkles className="text-black dark:text-white" size={20} />
-            <h1 className="text-xl font-bold tracking-tight text-[#171717] dark:text-[#EDEDED]">Aurora</h1>
-          </div>
-          <p className="text-[10px] font-semibold text-[#666666] dark:text-[#A1A1AA] uppercase tracking-widest pl-7">Smart Living</p>
-        </div>
-        <nav className="flex-1 px-3 space-y-1 mt-4 overflow-y-auto custom-scrollbar pb-4">
-          <NavItem to="/" icon={<Home size={18} strokeWidth={1.5} />} label="Rotina" />
-          <NavItem to="/estoque" icon={<Package size={18} strokeWidth={1.5} />} label="Estoque" />
-          <NavItem to="/compras" icon={<ShoppingCart size={18} strokeWidth={1.5} />} label="Compras" />
-          <NavItem to="/despesas" icon={<Wallet size={18} strokeWidth={1.5} />} label="Despesas" />
-          <NavItem to="/familia" icon={<Users size={18} strokeWidth={1.5} />} label="Família" />
-          <NavItem to="/agenda" icon={<Calendar size={18} strokeWidth={1.5} />} label="Agenda" />
-          <NavItem to="/saude" icon={<Activity size={18} strokeWidth={1.5} />} label="Saúde & Remédios" />
-          <NavItem to="/integracoes" icon={<Network size={18} strokeWidth={1.5} />} label="Aurora Connect" />
+    <div className="app-shell flex min-h-[100dvh] text-[var(--color-aurora-text)]">
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-[272px] flex-col bg-[var(--color-aurora-sidebar)] text-white lg:flex">
+        <Brand />
+
+        <nav aria-label="Navegação principal" className="custom-scrollbar flex-1 overflow-y-auto px-4 py-2">
+          <NavSection label="Sua casa" items={primaryNavigation} />
+          <NavSection label="Organização" items={secondaryNavigation} />
         </nav>
 
-        {/* User Profile / Logout */}
-        <div className="p-4 pt-2">
-          <div className="flex items-center justify-between px-3 py-2 bg-white dark:bg-[#0A0A0A] rounded-lg border border-[#EAEAEA] dark:border-[#262626] transition-smooth group">
-            <div className="flex items-center space-x-2 overflow-hidden">
-              <div className="w-6 h-6 rounded-full bg-[#F5F5F5] dark:bg-[#171717] text-[#171717] dark:text-[#EDEDED] flex items-center justify-center shrink-0 border border-[#EAEAEA] dark:border-[#262626]">
-                <User size={12} />
-              </div>
-              <div className="truncate">
-                <p className="text-sm font-medium text-[#171717] dark:text-[#EDEDED] truncate">{user?.nome || 'Usuário'}</p>
-                <p className="text-[10px] text-[#666666] dark:text-[#A1A1AA] truncate">{user?.email}</p>
-              </div>
+        <div className="p-4">
+          <button
+            type="button"
+            onClick={() => setIsChatOpen(true)}
+            className="group mb-3 flex w-full items-center gap-3 rounded-xl border border-white/12 bg-white/[.07] px-4 py-3.5 text-left text-white transition-[background-color,transform] duration-200 hover:-translate-y-0.5 hover:bg-white/[.12]"
+          >
+            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--color-aurora-accent)] text-[#173e2d]">
+              <Sparkles aria-hidden="true" size={17} />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-sm font-semibold">IA Aurora</span>
+              <span className="block truncate text-[11px] text-white/60">Tire dúvidas sobre sua rotina</span>
+            </span>
+            <ChevronRight aria-hidden="true" size={15} className="transition-transform group-hover:translate-x-0.5" />
+          </button>
+
+          <div className="flex items-center gap-3 border-t border-white/12 pt-4">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/10 text-white/80">
+              <User aria-hidden="true" size={16} />
             </div>
-            <div className="flex items-center space-x-1 shrink-0">
-              <button
-                onClick={toggleTheme}
-                title="Mudar Tema"
-                className="p-1.5 text-[#666666] hover:text-[#171717] dark:text-[#A1A1AA] dark:hover:text-[#EDEDED] hover:bg-[#F5F5F5] dark:hover:bg-[#171717] rounded-md transition-colors"
-              >
-                {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
-              </button>
-              <button 
-                onClick={logout}
-                title="Sair"
-                className="p-1.5 text-[#666666] hover:text-rose-600 dark:text-[#A1A1AA] dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/30 rounded-md transition-colors"
-              >
-                <LogOut size={14} />
-              </button>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-semibold">{displayName}</p>
+              <p className="truncate text-[11px] text-white/55">{user?.email}</p>
             </div>
+            <button type="button" onClick={logout} aria-label="Sair da conta" className="flex h-10 w-10 items-center justify-center rounded-lg text-white/60 transition-colors hover:bg-white/10 hover:text-white">
+              <LogOut aria-hidden="true" size={16} />
+            </button>
           </div>
         </div>
       </aside>
 
-      {/* Mobile Top Actions */}
-      <div className="md:hidden fixed top-4 right-4 z-50 flex items-center space-x-2">
-        <button
-          onClick={toggleTheme}
-          className="p-2 bg-white dark:bg-[#0A0A0A] border border-[#EAEAEA] dark:border-[#262626] rounded-md text-[#171717] dark:text-[#EDEDED] transition-smooth active:scale-95"
-        >
-          {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
-        </button>
-        <button
-          onClick={logout}
-          className="p-2 bg-white dark:bg-[#0A0A0A] border border-[#EAEAEA] dark:border-[#262626] rounded-md text-[#171717] dark:text-[#EDEDED] transition-smooth active:scale-95"
-        >
-          <LogOut size={16} />
-        </button>
+      <div className="flex min-h-[100dvh] min-w-0 flex-1 flex-col lg:pl-[272px]">
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-[var(--color-aurora-border)] bg-[var(--color-aurora-bg)] px-4 sm:px-6 lg:px-10">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="lg:hidden"><Brand compact /></div>
+            <div className="hidden sm:block">
+              <p className="truncate text-sm font-semibold">{currentPage}</p>
+              <p className="mt-0.5 text-[11px] capitalize text-[var(--color-aurora-text-muted)]">{currentDate}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <p className="hidden text-xs font-medium text-[var(--color-aurora-text-muted)] sm:block">Tudo da casa em um só lugar</p>
+            <button type="button" onClick={toggleTheme} aria-label={theme === 'dark' ? 'Ativar tema claro' : 'Ativar tema escuro'} className="icon-button border border-[var(--color-aurora-border)] bg-[var(--color-aurora-surface)]">
+              {theme === 'dark' ? <Sun aria-hidden="true" size={16} /> : <Moon aria-hidden="true" size={16} />}
+            </button>
+            <button type="button" onClick={logout} aria-label="Sair da conta" className="icon-button border border-[var(--color-aurora-border)] bg-[var(--color-aurora-surface)] lg:hidden">
+              <LogOut aria-hidden="true" size={16} />
+            </button>
+          </div>
+        </header>
+
+        <main id="main-content" className="min-w-0 flex-1 pb-28 lg:pb-10">
+          <div className="page-container page-enter"><Outlet /></div>
+        </main>
       </div>
 
-      {/* Main Content */}
-      <main className="flex-1 overflow-y-auto pb-28 md:pb-0 relative text-[#171717] dark:text-[#EDEDED] bg-[#FFFFFF] dark:bg-[#0A0A0A] transition-colors duration-300 pt-16 md:pt-4 custom-scrollbar">
-        <div className="p-4 md:p-8 max-w-5xl mx-auto relative z-10">
-           <Outlet />
-        </div>
-      </main>
-
-      {/* Floating Trigger Button for AI Aurora Chat */}
       {!isChatOpen && (
         <button
+          type="button"
           onClick={() => setIsChatOpen(true)}
-          className="fixed bottom-24 right-4 md:bottom-8 md:right-8 z-40 bg-[#171717] dark:bg-[#EDEDED] text-white dark:text-[#171717] px-4 py-2.5 rounded-full flex items-center space-x-2 hover:opacity-90 transition-all text-sm font-medium"
-          title="Conversar com a IA Aurora"
+          className="fixed bottom-24 right-4 z-40 flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--color-aurora-primary)] text-white shadow-[var(--shadow-float)] transition-[background-color,transform] hover:-translate-y-1 hover:bg-[var(--color-aurora-primary-hover)] lg:hidden"
+          aria-label="Conversar com a IA Aurora"
         >
-          <Sparkles size={16} />
-          <span className="hidden md:inline">IA Aurora</span>
+          <Sparkles aria-hidden="true" size={20} />
         </button>
       )}
 
-      {/* AIChatModal Component */}
       <AIChatModal isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
-
-      {/* iOS Install Prompt */}
       <IosInstallPrompt />
 
-      {/* Bottom Nav - Mobile */}
-      <nav className="md:hidden fixed bottom-6 left-4 right-4 bg-white dark:bg-[#0A0A0A] border border-[#EAEAEA] dark:border-[#262626] rounded-xl flex overflow-x-auto justify-start sm:justify-around p-1.5 z-50 transition-smooth custom-scrollbar gap-1 hide-scroll shadow-sm">
-          <MobileNavItem to="/" icon={<Home size={20} />} label="Início" />
-          <MobileNavItem to="/estoque" icon={<Package size={20} />} label="Estoque" />
-          <MobileNavItem to="/compras" icon={<ShoppingCart size={20} />} label="Compras" />
-          <MobileNavItem to="/despesas" icon={<Wallet size={20} />} label="Despesas" />
-          <MobileNavItem to="/familia" icon={<Users size={20} />} label="Família" />
-          <MobileNavItem to="/agenda" icon={<Calendar size={20} />} label="Agenda" />
-          <MobileNavItem to="/saude" icon={<Activity size={20} />} label="Saúde" />
-          <MobileNavItem to="/integracoes" icon={<Network size={20} />} label="Connect" />
+      {isMoreOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-labelledby="more-menu-title">
+          <button type="button" aria-label="Fechar menu" className="absolute inset-0 bg-[#101713]/55" onClick={() => setIsMoreOpen(false)} />
+          <div className="absolute inset-x-3 bottom-24 rounded-2xl border border-[var(--color-aurora-border)] bg-[var(--color-aurora-surface)] p-3 shadow-[var(--shadow-float)]">
+            <div className="flex items-center justify-between px-2 pb-2">
+              <div>
+                <p id="more-menu-title" className="text-sm font-semibold">Mais recursos</p>
+                <p className="text-xs text-[var(--color-aurora-text-muted)]">Acesse outras áreas da casa</p>
+              </div>
+              <button type="button" onClick={() => setIsMoreOpen(false)} aria-label="Fechar menu" className="icon-button"><X aria-hidden="true" size={18} /></button>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {secondaryNavigation.map(item => (
+                <NavLink key={item.to} to={item.to} onClick={() => setIsMoreOpen(false)} className="flex min-h-12 items-center gap-3 rounded-xl border border-[var(--color-aurora-border)] p-3 text-sm font-medium transition-colors hover:bg-[var(--color-aurora-soft)]">
+                  <item.icon aria-hidden="true" size={18} className="text-[var(--color-aurora-primary)]" />
+                  {item.label}
+                </NavLink>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      <nav aria-label="Navegação móvel" className="fixed inset-x-3 bottom-3 z-40 grid grid-cols-5 rounded-2xl border border-[var(--color-aurora-border)] bg-[var(--color-aurora-surface)] p-1.5 shadow-[var(--shadow-float)] lg:hidden">
+        {primaryNavigation.map(item => <MobileNavItem key={item.to} {...item} />)}
+        <button type="button" onClick={() => setIsMoreOpen(true)} className="flex min-h-12 flex-col items-center justify-center gap-1 rounded-xl py-2 text-[var(--color-aurora-text-muted)] transition-colors hover:bg-[var(--color-aurora-soft)]">
+          <Menu aria-hidden="true" size={19} />
+          <span className="text-[10px] font-semibold">Mais</span>
+        </button>
       </nav>
     </div>
   );
 }
 
-function NavItem({ to, icon, label }: { to: string; icon: React.ReactNode; label: string }) {
+function Brand({ compact = false }: { compact?: boolean }) {
   return (
-    <NavLink
-      to={to}
-      className={({ isActive }) =>
-        `flex items-center space-x-3 px-3 py-2 rounded-md transition-smooth group text-sm ${
-          isActive
-            ? 'bg-[#EAEAEA] dark:bg-[#262626] text-[#171717] dark:text-[#EDEDED] font-medium'
-            : 'text-[#666666] dark:text-[#A1A1AA] hover:bg-[#F5F5F5] dark:hover:bg-[#171717] hover:text-[#171717] dark:hover:text-[#EDEDED]'
-        }`
-      }
-    >
-      {icon}
-      <span className="font-medium">{label}</span>
-    </NavLink>
+    <div className={compact ? 'flex items-center' : 'flex h-24 items-center px-6'}>
+      <div className="brand-mark"><Sparkles aria-hidden="true" size={compact ? 16 : 18} /></div>
+      <div className={compact ? 'ml-2.5' : 'ml-3'}>
+        <p className="text-[17px] font-bold tracking-[-.035em]">Aurora</p>
+        {!compact && <p className="mt-0.5 text-[10px] font-semibold tracking-[.08em] text-white/55">Casa inteligente</p>}
+      </div>
+    </div>
   );
 }
 
-function MobileNavItem({ to, icon, label }: { to: string; icon: React.ReactNode; label: string }) {
+function NavSection({ label, items }: { label: string; items: typeof primaryNavigation }) {
   return (
-    <NavLink
-      to={to}
-      className={({ isActive }) =>
-        `flex flex-col items-center justify-center p-2 rounded-lg min-w-[64px] transition-smooth ${
-          isActive
-            ? 'text-[#171717] dark:text-[#EDEDED]'
-            : 'text-[#666666] dark:text-[#A1A1AA]'
-        }`
-      }
-    >
-      {icon}
-      <span className="text-[10px] font-medium mt-1">{label}</span>
+    <section className="mb-7" aria-label={label}>
+      <p className="mb-2 px-3 text-[10px] font-bold uppercase tracking-[.12em] text-white/45">{label}</p>
+      <div className="space-y-1">
+        {items.map(item => {
+          const Icon = item.icon;
+          return (
+            <NavLink key={item.to} to={item.to} end={item.end} className={({ isActive }) => `sidebar-link ${isActive ? 'sidebar-link-active' : ''}`}>
+              <Icon aria-hidden="true" size={18} strokeWidth={1.8} />
+              <span>{item.label}</span>
+            </NavLink>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+function MobileNavItem({ to, icon: Icon, label, end }: (typeof primaryNavigation)[number]) {
+  return (
+    <NavLink to={to} end={end} className={({ isActive }) => `flex min-h-12 flex-col items-center justify-center gap-1 rounded-xl py-2 transition-colors ${isActive ? 'surface-primary-soft' : 'text-[var(--color-aurora-text-muted)] hover:bg-[var(--color-aurora-soft)]'}`}>
+      <Icon aria-hidden="true" size={19} />
+      <span className="text-[10px] font-semibold">{label === 'Visão geral' ? 'Início' : label}</span>
     </NavLink>
   );
 }

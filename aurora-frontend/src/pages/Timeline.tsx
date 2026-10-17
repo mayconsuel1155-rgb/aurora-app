@@ -1,203 +1,220 @@
 import { useEffect, useMemo } from 'react';
-import { useStore } from '../store/useStore';
-import { Calendar, ShoppingCart, Clock, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import {
+  ArrowRight,
+  CalendarDays,
+  CheckCircle2,
+  Clock3,
+  Package,
+  ShoppingBasket,
+  Sparkles,
+  TriangleAlert,
+} from 'lucide-react';
+import { useStore } from '../store/useStore';
 import type { Evento } from '../api/client';
 
+function eventDate(event: Evento) {
+  if (!event.data) return null;
+  return new Date(event.data.includes('T') ? event.data : `${event.data}T12:00:00`);
+}
+
+function sameDay(first: Date, second: Date) {
+  return first.getFullYear() === second.getFullYear()
+    && first.getMonth() === second.getMonth()
+    && first.getDate() === second.getDate();
+}
+
 export default function Timeline() {
-  const { eventos, produtos, fetchEventos, fetchProdutos } = useStore();
+  const { eventos, produtos, insight, fetchEventos, fetchProdutos, fetchInsight } = useStore();
 
   useEffect(() => {
     fetchEventos();
     fetchProdutos();
-  }, []);
+    fetchInsight();
+  }, [fetchEventos, fetchProdutos, fetchInsight]);
 
-  // Processamento dos dados para a Timeline
-  const timelineData = useMemo(() => {
-    const hoje = new Date();
-    hoje.setHours(0, 0, 0, 0);
-
-    const amanha = new Date(hoje);
-    amanha.setDate(amanha.getDate() + 1);
-
-    const dpsAmanha = new Date(hoje);
-    dpsAmanha.setDate(dpsAmanha.getDate() + 2);
-
-    const eventosHoje: Evento[] = [];
-    const eventosAmanha: Evento[] = [];
-    const eventosFuturo: Evento[] = [];
-
-    // Categorizar Eventos
-    eventos.forEach(evt => {
-      if (evt.titulo.startsWith('[Concluído]')) return; // Esconder concluídos da timeline
-      
-      let dataEvt = new Date();
-      if (evt.data) {
-          if (evt.data.includes('T')) {
-              dataEvt = new Date(evt.data);
-          } else {
-              dataEvt = new Date(evt.data + "T12:00:00");
-          }
-      }
-
-      dataEvt.setHours(0, 0, 0, 0);
-
-      if (dataEvt.getTime() === hoje.getTime()) {
-        eventosHoje.push(evt);
-      } else if (dataEvt.getTime() === amanha.getTime()) {
-        eventosAmanha.push(evt);
-      } else if (dataEvt.getTime() >= dpsAmanha.getTime()) {
-        eventosFuturo.push(evt);
-      }
+  const data = useMemo(() => {
+    const now = new Date();
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const validEvents = eventos.filter(event => !event.titulo.startsWith('[Concluído]'));
+    const todayEvents = validEvents.filter(event => {
+      const date = eventDate(event);
+      return date ? sameDay(date, now) : false;
     });
-
-    // Identificar Produtos em falta (sempre mostrados em "Hoje" como Alerta)
-    const produtosFalta = produtos.filter(p => p.quantidade <= p.quantidade_minima);
-
-    return {
-      hoje: { eventos: eventosHoje, produtosFalta },
-      amanha: { eventos: eventosAmanha },
-      futuro: { eventos: eventosFuturo }
-    };
+    const tomorrowEvents = validEvents.filter(event => {
+      const date = eventDate(event);
+      return date ? sameDay(date, tomorrow) : false;
+    });
+    const lowStock = produtos.filter(product => product.quantidade <= product.quantidade_minima);
+    const expiring = produtos.filter(product => {
+      if (!product.validade || product.quantidade <= 0) return false;
+      const days = Math.ceil((new Date(product.validade).getTime() - now.getTime()) / 86_400_000);
+      return days <= 3;
+    });
+    return { todayEvents, tomorrowEvents, lowStock, expiring };
   }, [eventos, produtos]);
 
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Bom dia' : hour < 18 ? 'Boa tarde' : 'Boa noite';
+  const prioritiesCount = data.lowStock.length + data.expiring.length + data.todayEvents.length;
+
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
-      <header className="space-y-1 mb-8 flex flex-col items-start">
-        <span className="ui-label ui-label-gray mb-3">Timeline</span>
-        <h1 className="text-3xl font-bold tracking-tight text-[#171717] dark:text-[#EDEDED]">
-          Sua Rotina
-        </h1>
-        <p className="text-[#666666] dark:text-[#A1A1AA] text-sm">
-          Tudo o que você precisa focar hoje, organizado de forma simples.
-        </p>
+    <div className="space-y-9 pb-6">
+      <header className="grid gap-5 border-b border-[var(--color-aurora-border)] pb-7 sm:grid-cols-[1fr_auto] sm:items-end">
+        <div>
+          <p className="text-sm font-semibold text-[var(--color-aurora-primary)]">Resumo da casa</p>
+          <h1 className="mt-3 text-4xl font-semibold tracking-[-.05em] sm:text-5xl">{greeting}. Este é o resumo da sua casa.</h1>
+          <p className="mt-3 max-w-xl text-sm leading-6 text-[var(--color-aurora-text-muted)]">
+            Confira as prioridades de hoje e organize o restante do dia com tranquilidade.
+          </p>
+        </div>
+        <Link to="/estoque" className="btn-outline inline-flex items-center justify-center gap-2 px-4 py-2.5">
+          <Package aria-hidden="true" size={16} /> Gerenciar estoque
+        </Link>
       </header>
 
-      <div className="relative border-l border-[#EAEAEA] dark:border-[#262626] ml-4 md:ml-6 space-y-10 pb-8 transition-colors">
-        
-        {/* BLOCO: HOJE */}
-        <div className="relative">
-          <div className="absolute -left-[5px] top-1.5 w-2.5 h-2.5 bg-[#171717] dark:bg-[#EDEDED] rounded-full border-2 border-white dark:border-[#000000]"></div>
-          <div className="pl-6">
-            <span className="ui-label ui-label-gray mb-2">Agora</span>
-            <h2 className="text-xl font-bold text-[#171717] dark:text-[#EDEDED] mb-4 tracking-tight">Hoje</h2>
-            
-            <div className="space-y-4">
-              {/* Alertas de Compras */}
-              {timelineData.hoje.produtosFalta.length > 0 && (
-                <div className="aurora-card p-4 relative overflow-hidden group border-red-200 dark:border-red-900/30 bg-red-50/30 dark:bg-red-950/10">
-                  <div className="flex items-start gap-4">
-                    <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-red-100 dark:bg-red-900/30 rounded-md border border-red-200 dark:border-red-900/50">
-                      <ShoppingCart className="text-red-600 dark:text-red-400" size={14} />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-red-800 dark:text-red-300 text-sm">Alerta de Reposição</h3>
-                      <p className="text-[#666666] dark:text-[#A1A1AA] text-xs mt-0.5">
-                        <span className="font-semibold">{timelineData.hoje.produtosFalta.length} itens</span> essenciais em falta.
-                      </p>
-                      <div className="mt-4 flex flex-wrap gap-2">
-                        {timelineData.hoje.produtosFalta.slice(0, 3).map(p => (
-                           <span key={p.id} className="text-[11px] font-medium bg-slate-50 dark:bg-slate-900/50 text-slate-600 dark:text-slate-300 px-2.5 py-1 rounded-full border border-slate-200 dark:border-slate-700/50">
-                             {p.nome}
-                           </span>
-                        ))}
-                        {timelineData.hoje.produtosFalta.length > 3 && (
-                           <span className="text-[11px] font-medium bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 px-2.5 py-1 rounded-full">
-                             +{timelineData.hoje.produtosFalta.length - 3}
-                           </span>
-                        )}
-                      </div>
-                      <div className="mt-4">
-                         <Link to="/estoque" className="btn-primary inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs bg-red-600 hover:bg-red-700">
-                           Repor Estoque <ArrowRight size={12} strokeWidth={2} />
-                         </Link>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Eventos de Hoje */}
-              {timelineData.hoje.eventos.map(evt => (
-                <div key={evt.id} className="aurora-card p-4 group hover:border-[#171717] dark:hover:border-[#EDEDED] transition-smooth cursor-default">
-                  <div className="flex items-center gap-3">
-                    <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-[#F4F4F5] dark:bg-[#171717] rounded-md border border-[#EAEAEA] dark:border-[#262626]">
-                      <Calendar className="text-[#171717] dark:text-[#EDEDED]" size={14} />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-medium text-[#171717] dark:text-[#EDEDED] text-sm">{evt.titulo}</h3>
-                      <div className="flex items-center gap-1.5 mt-0.5">
-                        <Clock className="text-[#A1A1AA] dark:text-[#666666]" size={10} />
-                        <span className="text-[#666666] dark:text-[#A1A1AA] text-xs">
-                          {evt.data && evt.data.includes('T') ? new Date(evt.data).toLocaleTimeString('pt-BR', {timeStyle: 'short'}) : 'Dia Inteiro'}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-
-              {timelineData.hoje.eventos.length === 0 && timelineData.hoje.produtosFalta.length === 0 && (
-                <div className="p-6 bg-[#FAFAFA] dark:bg-[#0A0A0A] border border-dashed border-[#EAEAEA] dark:border-[#262626] text-center rounded-lg transition-colors">
-                  <CheckCircle2 size={24} className="mx-auto text-[#171717] dark:text-[#EDEDED] mb-2 opacity-50" />
-                  <h3 className="font-medium text-[#171717] dark:text-[#EDEDED] text-sm">Tudo limpo por hoje.</h3>
-                  <p className="text-[#666666] dark:text-[#A1A1AA] text-xs mt-1">Nenhum compromisso ou alerta pendente.</p>
-                </div>
-              )}
-            </div>
-          </div>
+      <section aria-labelledby="house-numbers-title">
+        <h2 id="house-numbers-title" className="sr-only">Números da casa</h2>
+        <div className="grid overflow-hidden rounded-2xl border border-[var(--color-aurora-border)] bg-[var(--color-aurora-surface)] sm:grid-cols-2 xl:grid-cols-4">
+          <Metric icon={Package} label="Itens em casa" value={produtos.length} helper="produtos cadastrados" />
+          <Metric icon={ShoppingBasket} label="Para repor" value={data.lowStock.length} helper={data.lowStock.length ? 'abaixo do mínimo' : 'estoque em dia'} attention={data.lowStock.length > 0} />
+          <Metric icon={CalendarDays} label="Agenda hoje" value={data.todayEvents.length} helper={data.todayEvents.length ? 'compromissos' : 'dia livre'} />
+          <Metric icon={TriangleAlert} label="Validade" value={data.expiring.length} helper={data.expiring.length ? 'pedem atenção' : 'nenhum alerta'} attention={data.expiring.length > 0} />
         </div>
+      </section>
 
-        {/* BLOCO: AMANHÃ */}
-        <div className="relative pt-6">
-          <div className="absolute -left-[5px] top-7 w-2.5 h-2.5 bg-[#EAEAEA] dark:bg-[#262626] rounded-full border-2 border-white dark:border-[#000000]"></div>
-          <div className="pl-6">
-            <h2 className="text-sm font-semibold text-[#666666] dark:text-[#A1A1AA] mb-4 uppercase tracking-wider">Amanhã</h2>
-            
-            <div className="space-y-2">
-              {timelineData.amanha.eventos.map(evt => (
-                <div key={evt.id} className="aurora-card p-3 flex items-center gap-3 hover:border-[#171717] dark:hover:border-[#EDEDED] transition-smooth cursor-default">
-                  <div className="p-1.5 bg-[#F4F4F5] dark:bg-[#171717] text-[#666666] dark:text-[#A1A1AA] rounded-md border border-[#EAEAEA] dark:border-[#262626]">
-                    <Calendar size={12} />
-                  </div>
-                  <div>
-                    <h3 className="font-medium text-[#171717] dark:text-[#EDEDED] text-sm">{evt.titulo}</h3>
-                    <p className="text-[#666666] dark:text-[#A1A1AA] text-[10px] mt-0.5">
-                        {evt.data && evt.data.includes('T') ? new Date(evt.data).toLocaleTimeString('pt-BR', {timeStyle: 'short'}) : 'Dia Inteiro'}
-                    </p>
-                  </div>
-                </div>
-              ))}
-
-              {timelineData.amanha.eventos.length === 0 && (
-                <p className="text-slate-400 dark:text-slate-500 text-sm italic transition-colors">Nenhum compromisso para amanhã.</p>
-              )}
+      <section className="grid gap-7 xl:grid-cols-[minmax(0,1.45fr)_minmax(280px,.55fr)]">
+        <div>
+          <div className="mb-4 flex items-end justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-semibold">Prioridades de hoje</h2>
+              <p className="mt-1 text-sm text-[var(--color-aurora-text-muted)]">
+                {prioritiesCount ? `${prioritiesCount} ${prioritiesCount === 1 ? 'ponto pede' : 'pontos pedem'} sua atenção` : 'Nenhuma pendência para hoje'}
+              </p>
             </div>
+            <Clock3 aria-hidden="true" size={19} className="text-[var(--color-aurora-text-muted)]" />
           </div>
-        </div>
 
-        {/* BLOCO: FUTURO */}
-        {timelineData.futuro.eventos.length > 0 && (
-          <div className="relative pt-6">
-            <div className="absolute -left-[5px] top-7 w-2.5 h-2.5 bg-[#EAEAEA] dark:bg-[#262626] rounded-full border-2 border-white dark:border-[#000000]"></div>
-            <div className="pl-6">
-              <h2 className="text-sm font-semibold text-[#666666] dark:text-[#A1A1AA] mb-4 uppercase tracking-wider">Próximos Dias</h2>
-              
-              <div className="space-y-2">
-                {timelineData.futuro.eventos.map(evt => (
-                  <div key={evt.id} className="aurora-card p-3 flex items-center justify-between hover:border-[#171717] dark:hover:border-[#EDEDED] transition-smooth">
-                      <span className="font-medium text-[#171717] dark:text-[#EDEDED] text-sm">{evt.titulo}</span>
-                      <span className="text-[10px] text-[#666666] dark:text-[#A1A1AA] bg-[#F4F4F5] dark:bg-[#171717] border border-[#EAEAEA] dark:border-[#262626] px-2 py-0.5 rounded-md">
-                          {evt.data ? new Date(evt.data.includes('T') ? evt.data : evt.data + "T12:00:00").toLocaleDateString('pt-BR', {day: '2-digit', month: 'short'}) : ''}
-                      </span>
-                  </div>
-                ))}
+          <div className="overflow-hidden rounded-2xl border border-[var(--color-aurora-border)] bg-[var(--color-aurora-surface)]">
+            {data.lowStock.length > 0 && (
+              <PriorityRow
+                icon={ShoppingBasket}
+                tone="attention"
+                title={`${data.lowStock.length} ${data.lowStock.length === 1 ? 'item precisa' : 'itens precisam'} de reposição`}
+                description={data.lowStock.slice(0, 3).map(item => item.nome).join(', ')}
+                to="/compras"
+                action="Ver compras"
+              />
+            )}
+            {data.expiring.length > 0 && (
+              <PriorityRow
+                icon={TriangleAlert}
+                tone="error"
+                title={`${data.expiring.length} ${data.expiring.length === 1 ? 'produto pede' : 'produtos pedem'} atenção`}
+                description="Confira os itens vencidos ou próximos do vencimento."
+                to="/estoque"
+                action="Revisar estoque"
+              />
+            )}
+            {data.todayEvents.map(event => (
+              <PriorityRow
+                key={event.id}
+                icon={CalendarDays}
+                tone="primary"
+                title={event.titulo}
+                description={formatEventTime(event)}
+                to="/agenda"
+                action="Abrir agenda"
+              />
+            ))}
+            {!prioritiesCount && (
+              <div className="flex flex-col items-start px-6 py-12 sm:px-8">
+                <span className="surface-primary-soft flex h-11 w-11 items-center justify-center rounded-xl"><CheckCircle2 aria-hidden="true" size={21} /></span>
+                <h3 className="mt-4 text-base font-semibold">Tudo tranquilo por aqui</h3>
+                <p className="mt-1 max-w-sm text-sm leading-6 text-[var(--color-aurora-text-muted)]">Nenhum alerta ou compromisso pendente para hoje.</p>
               </div>
-            </div>
+            )}
           </div>
-        )}
+        </div>
 
+        <aside className="space-y-7" aria-label="Contexto e próximos compromissos">
+          <section className="rounded-2xl border border-[var(--color-aurora-primary)]/20 bg-[var(--color-aurora-primary-soft)] p-6">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--color-aurora-primary)] text-white"><Sparkles aria-hidden="true" size={18} /></span>
+            <p className="mt-5 text-xs font-semibold text-[var(--color-aurora-primary)]">Sugestão da Aurora</p>
+            <h2 className="mt-2 text-lg font-semibold">Uma sugestão para você</h2>
+            <p className="mt-3 text-sm leading-6 text-[var(--color-aurora-text-muted)]">
+              {insight?.mensagem || 'A Aurora está analisando sua rotina para preparar uma sugestão útil.'}
+            </p>
+          </section>
+
+          <section>
+            <div className="flex items-center justify-between border-b border-[var(--color-aurora-border)] pb-3">
+              <div>
+                <h2 className="text-base font-semibold">Amanhã</h2>
+                <p className="mt-0.5 text-xs text-[var(--color-aurora-text-muted)]">Veja os próximos compromissos</p>
+              </div>
+              <CalendarDays aria-hidden="true" size={18} className="text-[var(--color-aurora-text-muted)]" />
+            </div>
+            <div className="mt-3 space-y-2">
+              {data.tomorrowEvents.slice(0, 3).map(event => (
+                <div key={event.id} className="rounded-xl bg-[var(--color-aurora-surface)] px-4 py-3">
+                  <p className="truncate text-sm font-medium">{event.titulo}</p>
+                  <p className="mt-1 text-[11px] text-[var(--color-aurora-text-muted)]">{formatEventTime(event)}</p>
+                </div>
+              ))}
+              {!data.tomorrowEvents.length && <p className="py-4 text-sm text-[var(--color-aurora-text-muted)]">Nenhum compromisso agendado.</p>}
+            </div>
+            <Link to="/agenda" className="text-action mt-3 inline-flex items-center gap-1.5 text-xs font-semibold">
+              Ver agenda completa <ArrowRight aria-hidden="true" size={13} />
+            </Link>
+          </section>
+        </aside>
+      </section>
+    </div>
+  );
+}
+
+type IconComponent = typeof Package;
+
+function Metric({ icon: Icon, label, value, helper, attention = false }: { icon: IconComponent; label: string; value: number; helper: string; attention?: boolean }) {
+  return (
+    <div className="relative flex min-h-32 items-center gap-4 border-b border-[var(--color-aurora-border)] p-5 last:border-b-0 sm:[&:nth-child(odd)]:border-r sm:[&:nth-child(3)]:border-b-0 xl:border-b-0 xl:border-r xl:last:border-r-0">
+      {attention && <span aria-hidden="true" className="absolute inset-x-0 top-0 h-[3px] bg-[var(--color-aurora-accent)]" />}
+      <Icon aria-hidden="true" size={20} className={attention ? 'text-[var(--color-aurora-accent)]' : 'text-[var(--color-aurora-primary)]'} />
+      <div className="min-w-0">
+        <p className="text-xs font-medium text-[var(--color-aurora-text-muted)]">{label}</p>
+        <div className="mt-1 flex items-baseline gap-2">
+          <strong className="text-3xl font-semibold tracking-[-.04em]">{value}</strong>
+          <span className="truncate text-[11px] text-[var(--color-aurora-text-muted)]">{helper}</span>
+        </div>
       </div>
     </div>
   );
+}
+
+function PriorityRow({ icon: Icon, tone, title, description, to, action }: { icon: IconComponent; tone: 'primary' | 'attention' | 'error'; title: string; description: string; to: string; action: string }) {
+  const toneClass = {
+    primary: 'surface-primary-soft',
+    attention: 'bg-amber-100 text-amber-800 dark:bg-amber-400/15 dark:text-amber-300',
+    error: 'bg-red-100 text-red-700 dark:bg-red-400/15 dark:text-red-300',
+  }[tone];
+
+  return (
+    <article className="group flex flex-col gap-4 border-b border-[var(--color-aurora-border)] px-5 py-5 last:border-b-0 sm:flex-row sm:items-center sm:px-6">
+      <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${toneClass}`}><Icon aria-hidden="true" size={18} /></span>
+      <div className="min-w-0 flex-1">
+        <h3 className="truncate text-sm font-semibold">{title}</h3>
+        <p className="mt-1 truncate text-xs text-[var(--color-aurora-text-muted)]">{description}</p>
+      </div>
+      <Link to={to} className="text-action inline-flex items-center gap-1.5 text-xs font-semibold">
+        {action} <ArrowRight aria-hidden="true" size={13} className="transition-transform group-hover:translate-x-0.5" />
+      </Link>
+    </article>
+  );
+}
+
+function formatEventTime(event: Evento) {
+  if (!event.data?.includes('T')) return 'Evento de dia inteiro';
+  return new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit' }).format(new Date(event.data));
 }

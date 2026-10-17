@@ -17,7 +17,7 @@ def get_vapid_claims():
 
 def send_push_notification(inscricao: models.InscricaoPush, title: str, body: str, url: str = "/"):
     try:
-        private_key = os.getenv("VAPID_PRIVATE_KEY", "4tUuFHe_boL0wGw_-Ouvpx_ZAdJO2JpZ34S1qqizRCg")
+        private_key = os.getenv("VAPID_PRIVATE_KEY", "")
         if not private_key:
             print("AVISO: VAPID_PRIVATE_KEY não encontrada.")
             return False
@@ -111,13 +111,13 @@ async def push_worker_loop():
                                     vencendo_em_breve += 1
                         
                         if vencendo_em_breve > 0 or vencidos > 0:
-                            periodo = "Matinal" if agora_br.hour == 7 else "Vespertino"
-                            titulo = f"🛒 Resumo {periodo} do Estoque"
+                            periodo = "da manhã" if agora_br.hour == 7 else "da tarde"
+                            titulo = f"Resumo {periodo} do estoque"
                             corpo = ""
                             if vencidos > 0:
-                                corpo += f"{vencidos} produto(s) já venceram! "
+                                corpo += "1 produto venceu. " if vencidos == 1 else f"{vencidos} produtos venceram. "
                             if vencendo_em_breve > 0:
-                                corpo += f"{vencendo_em_breve} produto(s) vencem em breve."
+                                corpo += "1 produto vence em breve." if vencendo_em_breve == 1 else f"{vencendo_em_breve} produtos vencem em breve."
                             
                             for insc in user_inscricoes:
                                 send_push_notification(insc, titulo, corpo)

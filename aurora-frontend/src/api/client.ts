@@ -267,6 +267,11 @@ export const subscribeToPush = async (subscription: PushSubscription) => {
   });
 };
 
+export const getVapidPublicKey = async (): Promise<string> => {
+  const response = await api.get<{ public_key: string }>('/push/vapid-public-key');
+  return response.data.public_key;
+};
+
 export interface Membro {
   id: number;
   nome: string;

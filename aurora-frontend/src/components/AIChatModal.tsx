@@ -19,7 +19,7 @@ export default function AIChatModal({ isOpen, onClose }: AIChatModalProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       role: 'assistant',
-      content: 'Olá! Sou a IA Aurora, sua assistente doméstica. Como posso ajudar com a sua casa hoje?'
+      content: 'Olá. Posso ajudar com o estoque, a agenda e outras informações da casa. O que você precisa?'
     }
   ]);
   const [inputMessage, setInputMessage] = useState('');
@@ -90,45 +90,45 @@ export default function AIChatModal({ isOpen, onClose }: AIChatModalProps) {
     setMessages([
       {
         role: 'assistant',
-        content: 'Histórico reiniciado. Como posso ajudar você agora?'
+        content: 'Conversa reiniciada. O que você gostaria de consultar?'
       }
     ]);
   };
 
   return (
-    <div className="fixed inset-0 sm:inset-auto sm:bottom-6 sm:right-6 sm:w-[420px] sm:h-[600px] z-[70] flex flex-col bg-white dark:bg-slate-800/95 backdrop-blur-2xl sm:rounded-3xl border border-slate-200 dark:border-slate-700/80 shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-6 duration-300">
+    <section role="dialog" aria-modal="true" aria-labelledby="ai-chat-title" className="fixed inset-0 z-[70] flex flex-col overflow-hidden border border-[var(--color-aurora-border)] bg-[var(--color-aurora-surface)] shadow-[var(--shadow-float)] sm:inset-auto sm:bottom-6 sm:right-6 sm:h-[600px] sm:w-[420px] sm:rounded-2xl">
       {/* Header */}
-      <div className="p-4 md:p-5 bg-gradient-to-r from-[var(--color-aurora-primary)] via-indigo-600 to-purple-600 text-white flex items-center justify-between shadow-md shrink-0">
+      <div className="flex shrink-0 items-center justify-between bg-[var(--color-aurora-primary)] p-4 text-white md:p-5">
         <div className="flex items-center space-x-3">
-          <div className="p-2.5 bg-white dark:bg-slate-800/20 backdrop-blur-md rounded-2xl">
-            <Sparkles size={22} className="text-amber-300 animate-pulse" />
+          <div className="rounded-xl bg-white/12 p-2.5">
+            <Sparkles aria-hidden="true" size={22} className="text-[var(--color-aurora-accent)]" />
           </div>
           <div>
-            <h3 className="font-bold text-base leading-tight">IA Aurora</h3>
-            <p className="text-xs text-indigo-100/90 font-light">Assistente Doméstica Inteligente</p>
+            <h2 id="ai-chat-title" className="text-base font-bold leading-tight">IA Aurora</h2>
+            <p className="text-xs font-light text-white/68">Assistente doméstica inteligente</p>
           </div>
         </div>
         
         <div className="flex items-center space-x-1">
           <button
             onClick={handleLimparHistorico}
-            title="Limpar Conversa"
-            className="p-2 hover:bg-white dark:bg-slate-800/10 rounded-xl transition-colors text-white/80 hover:text-white"
+            aria-label="Limpar conversa"
+            className="rounded-lg p-2 text-white/75 transition-colors hover:bg-white/10 hover:text-white"
           >
-            <RefreshCw size={17} />
+            <RefreshCw aria-hidden="true" size={17} />
           </button>
           <button
             onClick={onClose}
-            title="Fechar Chat"
-            className="p-2 hover:bg-white dark:bg-slate-800/10 rounded-xl transition-colors text-white/80 hover:text-white"
+            aria-label="Fechar chat"
+            className="rounded-lg p-2 text-white/75 transition-colors hover:bg-white/10 hover:text-white"
           >
-            <X size={20} />
+            <X aria-hidden="true" size={20} />
           </button>
         </div>
       </div>
 
       {/* Messages Scroll Area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50 dark:bg-slate-900/50/50">
+      <div aria-live="polite" className="flex-1 space-y-4 overflow-y-auto bg-[var(--color-aurora-bg)] p-4">
         {messages.map((msg, index) => (
           <div
             key={index}
@@ -138,7 +138,7 @@ export default function AIChatModal({ isOpen, onClose }: AIChatModalProps) {
               className={`p-2 rounded-2xl shrink-0 ${
                 msg.role === 'user'
                   ? 'bg-slate-800 text-white'
-                  : 'bg-indigo-100 text-[var(--color-aurora-primary)]'
+                  : 'surface-primary-soft'
               }`}
             >
               {msg.role === 'user' ? <User size={16} /> : <Bot size={16} />}
@@ -159,13 +159,13 @@ export default function AIChatModal({ isOpen, onClose }: AIChatModalProps) {
         {loading && (
           <div className="space-y-3">
             <div className="flex items-start space-x-3">
-              <div className="p-2 rounded-2xl bg-indigo-100 text-[var(--color-aurora-primary)] shrink-0">
+              <div className="surface-primary-soft shrink-0 rounded-xl p-2">
                 <Bot size={16} />
               </div>
               <div className="p-4 bg-white dark:bg-slate-800 rounded-2xl rounded-tl-none border border-slate-100 dark:border-slate-700 shadow-sm flex items-center space-x-2">
-                <div className="w-2 h-2 rounded-full bg-indigo-400 animate-bounce" style={{ animationDelay: '0ms' }} />
-                <div className="w-2 h-2 rounded-full bg-indigo-500 animate-bounce" style={{ animationDelay: '150ms' }} />
-                <div className="w-2 h-2 rounded-full bg-indigo-600 animate-bounce" style={{ animationDelay: '300ms' }} />
+                <div className="h-2 w-2 animate-bounce rounded-full bg-[var(--color-aurora-primary)]" style={{ animationDelay: '0ms' }} />
+                <div className="h-2 w-2 animate-bounce rounded-full bg-[var(--color-aurora-primary)]" style={{ animationDelay: '150ms' }} />
+                <div className="h-2 w-2 animate-bounce rounded-full bg-[var(--color-aurora-primary)]" style={{ animationDelay: '300ms' }} />
               </div>
             </div>
 
@@ -173,8 +173,8 @@ export default function AIChatModal({ isOpen, onClose }: AIChatModalProps) {
               <div className="flex items-start space-x-2.5 text-xs bg-amber-50/90 text-amber-900 border border-amber-200/90 p-3 rounded-2xl shadow-xs animate-in fade-in slide-in-from-top-1 duration-300">
                 <Clock size={16} className="text-amber-600 shrink-0 mt-0.5 animate-spin" />
                 <div className="leading-snug">
-                  <span className="font-semibold block text-amber-950 mb-0.5">Notificação de Atraso</span>
-                  A IA Aurora está demorando a responder devido à alta demanda/latência nos servidores do provedor de modelos. Aguarde mais um instante...
+                  <span className="font-semibold block text-amber-950 mb-0.5">A resposta está demorando</span>
+                  A IA Aurora está demorando a responder devido à latência do provedor. Aguarde mais um instante…
                 </div>
               </div>
             )}
@@ -195,7 +195,7 @@ export default function AIChatModal({ isOpen, onClose }: AIChatModalProps) {
               <button
                 key={idx}
                 onClick={() => handleSend(sugestao)}
-                className="text-xs bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-indigo-50 hover:text-[var(--color-aurora-primary)] border border-slate-200 dark:border-slate-700/80 px-2.5 py-1.5 rounded-xl transition-all text-left shadow-2xs"
+                className="rounded-lg border border-[var(--color-aurora-border)] bg-[var(--color-aurora-surface)] px-2.5 py-1.5 text-left text-xs text-[var(--color-aurora-text)] transition-[color,background-color,border-color] hover:border-[var(--color-aurora-primary)] hover:text-[var(--color-aurora-primary)]"
               >
                 {sugestao}
               </button>
@@ -207,22 +207,28 @@ export default function AIChatModal({ isOpen, onClose }: AIChatModalProps) {
       {/* Input Form */}
       <div className="p-3 bg-white dark:bg-slate-800 border-t border-slate-100 dark:border-slate-700 flex items-center space-x-2 shrink-0">
         <input
+          id="ai-message"
+          name="mensagem"
+          aria-label="Mensagem para a IA Aurora"
           type="text"
           value={inputMessage}
           onChange={(e) => setInputMessage(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Pergunte algo sobre a sua casa..."
+          autoComplete="off"
+          placeholder="Pergunte algo sobre a sua casa…"
           disabled={loading}
-          className="flex-1 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 placeholder-slate-400 text-sm px-4 py-3 rounded-2xl outline-none focus:ring-2 focus:ring-[var(--color-aurora-primary)]/40 transition-all disabled:opacity-60"
+          className="form-input min-w-0 flex-1 text-sm disabled:opacity-60"
         />
         <button
           onClick={() => handleSend()}
           disabled={!inputMessage.trim() || loading}
-          className="p-3 bg-[var(--color-aurora-primary)] text-white hover:bg-indigo-700 disabled:bg-slate-200 dark:bg-slate-700 disabled:text-slate-400 rounded-2xl transition-all shadow-md active:scale-95 shrink-0"
+          type="button"
+          aria-label="Enviar mensagem"
+          className="shrink-0 rounded-xl bg-[var(--color-aurora-primary)] p-3 text-white shadow-md transition-[background-color,transform] hover:bg-[var(--color-aurora-primary-hover)] active:scale-95 disabled:bg-[var(--color-aurora-soft)] disabled:text-[var(--color-aurora-text-muted)]"
         >
-          <Send size={18} />
+          <Send aria-hidden="true" size={18} />
         </button>
       </div>
-    </div>
+    </section>
   );
 }

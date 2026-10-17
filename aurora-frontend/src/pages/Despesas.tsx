@@ -70,36 +70,36 @@ export default function Despesas() {
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Despesas da Casa</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Despesas da casa</h1>
           <p className="text-[var(--color-aurora-text-muted)] mt-1 font-light">
-            Controle de gastos essenciais, aluguel, luz e serviços.
+            Acompanhe contas, vencimentos e pagamentos em um só lugar.
           </p>
         </div>
         <button 
           onClick={() => setIsModalOpen(true)}
-          className="bg-indigo-600 text-white px-5 py-3 rounded-2xl font-medium hover:bg-indigo-700 transition-smooth shadow-lg shadow-indigo-600/20 active:scale-95 flex items-center"
+          className="flex items-center rounded-xl bg-[var(--color-aurora-primary)] px-5 py-3 font-medium text-white shadow-md transition-smooth hover:bg-[var(--color-aurora-primary-hover)] active:scale-95"
         >
-          <Plus size={18} strokeWidth={2} className="mr-2" /> Nova Despesa
+          <Plus size={18} strokeWidth={2} className="mr-2" /> Adicionar despesa
         </button>
       </header>
 
       {/* Dashboard Financeiro */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Card Pendentes */}
-        <div className="bg-gradient-to-br from-rose-500 to-red-600 rounded-3xl p-6 text-white shadow-lg shadow-rose-500/20 relative overflow-hidden group">
+        <div className="group relative overflow-hidden rounded-2xl bg-[#9a4a3c] p-6 text-white shadow-md">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none group-hover:scale-110 transition-transform"></div>
           <div className="flex items-center space-x-3 mb-4">
-            <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
+            <div className="rounded-xl bg-white/12 p-2">
               <TrendingDown size={20} className="text-white" />
             </div>
-            <h3 className="font-medium text-rose-50 tracking-wide text-sm uppercase">Total a Pagar</h3>
+            <h3 className="font-medium text-rose-50 tracking-wide text-sm">Total a pagar</h3>
           </div>
           <div className="flex items-baseline space-x-2">
             <span className="text-2xl font-semibold opacity-80">R$</span>
             <span className="text-5xl font-extrabold tracking-tight">{totalPendente.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
           </div>
           <p className="mt-3 text-rose-100 text-sm opacity-90">
-            {despesasPendentes.length} contas pendentes
+            {despesasPendentes.length} {despesasPendentes.length === 1 ? 'conta pendente' : 'contas pendentes'}
           </p>
         </div>
 
@@ -109,14 +109,14 @@ export default function Despesas() {
             <div className="p-2 bg-emerald-50 dark:bg-emerald-900/30 rounded-xl">
               <Wallet size={20} className="text-emerald-500" />
             </div>
-            <h3 className="font-medium text-slate-500 dark:text-slate-400 tracking-wide text-sm uppercase">Total Pago</h3>
+            <h3 className="font-medium text-slate-500 dark:text-slate-400 tracking-wide text-sm">Total pago</h3>
           </div>
           <div className="flex items-baseline space-x-2 text-slate-800 dark:text-slate-100">
             <span className="text-2xl font-semibold opacity-60">R$</span>
             <span className="text-5xl font-extrabold tracking-tight">{totalPago.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
           </div>
           <p className="mt-3 text-slate-500 dark:text-slate-400 text-sm">
-            {despesasPagas.length} contas já quitadas
+            {despesasPagas.length} {despesasPagas.length === 1 ? 'conta paga' : 'contas pagas'}
           </p>
         </div>
       </div>
@@ -125,11 +125,14 @@ export default function Despesas() {
       <div className="relative">
         <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
         <input
+          id="busca-despesa"
+          name="busca"
+          aria-label="Buscar despesa"
           type="text"
           value={busca}
           onChange={(e) => setBusca(e.target.value)}
-          placeholder="Buscar despesa por nome ou categoria..."
-          className="w-full pl-12 pr-4 py-3.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-2xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-600/40 transition-all text-slate-800 dark:text-slate-200 placeholder-slate-400"
+          placeholder="Buscar despesa por nome ou categoria…"
+          className="form-input w-full py-3.5 pl-12 pr-4 text-[var(--color-aurora-text)]"
         />
         {busca && (
           <button onClick={() => setBusca('')} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
@@ -152,7 +155,7 @@ export default function Despesas() {
            </div>
            <h3 className="text-xl font-medium text-slate-800 dark:text-slate-200 mb-2">Nenhuma despesa encontrada</h3>
            <p className="text-slate-500 text-center max-w-sm">
-             Adicione as contas da casa para manter seu controle financeiro sempre em dia.
+             Adicione uma despesa para começar a acompanhar os pagamentos da casa.
            </p>
         </div>
       ) : (
@@ -203,24 +206,24 @@ export default function Despesas() {
 
       {/* Modal Nova Despesa */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#101713]/55 p-4">
           <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 w-full max-w-md shadow-2xl animate-in fade-in zoom-in-95 duration-200">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold">Lançar Despesa</h2>
+              <h2 className="text-xl font-bold">Adicionar despesa</h2>
               <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600 bg-slate-100 dark:bg-slate-800 p-2 rounded-full">
                 <X size={20} />
               </button>
             </div>
             <form onSubmit={handleCreateDespesa} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Descrição</label>
-                <input required autoFocus type="text" value={novaDespesa.descricao} onChange={e => setNovaDespesa({...novaDespesa, descricao: e.target.value})} className="w-full border border-slate-200 dark:border-slate-700 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-indigo-600/50 bg-white dark:bg-slate-900" placeholder="Ex: Conta da Copel (Luz)" />
+                <label htmlFor="despesa-descricao" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Descrição</label>
+                <input id="despesa-descricao" name="descricao" required autoFocus type="text" value={novaDespesa.descricao} onChange={e => setNovaDespesa({...novaDespesa, descricao: e.target.value})} className="form-input p-3" placeholder="Ex.: Conta de luz" />
               </div>
               
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Categoria (Serviço)</label>
-                  <input required type="text" value={novaDespesa.categoria} onChange={e => setNovaDespesa({...novaDespesa, categoria: e.target.value})} className="w-full border border-slate-200 dark:border-slate-700 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-indigo-600/50 bg-white dark:bg-slate-900" placeholder="Ex: Energia, Água..." list="catList" />
+                  <label htmlFor="despesa-categoria" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Categoria (serviço)</label>
+                  <input id="despesa-categoria" name="categoria" required type="text" value={novaDespesa.categoria} onChange={e => setNovaDespesa({...novaDespesa, categoria: e.target.value})} className="form-input p-3" placeholder="Ex.: Energia, água…" list="catList" />
                   <datalist id="catList">
                     <option value="Aluguel" />
                     <option value="Energia Elétrica" />
@@ -231,22 +234,22 @@ export default function Despesas() {
                   </datalist>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Valor (R$)</label>
-                  <input required type="number" min="0" step="0.01" value={novaDespesa.valor || ''} onChange={e => setNovaDespesa({...novaDespesa, valor: parseFloat(e.target.value)})} className="w-full border border-slate-200 dark:border-slate-700 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-indigo-600/50 bg-white dark:bg-slate-900" placeholder="0,00" />
+                  <label htmlFor="despesa-valor" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Valor (R$)</label>
+                  <input id="despesa-valor" name="valor" required type="number" min="0" step="0.01" value={novaDespesa.valor || ''} onChange={e => setNovaDespesa({...novaDespesa, valor: parseFloat(e.target.value)})} className="form-input p-3" placeholder="0,00" />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Vencimento (Opcional)</label>
-                <input type="date" value={novaDespesa.vencimento} onChange={e => setNovaDespesa({...novaDespesa, vencimento: e.target.value})} className="w-full border border-slate-200 dark:border-slate-700 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-indigo-600/50 bg-white dark:bg-slate-900" />
+                <label htmlFor="despesa-vencimento" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Vencimento (opcional)</label>
+                <input id="despesa-vencimento" name="vencimento" type="date" value={novaDespesa.vencimento} onChange={e => setNovaDespesa({...novaDespesa, vencimento: e.target.value})} className="form-input p-3" />
               </div>
 
               <div className="flex items-center space-x-2 pt-2">
-                <input type="checkbox" id="pagoBox" checked={novaDespesa.pago} onChange={e => setNovaDespesa({...novaDespesa, pago: e.target.checked})} className="w-5 h-5 text-indigo-600 border-slate-300 rounded focus:ring-indigo-600" />
+                <input type="checkbox" id="pagoBox" checked={novaDespesa.pago} onChange={e => setNovaDespesa({...novaDespesa, pago: e.target.checked})} className="h-5 w-5 rounded border-slate-300 text-[var(--color-aurora-primary)] focus:ring-[var(--color-aurora-primary)]" />
                 <label htmlFor="pagoBox" className="text-sm font-medium text-slate-700 dark:text-slate-300">Marcar como já paga</label>
               </div>
 
-              <button type="submit" className="w-full bg-indigo-600 text-white p-4 rounded-xl font-medium mt-4 hover:bg-indigo-700 transition-smooth active:scale-95 shadow-md">
+              <button type="submit" className="btn-primary mt-4 w-full p-4">
                 Salvar Despesa
               </button>
             </form>

@@ -2,7 +2,6 @@ from fastapi import APIRouter, Depends, Request, HTTPException
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from authlib.integrations.starlette_client import OAuth
-from starlette.config import Config
 import os
 import httpx
 from datetime import datetime, timezone, timedelta
@@ -12,6 +11,12 @@ from database import get_db
 import base64
 from services.ai_service import extrair_eventos_de_email
 import schemas
+from oauth_config import get_google_oauth_credentials
+from oauth_validation import (
+    GOOGLE_CALENDAR_SCOPE,
+    has_google_calendar_scope,
+    validate_google_oauth_credentials,
+)
 
 router = APIRouter(
     prefix="/connect",
@@ -19,16 +24,51 @@ router = APIRouter(
 )
 
 # Configuração do OAuth
-config = Config(".env")
-oauth = OAuth(config)
+google_client_id, google_client_secret = get_google_oauth_credentials()
+oauth = OAuth()
 
 oauth.register(
     name='google',
+    client_id=google_client_id or None,
+    client_secret=google_client_secret or None,
     server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
     client_kwargs={
-        'scope': 'openid email profile https://www.googleapis.com/auth/calendar.events'
+        'scope': f'openid email profile {GOOGLE_CALENDAR_SCOPE}'
     }
 )
+
+
+def handle_google_auth_error(response, db: Session, conexao: models.ConexaoExterna):
+    if response.status_code == 401:
+        db.delete(conexao)
+        db.commit()
+        raise HTTPException(status_code=401, detail="Token expirado. Reconecte o Google Calendar.")
+
+    if response.status_code != 403:
+        return
+
+    try:
+        error_data = response.json().get("error", {})
+    except ValueError:
+        error_data = {}
+
+    reasons = {
+        item.get("reason")
+        for item in error_data.get("errors", [])
+        if isinstance(item, dict)
+    }
+    insufficient_scope = (
+        "insufficientPermissions" in reasons
+        or error_data.get("status") == "PERMISSION_DENIED"
+        or "insufficient authentication scopes" in error_data.get("message", "").lower()
+    )
+    if insufficient_scope:
+        db.delete(conexao)
+        db.commit()
+        raise HTTPException(
+            status_code=403,
+            detail="Permissão de escrita no Google Calendar não concedida. Reconecte e autorize o acesso aos eventos.",
+        )
 
 @router.get("/{provider}/login")
 async def login(provider: str, request: Request, token: str, db: Session = Depends(get_db)):
@@ -51,7 +91,20 @@ async def login(provider: str, request: Request, token: str, db: Session = Depen
     # Redirecionar para o provedor
     redirect_uri = request.url_for('auth_callback', provider=provider)
     if provider == 'google':
-        return await oauth.google.authorize_redirect(request, redirect_uri, access_type='offline', prompt='consent')
+        config_error = validate_google_oauth_credentials(
+            google_client_id,
+            google_client_secret,
+        )
+        if config_error:
+            frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
+            return RedirectResponse(f"{frontend_url}/integracoes?status={config_error}")
+        return await oauth.google.authorize_redirect(
+            request,
+            redirect_uri,
+            access_type='offline',
+            prompt='consent',
+            include_granted_scopes='true',
+        )
     
     raise HTTPException(status_code=400, detail="Provedor não suportado")
 
@@ -70,6 +123,18 @@ async def auth_callback(provider: str, request: Request, db: Session = Depends(g
         access_token = token_data.get('access_token')
         refresh_token = token_data.get('refresh_token')
         expires_at = token_data.get('expires_at')
+
+        if token_data.get('scope') and not has_google_calendar_scope(token_data.get('scope')):
+            conexao_existente = db.query(models.ConexaoExterna).filter(
+                models.ConexaoExterna.usuario_id == user_id,
+                models.ConexaoExterna.provedor == provider
+            ).first()
+            if conexao_existente:
+                db.delete(conexao_existente)
+                db.commit()
+            request.session.pop('user_id', None)
+            frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
+            return RedirectResponse(f"{frontend_url}/integracoes?status=insufficient_scope")
         
         # Salvar no banco
         conexao = db.query(models.ConexaoExterna).filter(
@@ -140,12 +205,7 @@ async def get_google_events(db: Session = Depends(get_db), current_user: models.
     async with httpx.AsyncClient() as client:
         response = await client.get(url, params=params, headers=headers)
         
-        if response.status_code == 401:
-            # Token expirado. Ideal: usar refresh_token.
-            # Workaround MVP: deletar conexao e pedir reconnect.
-            db.delete(conexao)
-            db.commit()
-            raise HTTPException(status_code=401, detail="Token expirado. Reconecte.")
+        handle_google_auth_error(response, db, conexao)
             
         if response.status_code != 200:
             raise HTTPException(status_code=response.status_code, detail="Erro ao buscar agenda")
@@ -216,12 +276,9 @@ async def create_google_event(evento: schemas.GoogleEventCreate, db: Session = D
     
     async with httpx.AsyncClient() as client:
         response = await client.post(url, json=body, headers=headers)
-        if response.status_code == 401:
-            db.delete(conexao)
-            db.commit()
-            raise HTTPException(status_code=401, detail="Token expirado. Reconecte.")
+        handle_google_auth_error(response, db, conexao)
         if response.status_code not in (200, 201):
-            raise HTTPException(status_code=response.status_code, detail=f"Erro ao criar evento: {response.text}")
+            raise HTTPException(status_code=response.status_code, detail="Não foi possível criar o evento no Google Calendar.")
             
     return {"status": "success", "data": response.json()}
 
@@ -271,12 +328,9 @@ async def update_google_event(event_id: str, evento: schemas.GoogleEventUpdate, 
     
     async with httpx.AsyncClient() as client:
         response = await client.patch(url, json=body, headers=headers)
-        if response.status_code == 401:
-            db.delete(conexao)
-            db.commit()
-            raise HTTPException(status_code=401, detail="Token expirado. Reconecte.")
+        handle_google_auth_error(response, db, conexao)
         if response.status_code not in (200, 201):
-            raise HTTPException(status_code=response.status_code, detail=f"Erro ao atualizar evento: {response.text}")
+            raise HTTPException(status_code=response.status_code, detail="Não foi possível atualizar o evento no Google Calendar.")
             
     return {"status": "success"}
 
@@ -298,12 +352,8 @@ async def delete_google_event(event_id: str, db: Session = Depends(get_db), curr
     
     async with httpx.AsyncClient() as client:
         response = await client.delete(url, headers=headers)
-        if response.status_code == 401:
-            db.delete(conexao)
-            db.commit()
-            raise HTTPException(status_code=401, detail="Token expirado. Reconecte.")
+        handle_google_auth_error(response, db, conexao)
         if response.status_code not in (200, 204):
-            raise HTTPException(status_code=response.status_code, detail="Erro ao deletar evento")
+            raise HTTPException(status_code=response.status_code, detail="Não foi possível excluir o evento do Google Calendar.")
             
     return {"status": "success"}
-

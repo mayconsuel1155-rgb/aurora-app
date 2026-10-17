@@ -57,10 +57,10 @@ export default function Saude() {
       <header className="mb-10">
         <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100 flex items-center gap-3">
           <Activity className="text-rose-500" size={32} />
-          Saúde & Remédios
+          Saúde e medicamentos
         </h1>
         <p className="text-slate-500 dark:text-slate-400 mt-2 text-lg">
-          Gerencie seus medicamentos e receba alertas exatos na hora de tomar.
+          Organize os horários dos medicamentos e mantenha os lembretes em dia.
         </p>
       </header>
 
@@ -68,27 +68,31 @@ export default function Saude() {
         {/* Painel Esquerdo: Formulário */}
         <div className="lg:col-span-1 space-y-6">
           <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-700/60">
-            <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200 mb-6">Novo Remédio</h2>
+            <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200 mb-6">Adicionar medicamento</h2>
             <form onSubmit={handleAddRemedio} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nome do Medicamento</label>
+                <label htmlFor="medicamento-nome" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nome do medicamento</label>
                 <input
+                  id="medicamento-nome"
+                  name="nome"
                   type="text"
                   value={nome}
                   onChange={e => setNome(e.target.value)}
-                  className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none transition-all dark:text-slate-200"
-                  placeholder="Ex: Losartana 50mg"
+                  className="form-input p-3"
+                  placeholder="Ex.: Losartana 50 mg"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Horários</label>
+                <label htmlFor="medicamento-horarios" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Horários</label>
                 <input
+                  id="medicamento-horarios"
+                  name="horarios"
                   type="text"
                   value={horarios}
                   onChange={e => setHorarios(e.target.value)}
-                  className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none transition-all dark:text-slate-200"
-                  placeholder="Ex: 08:00, 20:00"
+                  className="form-input p-3"
+                  placeholder="Ex.: 08:00, 20:00"
                   required
                 />
                 <p className="text-xs text-slate-400 dark:text-slate-500 mt-2">Separe múltiplos horários por vírgula.</p>
@@ -97,9 +101,9 @@ export default function Saude() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex items-center justify-center gap-2 bg-rose-500 hover:bg-rose-600 text-white p-3 rounded-xl font-semibold transition-all shadow-sm shadow-rose-500/20 disabled:opacity-70 mt-6"
+                className="btn-primary mt-6 flex w-full items-center justify-center gap-2 p-3"
               >
-                {loading ? 'Adicionando...' : <><Plus size={20} /> Cadastrar Medicamento</>}
+                {loading ? 'Adicionando…' : <><Plus size={20} /> Cadastrar medicamento</>}
               </button>
             </form>
           </div>
@@ -112,9 +116,9 @@ export default function Saude() {
               <div className="w-16 h-16 bg-rose-50 dark:bg-rose-900/30 text-rose-500 rounded-2xl flex items-center justify-center mb-4">
                 <Activity size={32} />
               </div>
-              <h3 className="text-xl font-bold text-slate-700 dark:text-slate-300 mb-2">Nenhum remédio cadastrado</h3>
+              <h3 className="text-xl font-bold text-slate-700 dark:text-slate-300 mb-2">Nenhum medicamento cadastrado</h3>
               <p className="text-slate-500 dark:text-slate-400 max-w-md">
-                Você ainda não tem medicamentos ativos. Cadastre ao lado para a Aurora começar a cuidar dos seus horários.
+                Adicione um medicamento para organizar os horários e receber lembretes.
               </p>
             </div>
           ) : (
@@ -122,7 +126,7 @@ export default function Saude() {
               {remedios.map(remedio => (
                 <div 
                   key={remedio.id} 
-                  className={`relative overflow-hidden bg-white dark:bg-slate-800 rounded-2xl border ${remedio.ativo ? 'border-rose-100 dark:border-rose-900/30 shadow-sm hover:shadow-md' : 'border-slate-100 dark:border-slate-700/50 opacity-70'} transition-all p-5 group`}
+                  className={`group relative overflow-hidden rounded-2xl border bg-[var(--color-aurora-surface)] p-5 transition-[border-color,box-shadow,opacity] ${remedio.ativo ? 'border-[var(--color-aurora-border)] shadow-sm hover:shadow-md' : 'border-[var(--color-aurora-border)] opacity-70'}`}
                 >
                   <div className={`absolute top-0 left-0 w-1 h-full ${remedio.ativo ? 'bg-rose-500' : 'bg-slate-300 dark:bg-slate-600'}`}></div>
                   
@@ -154,7 +158,7 @@ export default function Saude() {
                             removerRemedio(remedio.id);
                           }
                         }}
-                        className="p-2 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/40 opacity-0 group-hover:opacity-100 transition-all"
+                        className="rounded-xl bg-red-50 p-2 text-red-600 opacity-0 transition-[background-color,opacity] hover:bg-red-100 group-hover:opacity-100 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/40"
                         title="Excluir Medicamento"
                       >
                         <Trash2 size={18} />
