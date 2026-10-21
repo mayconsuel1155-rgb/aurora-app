@@ -1,4 +1,4 @@
-import type { Produto, Evento } from '../api/client';
+import { getVapidPublicKey, subscribeToPush, type Evento, type Produto } from '../api/client';
 
 export class NotificationService {
   private static eventMonitorInterval: number | null = null;
@@ -37,7 +37,6 @@ export class NotificationService {
 
       let vapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
       if (!vapidKey) {
-        const { getVapidPublicKey } = await import('../api/client');
         vapidKey = await getVapidPublicKey();
       }
       if (!vapidKey) {
@@ -65,9 +64,7 @@ export class NotificationService {
         });
 
       // Envia a subscription para o backend
-      const { subscribeToPush } = await import('../api/client');
       await subscribeToPush(subscription);
-      console.log('Web Push ativado com sucesso!');
       return true;
     } catch (e) {
       console.error('Erro ao assinar Web Push:', e);

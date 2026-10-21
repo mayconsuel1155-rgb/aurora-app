@@ -1,11 +1,15 @@
 import { useEffect, useState } from 'react';
 import { useStore } from '../store/useStore';
 import { Plus, X, Search, DollarSign, Wallet, TrendingDown, CheckCircle2, Circle, Calendar, Trash2 } from 'lucide-react';
+import PageHeader from '../components/PageHeader';
+import ConfirmDialog from '../components/ConfirmDialog';
+import type { Despesa } from '../api/client';
 
 export default function Despesas() {
   const { despesas, loading, fetchDespesas, adicionarDespesa, editarDespesa, removerDespesa } = useStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [busca, setBusca] = useState('');
+  const [despesaParaExcluir, setDespesaParaExcluir] = useState<Despesa | null>(null);
   
   const [novaDespesa, setNovaDespesa] = useState({
     descricao: '',
@@ -53,10 +57,10 @@ export default function Despesas() {
     await editarDespesa(id, { pago: !atualPago });
   };
 
-  const handleExcluir = async (id: number) => {
-    if (window.confirm("Deseja realmente excluir esta despesa?")) {
-      await removerDespesa(id);
-    }
+  const handleExcluir = async () => {
+    if (!despesaParaExcluir) return;
+    await removerDespesa(despesaParaExcluir.id);
+    setDespesaParaExcluir(null);
   };
 
   const formatDate = (dateStr?: string) => {
@@ -67,27 +71,23 @@ export default function Despesas() {
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
-      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Despesas da casa</h1>
-          <p className="text-[var(--color-aurora-text-muted)] mt-1 font-light">
-            Acompanhe contas, vencimentos e pagamentos em um só lugar.
-          </p>
-        </div>
-        <button 
+    <div className="page-stack">
+      <PageHeader
+        eyebrow="Finanças"
+        title="Despesas da casa"
+        description="Acompanhe contas, vencimentos e pagamentos compartilhados em um só lugar."
+        action={<button
           onClick={() => setIsModalOpen(true)}
-          className="flex items-center rounded-xl bg-[var(--color-aurora-primary)] px-5 py-3 font-medium text-white shadow-md transition-smooth hover:bg-[var(--color-aurora-primary-hover)] active:scale-95"
+          className="btn-primary flex w-full items-center justify-center px-5 py-3 sm:w-auto"
         >
           <Plus size={18} strokeWidth={2} className="mr-2" /> Adicionar despesa
-        </button>
-      </header>
+        </button>}
+      />
 
       {/* Dashboard Financeiro */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <section className="aurora-ledger md:grid-cols-2" aria-label="Resumo financeiro">
         {/* Card Pendentes */}
-        <div className="group relative overflow-hidden rounded-2xl bg-[#9a4a3c] p-6 text-white shadow-md">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none group-hover:scale-110 transition-transform"></div>
+        <div className="relative overflow-hidden bg-[var(--color-aurora-danger)] p-6 text-white">
           <div className="flex items-center space-x-3 mb-4">
             <div className="rounded-xl bg-white/12 p-2">
               <TrendingDown size={20} className="text-white" />
@@ -104,7 +104,7 @@ export default function Despesas() {
         </div>
 
         {/* Card Pagos */}
-        <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 border border-slate-200 dark:border-slate-700/80 shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow">
+        <div className="relative overflow-hidden border-t border-[var(--color-aurora-border)] bg-[var(--color-aurora-surface)] p-6 md:border-l md:border-t-0">
           <div className="flex items-center space-x-3 mb-4">
             <div className="p-2 bg-emerald-50 dark:bg-emerald-900/30 rounded-xl">
               <Wallet size={20} className="text-emerald-500" />
@@ -119,7 +119,7 @@ export default function Despesas() {
             {despesasPagas.length} {despesasPagas.length === 1 ? 'conta paga' : 'contas pagas'}
           </p>
         </div>
-      </div>
+      </section>
 
       {/* Busca */}
       <div className="relative">
@@ -135,8 +135,8 @@ export default function Despesas() {
           className="form-input w-full py-3.5 pl-12 pr-4 text-[var(--color-aurora-text)]"
         />
         {busca && (
-          <button onClick={() => setBusca('')} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
-            <X size={16} />
+          <button type="button" onClick={() => setBusca('')} aria-label="Limpar busca" className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+            <X aria-hidden="true" size={16} />
           </button>
         )}
       </div>
@@ -149,12 +149,12 @@ export default function Despesas() {
            ))}
         </div>
       ) : despesasFiltradas.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 px-4 aurora-card border-dashed">
-           <div className="p-6 bg-slate-100 dark:bg-slate-800/50 rounded-full mb-4 text-slate-400">
-              <DollarSign size={48} strokeWidth={1} />
+        <div className="empty-state">
+           <div className="empty-state-icon mb-4">
+              <DollarSign aria-hidden="true" size={24} strokeWidth={1.6} />
            </div>
-           <h3 className="text-xl font-medium text-slate-800 dark:text-slate-200 mb-2">Nenhuma despesa encontrada</h3>
-           <p className="text-slate-500 text-center max-w-sm">
+           <h3 className="section-title">Nenhuma despesa encontrada</h3>
+           <p className="section-copy max-w-sm">
              Adicione uma despesa para começar a acompanhar os pagamentos da casa.
            </p>
         </div>
@@ -167,10 +167,11 @@ export default function Despesas() {
             if (!b.vencimento) return -1;
             return new Date(a.vencimento).getTime() - new Date(b.vencimento).getTime();
           }).map(despesa => (
-            <div key={despesa.id} className={`aurora-card p-5 flex items-center justify-between hover:translate-y-[-2px] transition-smooth border-l-4 ${despesa.pago ? 'border-l-emerald-500 opacity-75' : 'border-l-rose-500'}`}>
-              <div className="flex items-center space-x-4">
+            <article key={despesa.id} className={`aurora-panel render-item flex flex-col gap-4 p-5 transition-smooth sm:flex-row sm:items-center sm:justify-between ${despesa.pago ? 'opacity-75' : ''}`}>
+              <div className="flex min-w-0 items-center space-x-4">
                 <button 
                   onClick={() => handleTogglePago(despesa.id, despesa.pago)}
+                  aria-label={despesa.pago ? `Marcar ${despesa.descricao} como pendente` : `Marcar ${despesa.descricao} como paga`}
                   className={`p-1 rounded-full transition-colors ${despesa.pago ? 'text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/20' : 'text-slate-300 hover:text-slate-400 dark:text-slate-600 dark:hover:text-slate-500'}`}
                 >
                   {despesa.pago ? <CheckCircle2 size={28} /> : <Circle size={28} />}
@@ -187,37 +188,38 @@ export default function Despesas() {
                   </div>
                 </div>
               </div>
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center justify-between gap-4 border-t border-[var(--color-aurora-border)] pt-4 sm:border-0 sm:pt-0">
                 <span className={`font-bold text-xl ${despesa.pago ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
                   R$ {(despesa.valor ?? 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </span>
                 <button 
-                  onClick={() => handleExcluir(despesa.id)}
+                  onClick={() => setDespesaParaExcluir(despesa)}
+                  aria-label={`Excluir ${despesa.descricao}`}
                   className="p-2 text-slate-300 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-xl transition-colors"
                   title="Excluir despesa"
                 >
                   <Trash2 size={18} />
                 </button>
               </div>
-            </div>
+            </article>
           ))}
         </div>
       )}
 
       {/* Modal Nova Despesa */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#101713]/55 p-4">
-          <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 w-full max-w-md shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+        <div className="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="expense-dialog-title">
+          <div className="modal-panel max-w-md p-6">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold">Adicionar despesa</h2>
-              <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600 bg-slate-100 dark:bg-slate-800 p-2 rounded-full">
-                <X size={20} />
+              <h2 id="expense-dialog-title" className="text-xl font-bold">Adicionar despesa</h2>
+              <button type="button" onClick={() => setIsModalOpen(false)} aria-label="Fechar" className="icon-button bg-[var(--color-aurora-soft)]">
+                <X aria-hidden="true" size={20} />
               </button>
             </div>
             <form onSubmit={handleCreateDespesa} className="space-y-4">
               <div>
                 <label htmlFor="despesa-descricao" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Descrição</label>
-                <input id="despesa-descricao" name="descricao" required autoFocus type="text" value={novaDespesa.descricao} onChange={e => setNovaDespesa({...novaDespesa, descricao: e.target.value})} className="form-input p-3" placeholder="Ex.: Conta de luz" />
+                <input id="despesa-descricao" name="descricao" required type="text" value={novaDespesa.descricao} onChange={e => setNovaDespesa({...novaDespesa, descricao: e.target.value})} className="form-input p-3" placeholder="Ex.: Conta de luz…" />
               </div>
               
               <div className="grid grid-cols-2 gap-4">
@@ -250,12 +252,20 @@ export default function Despesas() {
               </div>
 
               <button type="submit" className="btn-primary mt-4 w-full p-4">
-                Salvar Despesa
+                Salvar despesa
               </button>
             </form>
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        isOpen={Boolean(despesaParaExcluir)}
+        title="Excluir despesa"
+        description={`A despesa ${despesaParaExcluir?.descricao ?? ''} será removida do histórico da casa.`}
+        onConfirm={handleExcluir}
+        onCancel={() => setDespesaParaExcluir(null)}
+      />
     </div>
   );
 }

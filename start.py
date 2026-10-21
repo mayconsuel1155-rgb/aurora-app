@@ -15,6 +15,10 @@ if hasattr(sys.stdout, 'reconfigure'):
 ROOT_DIR = os.path.abspath(os.path.dirname(__file__))
 BACKEND_DIR = os.path.join(ROOT_DIR, "aurora-backend")
 FRONTEND_DIR = os.path.join(ROOT_DIR, "aurora-frontend")
+BACKEND_PORT = int(os.getenv("AURORA_BACKEND_PORT", "8001"))
+FRONTEND_PORT = int(os.getenv("AURORA_FRONTEND_PORT", "5174"))
+BACKEND_URL = f"http://127.0.0.1:{BACKEND_PORT}"
+FRONTEND_URL = f"http://127.0.0.1:{FRONTEND_PORT}"
 
 
 VENV_PYTHON = os.path.join(BACKEND_DIR, "venv", "Scripts", "python.exe")
@@ -54,18 +58,18 @@ def print_status():
     safe_print("=" * 60)
     safe_print("📊 VERIFICAÇÃO DE STATUS DOS SERVIÇOS AURORA")
     safe_print("=" * 60)
-    backend_up = check_port_open("http://localhost:8000/") or check_port_open("http://127.0.0.1:8000/")
-    frontend_up = check_port_open("http://localhost:5173/") or check_port_open("http://127.0.0.1:5173/")
+    backend_up = check_port_open(f"{BACKEND_URL}/")
+    frontend_up = check_port_open(f"{FRONTEND_URL}/")
 
     if backend_up:
-        safe_print("✅ Backend FastAPI: RODANDO (http://localhost:8000)")
+        safe_print(f"✅ Backend FastAPI: RODANDO ({BACKEND_URL})")
     else:
-        safe_print("❌ Backend FastAPI: PARADO (http://localhost:8000)")
+        safe_print(f"❌ Backend FastAPI: PARADO ({BACKEND_URL})")
 
     if frontend_up:
-        safe_print("✅ Frontend React Vite: RODANDO (http://localhost:5173)")
+        safe_print(f"✅ Frontend React Vite: RODANDO ({FRONTEND_URL})")
     else:
-        safe_print("❌ Frontend React Vite: PARADO (http://localhost:5173)")
+        safe_print(f"❌ Frontend React Vite: PARADO ({FRONTEND_URL})")
 
     safe_print("=" * 60)
     return backend_up and frontend_up
@@ -91,11 +95,11 @@ def main():
         sys.exit(1)
 
     backend_proc = None
-    if check_port_open("http://127.0.0.1:8000/"):
-        safe_print("ℹ️ Backend já está rodando em http://localhost:8000/")
+    if check_port_open(f"{BACKEND_URL}/"):
+        safe_print(f"ℹ️ Backend já está rodando em {BACKEND_URL}/")
     else:
-        safe_print("\n🚀 Iniciando Backend (FastAPI - http://localhost:8000)...")
-        backend_cmd = [VENV_PYTHON, "-m", "uvicorn", "main:app", "--reload", "--host", "127.0.0.1", "--port", "8000"]
+        safe_print(f"\n🚀 Iniciando Backend (FastAPI - {BACKEND_URL})...")
+        backend_cmd = [VENV_PYTHON, "-m", "uvicorn", "main:app", "--reload", "--host", "127.0.0.1", "--port", str(BACKEND_PORT)]
         backend_proc = subprocess.Popen(
             backend_cmd,
             cwd=BACKEND_DIR,
@@ -106,13 +110,13 @@ def main():
         )
 
     frontend_proc = None
-    if check_port_open("http://127.0.0.1:5173/"):
-        safe_print("ℹ️ Frontend já está rodando em http://localhost:5173/")
+    if check_port_open(f"{FRONTEND_URL}/"):
+        safe_print(f"ℹ️ Frontend já está rodando em {FRONTEND_URL}/")
     else:
-        safe_print("🚀 Iniciando Frontend (Vite React - http://localhost:5173)...")
+        safe_print(f"🚀 Iniciando Frontend (Vite React - {FRONTEND_URL})...")
         npm_cmd = "npm.cmd" if os.name == "nt" else "npm"
         frontend_proc = subprocess.Popen(
-            [npm_cmd, "run", "dev", "--", "--port", "5173"],
+            [npm_cmd, "run", "dev", "--", "--host", "127.0.0.1", "--port", str(FRONTEND_PORT)],
             cwd=FRONTEND_DIR,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
@@ -138,22 +142,22 @@ def main():
 
     for attempt in range(15):
         time.sleep(1)
-        if not backend_ready and check_port_open("http://localhost:8000/"):
+        if not backend_ready and check_port_open(f"{BACKEND_URL}/"):
             backend_ready = True
-            safe_print("✅ Backend respondendo em http://localhost:8000/")
+            safe_print(f"✅ Backend respondendo em {BACKEND_URL}/")
 
-        if not frontend_ready and check_port_open("http://localhost:5173/"):
+        if not frontend_ready and check_port_open(f"{FRONTEND_URL}/"):
             frontend_ready = True
-            safe_print("✅ Frontend respondendo em http://localhost:5173/")
+            safe_print(f"✅ Frontend respondendo em {FRONTEND_URL}/")
 
         if backend_ready and frontend_ready:
             break
 
     safe_print("\n" + "=" * 60)
     safe_print("✨ PROJETO AURORA EXECUTANDO COM SUCESSO!")
-    safe_print("  ► Frontend:  http://localhost:5173/")
-    safe_print("  ► Backend:   http://localhost:8000/")
-    safe_print("  ► Docs API:  http://localhost:8000/docs")
+    safe_print(f"  ► Frontend:  {FRONTEND_URL}/")
+    safe_print(f"  ► Backend:   {BACKEND_URL}/")
+    safe_print(f"  ► Docs API:  {BACKEND_URL}/docs")
     safe_print("=" * 60)
     safe_print("Pressione Ctrl+C a qualquer momento para encerrar ambos os serviços.\n")
 

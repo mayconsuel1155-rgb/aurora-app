@@ -13,7 +13,8 @@ export function IosInstallPrompt() {
     
     // Detecta se já está rodando como standalone (instalado)
     const isInStandaloneMode = () => {
-      return ('standalone' in window.navigator && (window.navigator as any).standalone) || 
+      const navigatorWithStandalone = window.navigator as Navigator & { standalone?: boolean };
+      return Boolean(navigatorWithStandalone.standalone) ||
              window.matchMedia('(display-mode: standalone)').matches;
     };
 
@@ -33,7 +34,7 @@ export function IosInstallPrompt() {
   if (!showPrompt) return null;
 
   return (
-    <div className="fixed bottom-24 left-4 right-4 z-50 animate-in slide-in-from-bottom-8 fade-in duration-500">
+    <div className="fixed bottom-[calc(6rem+env(safe-area-inset-bottom))] left-4 right-4 z-50 page-enter">
       <div className="relative flex flex-col gap-3 rounded-2xl border border-[var(--color-aurora-border)] bg-[var(--color-aurora-surface)] p-4 shadow-[var(--shadow-float)]">
         <button 
           onClick={handleDismiss}

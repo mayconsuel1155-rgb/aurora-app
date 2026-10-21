@@ -4,6 +4,7 @@ import { Plus, Minus, PackageOpen, X, Search, MapPin, Tag, Trash2, AlertTriangle
 import { GestaoAmbientesModal } from '../components/GestaoAmbientesModal';
 import { GestaoCategoriasModal } from '../components/GestaoCategoriasModal';
 import type { Produto } from '../api/client';
+import PageHeader from '../components/PageHeader';
 
 export default function Estoque() {
   const { produtos, ambientes, categoriasProduto, loading, fetchProdutos, fetchAmbientes, fetchCategoriasProduto, alterarQuantidade, adicionarProduto, removerProduto } = useStore();
@@ -21,6 +22,7 @@ export default function Estoque() {
     ambiente_id: 0,
     quantidade: 1,
     quantidade_minima: 1,
+    unidade: 'un',
     validade: ''
   });
 
@@ -44,10 +46,8 @@ export default function Estoque() {
 
   const handleCreateProduto = async (e: React.FormEvent) => {
     e.preventDefault();
-    const payload = { ...novoProduto };
-    if (!payload.validade) {
-      delete (payload as any).validade;
-    }
+    const { validade, ...produtoSemValidade } = novoProduto;
+    const payload = validade ? novoProduto : produtoSemValidade;
     await adicionarProduto(payload);
     setIsModalOpen(false);
     setNovoProduto({
@@ -56,6 +56,7 @@ export default function Estoque() {
       ambiente_id: ambientes.length > 0 ? ambientes[0].id : 0,
       quantidade: 1,
       quantidade_minima: 1,
+      unidade: 'un',
       validade: ''
     });
   };
@@ -103,26 +104,22 @@ export default function Estoque() {
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
-      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Estoque da casa</h1>
-          <p className="text-[var(--color-aurora-text-muted)] mt-1 font-light">
-            Acompanhe quantidades, validade e valor dos produtos.
-          </p>
-        </div>
-        <button 
+    <div className="page-stack">
+      <PageHeader
+        eyebrow="Inventário"
+        title="Estoque da casa"
+        description="Acompanhe quantidades, validade, localização e valor estimado dos produtos."
+        action={<button
           onClick={() => setIsModalOpen(true)}
-          className="bg-[var(--color-aurora-primary)] text-white px-5 py-3 rounded-2xl font-medium hover:bg-[var(--color-aurora-primary-hover)] transition-smooth shadow-lg shadow-[var(--color-aurora-primary)]/20 active:scale-95 flex items-center"
+          className="btn-primary flex w-full items-center justify-center px-5 py-3 sm:w-auto"
         >
           <Plus size={18} strokeWidth={2} className="mr-2" /> Adicionar produto
-        </button>
-      </header>
+        </button>}
+      />
 
       {/* Dashboard Financeiro */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="group relative overflow-hidden rounded-2xl bg-[var(--color-aurora-primary)] p-6 text-white shadow-md transition-transform duration-300 hover:-translate-y-0.5">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none group-hover:scale-110 transition-transform"></div>
+      <section className="aurora-ledger md:grid-cols-2" aria-label="Resumo do estoque">
+        <div className="relative overflow-hidden bg-[var(--color-aurora-primary)] p-6 text-white">
           <div className="flex items-center space-x-3 mb-4">
             <div className="rounded-xl bg-white/12 p-2">
               <Wallet size={20} className="text-white" />
@@ -139,7 +136,7 @@ export default function Estoque() {
         </div>
 
         {produtoMaisValioso && ((produtoMaisValioso.quantidade ?? 0) * (produtoMaisValioso.preco ?? 0)) > 0 && (
-          <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 border border-slate-200 dark:border-slate-700/80 shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow">
+          <div className="relative overflow-hidden border-t border-[var(--color-aurora-border)] bg-[var(--color-aurora-surface)] p-6 md:border-l md:border-t-0">
             <div className="flex items-center space-x-3 mb-4">
               <div className="surface-primary-soft rounded-xl p-2">
                 <DollarSign size={20} />
@@ -157,10 +154,10 @@ export default function Estoque() {
             </div>
           </div>
         )}
-      </div>
+      </section>
 
       {/* Controles de Busca e Filtros */}
-      <div className="space-y-4">
+      <section className="aurora-panel space-y-5 p-4 sm:p-5" aria-label="Busca e filtros">
         {/* Barra de Pesquisa */}
         <div className="relative">
           <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -175,8 +172,8 @@ export default function Estoque() {
             className="form-input w-full py-3.5 pl-12 pr-4"
           />
           {busca && (
-            <button onClick={() => setBusca('')} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:text-slate-400">
-              <X size={16} />
+            <button type="button" onClick={() => setBusca('')} aria-label="Limpar busca" className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:text-slate-400">
+              <X aria-hidden="true" size={16} />
             </button>
           )}
         </div>
@@ -184,7 +181,7 @@ export default function Estoque() {
         {/* Filtros por Ambiente */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2 text-xs font-semibold uppercase text-[var(--color-aurora-text-muted)] tracking-wider">
+            <div className="flex items-center space-x-2 text-xs font-semibold text-[var(--color-aurora-text-muted)]">
               <MapPin size={14} />
               <span>Ambiente</span>
             </div>
@@ -226,7 +223,7 @@ export default function Estoque() {
         {/* Filtros por Categoria */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2 text-xs font-semibold uppercase text-[var(--color-aurora-text-muted)] tracking-wider">
+            <div className="flex items-center space-x-2 text-xs font-semibold text-[var(--color-aurora-text-muted)]">
               <Tag size={14} />
               <span>Categoria</span>
             </div>
@@ -254,7 +251,7 @@ export default function Estoque() {
             ))}
           </div>
         </div>
-      </div>
+      </section>
 
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -263,12 +260,12 @@ export default function Estoque() {
            ))}
         </div>
       ) : produtosFiltrados.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 px-4 aurora-card border-dashed">
-           <div className="p-6 bg-slate-100 dark:bg-slate-800/50 rounded-full mb-4 text-[var(--color-aurora-text-muted)]">
-              <PackageOpen size={48} strokeWidth={1} />
+        <div className="empty-state">
+           <div className="empty-state-icon mb-4">
+              <PackageOpen aria-hidden="true" size={24} strokeWidth={1.6} />
            </div>
-           <h3 className="text-xl font-medium text-[var(--color-aurora-text)] mb-2">Nenhum produto encontrado</h3>
-           <p className="text-[var(--color-aurora-text-muted)] text-center max-w-sm">
+           <h3 className="section-title">Nenhum produto encontrado</h3>
+           <p className="section-copy max-w-sm">
              {safeProdutos.length === 0
                ? 'Adicione o primeiro produto para começar a acompanhar o estoque.'
                : 'Nenhum produto corresponde à busca ou aos filtros selecionados.'}
@@ -277,7 +274,7 @@ export default function Estoque() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {produtosFiltrados.map(produto => (
-            <div key={produto?.id} className="aurora-card p-6 flex flex-col justify-between hover:translate-y-[-2px] hover:shadow-xl transition-smooth relative group">
+            <article key={produto?.id} className="aurora-panel render-item group relative flex flex-col justify-between p-6 transition-smooth hover:-translate-y-0.5 hover:shadow-[var(--shadow-float)]">
               <div>
                 <div className="flex justify-between items-start mb-3">
                   <h3 className="font-semibold text-lg leading-tight text-[var(--color-aurora-text)] pr-2">{produto?.nome ?? ''}</h3>
@@ -292,6 +289,7 @@ export default function Estoque() {
                     <button 
                       onClick={() => setProdutoParaExcluir(produto)}
                       title="Excluir produto"
+                      aria-label={`Excluir ${produto.nome}`}
                       className="p-1.5 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
                     >
                       <Trash2 size={16} />
@@ -324,38 +322,40 @@ export default function Estoque() {
               
               <div className="mt-8 flex items-center justify-between">
                 <span className="rounded-xl bg-[var(--color-aurora-soft)] px-4 py-2 font-medium text-[var(--color-aurora-text)]">
-                  {produto?.quantidade ?? 0} {produto?.quantidade === 1 ? 'unid' : 'unids'}
+                  {produto?.quantidade ?? 0} {produto?.unidade || 'un'}
                 </span>
                 <div className="flex space-x-1.5 rounded-2xl bg-[var(--color-aurora-soft)] p-1.5">
                   <button 
                     onClick={() => alterarQuantidade(produto.id, -1)} 
                     disabled={(produto?.quantidade ?? 0) === 0}
+                    aria-label={`Diminuir quantidade de ${produto.nome}`}
                     className="rounded-xl p-2.5 text-[var(--color-aurora-text-muted)] transition-[color,background-color,transform] hover:bg-[var(--color-aurora-surface)] hover:text-[var(--color-aurora-text)] active:scale-90 disabled:opacity-50 disabled:hover:bg-transparent disabled:active:scale-100"
                   >
                     <Minus size={18} strokeWidth={2.5} />
                   </button>
                   <button 
                     onClick={() => alterarQuantidade(produto.id, 1)} 
+                    aria-label={`Aumentar quantidade de ${produto.nome}`}
                     className="rounded-xl p-2.5 text-[var(--color-aurora-text-muted)] transition-[color,background-color,transform] hover:bg-[var(--color-aurora-surface)] hover:text-[var(--color-aurora-text)] active:scale-90"
                   >
                     <Plus size={18} strokeWidth={2.5} />
                   </button>
                 </div>
               </div>
-            </div>
+            </article>
           ))}
         </div>
       )}
 
       {/* Modal Confirmação de Exclusão */}
       {produtoParaExcluir && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#101713]/55 p-4">
-          <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 w-full max-w-sm shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+        <div className="modal-backdrop" role="alertdialog" aria-modal="true" aria-labelledby="delete-product-title">
+          <div className="modal-panel max-w-sm p-6">
             <div className="flex flex-col items-center text-center space-y-3">
-              <div className="p-3 bg-rose-100 text-rose-600 rounded-full">
+              <div className="status-danger rounded-xl p-3">
                 <AlertTriangle size={32} />
               </div>
-              <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200">Excluir Produto</h3>
+              <h3 id="delete-product-title" className="text-xl font-bold">Excluir produto</h3>
               <p className="text-sm text-slate-500 dark:text-slate-400">
                 Tem certeza que deseja remover <strong className="text-slate-800 dark:text-slate-200">{produtoParaExcluir.nome}</strong> do inventário?
               </p>
@@ -381,21 +381,21 @@ export default function Estoque() {
 
       {/* Modal Novo Item */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#101713]/55 p-4">
-          <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 w-full max-w-md shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+        <div className="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="product-dialog-title">
+          <div className="modal-panel max-w-md p-6">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold">Adicionar produto</h2>
-              <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 p-2 rounded-full">
-                <X size={20} />
+              <h2 id="product-dialog-title" className="text-xl font-bold">Adicionar produto</h2>
+              <button type="button" onClick={() => setIsModalOpen(false)} aria-label="Fechar" className="icon-button bg-[var(--color-aurora-soft)]">
+                <X aria-hidden="true" size={20} />
               </button>
             </div>
             <form onSubmit={handleCreateProduto} className="space-y-4">
               <div>
                 <label htmlFor="produto-nome" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nome do produto</label>
-                <input id="produto-nome" name="nome" required autoFocus type="text" value={novoProduto.nome} onChange={e => setNovoProduto({...novoProduto, nome: e.target.value})} className="form-input p-3" placeholder="Ex.: Café em pó" />
+                <input id="produto-nome" name="nome" required type="text" value={novoProduto.nome} onChange={e => setNovoProduto({...novoProduto, nome: e.target.value})} className="form-input p-3" placeholder="Ex.: Café em pó…" />
               </div>
               
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Categoria</label>
                   <div className="flex items-center space-x-2">
@@ -404,7 +404,7 @@ export default function Estoque() {
                         <option key={c.id} value={c.nome}>{c.nome}</option>
                       ))}
                     </select>
-                    <button type="button" onClick={() => setIsGestaoCategoriasModalOpen(true)} className="surface-primary-soft rounded-xl p-3 transition-colors hover:bg-[var(--color-aurora-soft)]" title="Nova categoria">
+                    <button type="button" onClick={() => setIsGestaoCategoriasModalOpen(true)} aria-label="Criar categoria" className="surface-primary-soft rounded-xl p-3 transition-colors hover:bg-[var(--color-aurora-soft)]" title="Nova categoria">
                       <Plus size={20} />
                     </button>
                   </div>
@@ -418,7 +418,7 @@ export default function Estoque() {
                         <option key={amb.id} value={amb.id}>{amb.nome} {amb.icone}</option>
                       ))}
                     </select>
-                    <button type="button" onClick={() => setIsGestaoAmbientesModalOpen(true)} className="surface-primary-soft rounded-xl p-3 transition-colors hover:bg-[var(--color-aurora-soft)]" title="Novo ambiente">
+                    <button type="button" onClick={() => setIsGestaoAmbientesModalOpen(true)} aria-label="Criar ambiente" className="surface-primary-soft rounded-xl p-3 transition-colors hover:bg-[var(--color-aurora-soft)]" title="Novo ambiente">
                       <Plus size={20} />
                     </button>
                   </div>
@@ -431,6 +431,17 @@ export default function Estoque() {
                   <input id="produto-quantidade" name="quantidade" required type="number" min="0" step="any" value={novoProduto.quantidade} onChange={e => setNovoProduto({...novoProduto, quantidade: Number(e.target.value)})} className="form-input p-3" />
                 </div>
                 <div>
+                  <label htmlFor="produto-unidade" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Unidade</label>
+                  <select id="produto-unidade" name="unidade" value={novoProduto.unidade} onChange={e => setNovoProduto({...novoProduto, unidade: e.target.value})} className="form-input p-3">
+                    <option value="un">un</option>
+                    <option value="kg">kg</option>
+                    <option value="g">g</option>
+                    <option value="L">L</option>
+                    <option value="ml">ml</option>
+                    <option value="pacote">pacote</option>
+                  </select>
+                </div>
+                <div>
                   <label htmlFor="produto-minimo" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Estoque mínimo</label>
                   <input id="produto-minimo" name="quantidade_minima" required type="number" min="0" step="any" value={novoProduto.quantidade_minima} onChange={e => setNovoProduto({...novoProduto, quantidade_minima: Number(e.target.value)})} className="form-input p-3" />
                 </div>
@@ -441,8 +452,8 @@ export default function Estoque() {
                 <input id="produto-validade" name="validade" type="date" value={novoProduto.validade} onChange={e => setNovoProduto({...novoProduto, validade: e.target.value})} className="form-input p-3" />
               </div>
 
-              <button type="submit" className="w-full bg-[var(--color-aurora-primary)] text-white p-4 rounded-xl font-medium mt-2 hover:bg-[var(--color-aurora-primary-hover)] transition-smooth active:scale-95 shadow-md">
-                Adicionar ao Inventário
+              <button type="submit" className="btn-primary mt-2 w-full p-4">
+                Adicionar ao inventário
               </button>
             </form>
           </div>

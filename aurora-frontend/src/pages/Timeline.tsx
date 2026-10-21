@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import type { Evento } from '../api/client';
+import PageHeader from '../components/PageHeader';
 
 function eventDate(event: Evento) {
   if (!event.data) return null;
@@ -60,23 +61,19 @@ export default function Timeline() {
   const prioritiesCount = data.lowStock.length + data.expiring.length + data.todayEvents.length;
 
   return (
-    <div className="space-y-9 pb-6">
-      <header className="grid gap-5 border-b border-[var(--color-aurora-border)] pb-7 sm:grid-cols-[1fr_auto] sm:items-end">
-        <div>
-          <p className="text-sm font-semibold text-[var(--color-aurora-primary)]">Resumo da casa</p>
-          <h1 className="mt-3 text-4xl font-semibold tracking-[-.05em] sm:text-5xl">{greeting}. Este é o resumo da sua casa.</h1>
-          <p className="mt-3 max-w-xl text-sm leading-6 text-[var(--color-aurora-text-muted)]">
-            Confira as prioridades de hoje e organize o restante do dia com tranquilidade.
-          </p>
-        </div>
-        <Link to="/estoque" className="btn-outline inline-flex items-center justify-center gap-2 px-4 py-2.5">
+    <div className="page-stack pb-6">
+      <PageHeader
+        eyebrow="Resumo da casa"
+        title={`${greeting}. Este é o resumo da sua casa.`}
+        description="Confira as prioridades de hoje e organize o restante do dia com tranquilidade."
+        action={<Link to="/estoque" className="btn-outline inline-flex w-full items-center justify-center gap-2 px-4 py-2.5 sm:w-auto">
           <Package aria-hidden="true" size={16} /> Gerenciar estoque
-        </Link>
-      </header>
+        </Link>}
+      />
 
       <section aria-labelledby="house-numbers-title">
         <h2 id="house-numbers-title" className="sr-only">Números da casa</h2>
-        <div className="grid overflow-hidden rounded-2xl border border-[var(--color-aurora-border)] bg-[var(--color-aurora-surface)] sm:grid-cols-2 xl:grid-cols-4">
+        <div className="aurora-ledger sm:grid-cols-2 xl:grid-cols-4">
           <Metric icon={Package} label="Itens em casa" value={produtos.length} helper="produtos cadastrados" />
           <Metric icon={ShoppingBasket} label="Para repor" value={data.lowStock.length} helper={data.lowStock.length ? 'abaixo do mínimo' : 'estoque em dia'} attention={data.lowStock.length > 0} />
           <Metric icon={CalendarDays} label="Agenda hoje" value={data.todayEvents.length} helper={data.todayEvents.length ? 'compromissos' : 'dia livre'} />
@@ -96,7 +93,7 @@ export default function Timeline() {
             <Clock3 aria-hidden="true" size={19} className="text-[var(--color-aurora-text-muted)]" />
           </div>
 
-          <div className="overflow-hidden rounded-2xl border border-[var(--color-aurora-border)] bg-[var(--color-aurora-surface)]">
+          <div className="aurora-panel">
             {data.lowStock.length > 0 && (
               <PriorityRow
                 icon={ShoppingBasket}
@@ -201,7 +198,7 @@ function PriorityRow({ icon: Icon, tone, title, description, to, action }: { ico
   }[tone];
 
   return (
-    <article className="group flex flex-col gap-4 border-b border-[var(--color-aurora-border)] px-5 py-5 last:border-b-0 sm:flex-row sm:items-center sm:px-6">
+    <article className="render-item group flex flex-col gap-4 border-b border-[var(--color-aurora-border)] px-5 py-5 last:border-b-0 sm:flex-row sm:items-center sm:px-6">
       <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${toneClass}`}><Icon aria-hidden="true" size={18} /></span>
       <div className="min-w-0 flex-1">
         <h3 className="truncate text-sm font-semibold">{title}</h3>

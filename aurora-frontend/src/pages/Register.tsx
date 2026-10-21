@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { ArrowRight, Loader2 } from 'lucide-react';
-import { loginUser, registerUser } from '../api/client';
+import { ArrowRight, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { getApiErrorMessage, loginUser, registerUser } from '../api/client';
 import { useStore } from '../store/useStore';
 import AuthLayout from '../components/AuthLayout';
 
@@ -13,6 +13,7 @@ export default function Register() {
   const [senha, setSenha] = useState('');
   const [codigoConvite, setCodigoConvite] = useState(initialInvite);
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const setAuth = useStore(state => state.setAuth);
@@ -26,8 +27,8 @@ export default function Register() {
       const authData = await loginUser({ email, senha });
       setAuth(authData.access_token, newUser);
       navigate('/');
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Não foi possível criar sua conta.');
+    } catch (err: unknown) {
+      setError(getApiErrorMessage(err, 'Não foi possível criar sua conta.'));
     } finally {
       setLoading(false);
     }
@@ -52,7 +53,12 @@ export default function Register() {
         </div>
         <div>
           <label htmlFor="senha" className="mb-2 block text-sm font-semibold">Senha</label>
-          <input id="senha" name="senha" type="password" required minLength={6} autoComplete="new-password" value={senha} onChange={event => setSenha(event.target.value)} className="form-input" placeholder="Mínimo de 6 caracteres…" />
+          <div className="relative">
+            <input id="senha" name="senha" type={showPassword ? 'text' : 'password'} required minLength={6} autoComplete="new-password" value={senha} onChange={event => setSenha(event.target.value)} className="form-input pr-12" placeholder="Mínimo de 6 caracteres…" />
+            <button type="button" onClick={() => setShowPassword(value => !value)} aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'} className="icon-button absolute right-1 top-1/2 -translate-y-1/2">
+              {showPassword ? <EyeOff aria-hidden="true" size={18} /> : <Eye aria-hidden="true" size={18} />}
+            </button>
+          </div>
         </div>
         <div>
           <label htmlFor="codigo" className="mb-2 block text-sm font-semibold">Código de convite <span className="font-normal text-[var(--color-aurora-text-muted)]">(opcional)</span></label>

@@ -1,13 +1,15 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database import engine, Base
-from routers import produtos, ai, ambientes, auth, casas, connect, push, remedios, despesas, categorias
+from migrations import run_lightweight_migrations
+from routers import produtos, ai, ambientes, auth, casas, connect, push, remedios, despesas, categorias, notas_fiscais
 from services import push_service
 from starlette.middleware.sessions import SessionMiddleware
 import os
 
 # Em modo dev, criamos as tabelas direto. No futuro usaremos Alembic.
 Base.metadata.create_all(bind=engine)
+run_lightweight_migrations()
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
@@ -53,6 +55,7 @@ app.include_router(push.router)
 app.include_router(remedios.router)
 app.include_router(despesas.router)
 app.include_router(categorias.router)
+app.include_router(notas_fiscais.router)
 
 @app.get("/")
 def read_root():

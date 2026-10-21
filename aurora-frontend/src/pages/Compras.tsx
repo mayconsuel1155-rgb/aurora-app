@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useStore } from '../store/useStore';
-import { Check, Sparkles, Trash2, X, DollarSign, Package } from 'lucide-react';
+import { Check, Sparkles, Trash2, X, DollarSign, Package, QrCode } from 'lucide-react';
 import type { Produto } from '../api/client';
+import PageHeader from '../components/PageHeader';
+import ConfirmDialog from '../components/ConfirmDialog';
+import NfceImportDialog from '../components/NfceImportDialog';
 
 export default function Compras() {
   const { produtos, loading, fetchProdutos, marcarComoComprado, removerProduto } = useStore();
@@ -9,6 +12,8 @@ export default function Compras() {
   const [comprandoId, setComprandoId] = useState<number | null>(null);
   const [qtdForm, setQtdForm] = useState<string>('1');
   const [precoForm, setPrecoForm] = useState<string>('');
+  const [produtoParaExcluir, setProdutoParaExcluir] = useState<Produto | null>(null);
+  const [isNfceDialogOpen, setIsNfceDialogOpen] = useState(false);
 
   useEffect(() => {
     fetchProdutos();
@@ -30,18 +35,25 @@ export default function Compras() {
     setComprandoId(null);
   };
 
-  const handleExcluir = async (id: number) => {
-    if (window.confirm("Deseja realmente remover este produto de toda a sua casa?")) {
-      await removerProduto(id);
-    }
+  const handleExcluir = async () => {
+    if (!produtoParaExcluir) return;
+    await removerProduto(produtoParaExcluir.id);
+    setProdutoParaExcluir(null);
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
-      <header className="space-y-2">
-        <h1 className="text-3xl md:text-4xl font-bold tracking-tight">Lista de compras</h1>
-        <p className="text-[var(--color-aurora-text-muted)] text-lg font-light">Itens que chegaram ao limite mínimo do estoque.</p>
-      </header>
+    <div className="page-stack">
+      <PageHeader
+        eyebrow="Reposição"
+        title="Lista de compras"
+        description="Itens que chegaram ao limite mínimo e precisam voltar para a casa."
+        action={(
+          <button type="button" onClick={() => setIsNfceDialogOpen(true)} className="btn-primary flex items-center gap-2 px-4 py-3">
+            <QrCode size={19} aria-hidden="true" />
+            Escanear nota
+          </button>
+        )}
+      />
 
       {loading ? (
         <div className="space-y-4">
@@ -50,34 +62,34 @@ export default function Compras() {
            ))}
         </div>
       ) : listaInvisivel.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-24 px-4 aurora-card border-dashed">
-           <div className="surface-primary-soft mb-4 rounded-2xl p-6">
-              <Sparkles size={48} strokeWidth={1.5} />
+        <div className="empty-state">
+           <div className="empty-state-icon mb-4">
+              <Sparkles aria-hidden="true" size={24} strokeWidth={1.6} />
            </div>
-           <h3 className="text-xl font-medium text-[var(--color-aurora-text)] mb-2">Nenhuma compra pendente</h3>
-           <p className="text-[var(--color-aurora-text-muted)] text-center max-w-sm">
+           <h3 className="section-title">Nenhuma compra pendente</h3>
+           <p className="section-copy max-w-sm">
              O estoque está acima dos limites mínimos definidos.
            </p>
         </div>
       ) : (
         <div className="space-y-4">
           {listaInvisivel.map(produto => (
-            <div key={produto.id} className="aurora-card overflow-hidden transition-[box-shadow,transform] duration-300 hover:-translate-y-0.5 hover:shadow-lg">
+            <article key={produto.id} className="aurora-panel render-item transition-[box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-float)]">
               {comprandoId === produto.id ? (
                 <div className="border-b-2 border-[var(--color-aurora-primary)] bg-[var(--color-aurora-primary-soft)] p-5 md:p-6">
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="font-bold text-[var(--color-aurora-primary)] text-xl flex items-center">
                       <Sparkles size={18} className="mr-2" /> Registrando {produto.nome}
                     </h3>
-                    <button onClick={() => setComprandoId(null)} className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                      <X size={20} />
+                    <button type="button" onClick={() => setComprandoId(null)} aria-label="Cancelar registro" className="icon-button">
+                      <X aria-hidden="true" size={20} />
                     </button>
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
                     <div className="space-y-1.5">
                       <label htmlFor={`quantidade-${produto.id}`} className="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center">
-                        <Package size={14} className="mr-1.5" /> Quantidade (un, kg, L)
+                        <Package size={14} className="mr-1.5" /> Quantidade ({produto.unidade || 'un'})
                       </label>
                       <input 
                         id={`quantidade-${produto.id}`}
@@ -118,16 +130,17 @@ export default function Compras() {
                   </button>
                 </div>
               ) : (
-                <div className="p-5 md:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div className="pl-2">
-                    <h3 className="font-semibold text-[var(--color-aurora-text)] text-xl">{produto.nome}</h3>
-                    <p className="text-sm text-[var(--color-aurora-text-muted)] mt-1 font-light">
-                      Estoque atual: {produto.quantidade} <span className="mx-1">•</span> Mínimo: {produto.quantidade_minima}
+                <div className="flex flex-col justify-between gap-4 p-5 md:flex-row md:items-center md:p-6">
+                  <div>
+                    <h3 className="text-lg font-semibold text-[var(--color-aurora-text)]">{produto.nome}</h3>
+                    <p className="mt-1 text-sm text-[var(--color-aurora-text-muted)]">
+                      Estoque atual: {produto.quantidade} {produto.unidade || 'un'} <span className="mx-1">•</span> Mínimo: {produto.quantidade_minima} {produto.unidade || 'un'}
                     </p>
                   </div>
                   <div className="flex gap-2">
                     <button 
-                      onClick={() => handleExcluir(produto.id)}
+                      onClick={() => setProdutoParaExcluir(produto)}
+                      aria-label={`Excluir ${produto.nome}`}
                       className="p-3.5 rounded-2xl text-red-500 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40 transition-smooth active:scale-95"
                       title="Excluir produto definitivamente"
                     >
@@ -143,10 +156,19 @@ export default function Compras() {
                   </div>
                 </div>
               )}
-            </div>
+            </article>
           ))}
         </div>
       )}
+
+      <ConfirmDialog
+        isOpen={Boolean(produtoParaExcluir)}
+        title="Remover produto"
+        description={`O item ${produtoParaExcluir?.nome ?? ''} será removido do estoque e da lista de compras.`}
+        onConfirm={handleExcluir}
+        onCancel={() => setProdutoParaExcluir(null)}
+      />
+      <NfceImportDialog isOpen={isNfceDialogOpen} onClose={() => setIsNfceDialogOpen(false)} />
     </div>
   );
 }

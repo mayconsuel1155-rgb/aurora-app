@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { lazy, Suspense, useMemo, useState } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import {
   Activity,
@@ -18,9 +18,10 @@ import {
   Wallet,
   X,
 } from 'lucide-react';
-import AIChatModal from './AIChatModal';
 import { useStore } from '../store/useStore';
 import { IosInstallPrompt } from './IosInstallPrompt';
+
+const AIChatModal = lazy(() => import('./AIChatModal'));
 
 const primaryNavigation = [
   { to: '/', icon: Home, label: 'Visão geral', end: true },
@@ -62,7 +63,7 @@ export default function Layout() {
 
   return (
     <div className="app-shell flex min-h-[100dvh] text-[var(--color-aurora-text)]">
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-[272px] flex-col bg-[var(--color-aurora-sidebar)] text-white lg:flex">
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col bg-[var(--color-aurora-sidebar)] text-white lg:flex">
         <Brand />
 
         <nav aria-label="Navegação principal" className="custom-scrollbar flex-1 overflow-y-auto px-4 py-2">
@@ -101,17 +102,17 @@ export default function Layout() {
         </div>
       </aside>
 
-      <div className="flex min-h-[100dvh] min-w-0 flex-1 flex-col lg:pl-[272px]">
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-[var(--color-aurora-border)] bg-[var(--color-aurora-bg)] px-4 sm:px-6 lg:px-10">
+      <div className="flex min-h-[100dvh] min-w-0 flex-1 flex-col lg:pl-64">
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-[var(--color-aurora-border)] bg-[var(--color-aurora-bg)] px-4 sm:h-[72px] sm:px-6 lg:px-10">
           <div className="flex min-w-0 items-center gap-3">
             <div className="lg:hidden"><Brand compact /></div>
-            <div className="hidden sm:block">
+            <div className="hidden min-w-0 border-l border-[var(--color-aurora-border)] pl-3 sm:block lg:border-0 lg:pl-0">
               <p className="truncate text-sm font-semibold">{currentPage}</p>
               <p className="mt-0.5 text-[11px] capitalize text-[var(--color-aurora-text-muted)]">{currentDate}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <p className="hidden text-xs font-medium text-[var(--color-aurora-text-muted)] sm:block">Tudo da casa em um só lugar</p>
+            <p className="hidden text-xs font-medium text-[var(--color-aurora-text-muted)] xl:block">Tudo da casa em um só lugar</p>
             <button type="button" onClick={toggleTheme} aria-label={theme === 'dark' ? 'Ativar tema claro' : 'Ativar tema escuro'} className="icon-button border border-[var(--color-aurora-border)] bg-[var(--color-aurora-surface)]">
               {theme === 'dark' ? <Sun aria-hidden="true" size={16} /> : <Moon aria-hidden="true" size={16} />}
             </button>
@@ -121,7 +122,7 @@ export default function Layout() {
           </div>
         </header>
 
-        <main id="main-content" className="min-w-0 flex-1 pb-28 lg:pb-10">
+        <main id="main-content" tabIndex={-1} className="min-w-0 flex-1 pb-28 lg:pb-10">
           <div className="page-container page-enter"><Outlet /></div>
         </main>
       </div>
@@ -137,7 +138,11 @@ export default function Layout() {
         </button>
       )}
 
-      <AIChatModal isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
+      {isChatOpen && (
+        <Suspense fallback={null}>
+          <AIChatModal isOpen onClose={() => setIsChatOpen(false)} />
+        </Suspense>
+      )}
       <IosInstallPrompt />
 
       {isMoreOpen && (
@@ -163,7 +168,7 @@ export default function Layout() {
         </div>
       )}
 
-      <nav aria-label="Navegação móvel" className="fixed inset-x-3 bottom-3 z-40 grid grid-cols-5 rounded-2xl border border-[var(--color-aurora-border)] bg-[var(--color-aurora-surface)] p-1.5 shadow-[var(--shadow-float)] lg:hidden">
+      <nav aria-label="Navegação móvel" className="fixed inset-x-3 bottom-[calc(.75rem+env(safe-area-inset-bottom))] z-40 grid grid-cols-5 rounded-2xl border border-[var(--color-aurora-border)] bg-[var(--color-aurora-surface)] p-1.5 shadow-[var(--shadow-float)] lg:hidden">
         {primaryNavigation.map(item => <MobileNavItem key={item.to} {...item} />)}
         <button type="button" onClick={() => setIsMoreOpen(true)} className="flex min-h-12 flex-col items-center justify-center gap-1 rounded-xl py-2 text-[var(--color-aurora-text-muted)] transition-colors hover:bg-[var(--color-aurora-soft)]">
           <Menu aria-hidden="true" size={19} />
@@ -176,10 +181,10 @@ export default function Layout() {
 
 function Brand({ compact = false }: { compact?: boolean }) {
   return (
-    <div className={compact ? 'flex items-center' : 'flex h-24 items-center px-6'}>
+    <div className={compact ? 'flex items-center' : 'flex h-24 items-center px-6'} aria-label="Aurora">
       <div className="brand-mark"><Sparkles aria-hidden="true" size={compact ? 16 : 18} /></div>
       <div className={compact ? 'ml-2.5' : 'ml-3'}>
-        <p className="text-[17px] font-bold tracking-[-.035em]">Aurora</p>
+        <p className={`text-[17px] font-bold tracking-[-.035em] ${compact ? 'hidden min-[380px]:block' : ''}`}>Aurora</p>
         {!compact && <p className="mt-0.5 text-[10px] font-semibold tracking-[.08em] text-white/55">Casa inteligente</p>}
       </div>
     </div>

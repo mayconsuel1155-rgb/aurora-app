@@ -1,18 +1,30 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
-import Timeline from './pages/Timeline';
-import Estoque from './pages/Estoque';
-import Compras from './pages/Compras';
-import Familia from './pages/Familia';
-import Integracoes from './pages/Integracoes';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Agenda from './pages/Agenda';
-import Saude from './pages/Saude';
-import Despesas from './pages/Despesas';
 import { useStore } from './store/useStore';
 import { NotificationService } from './services/NotificationService';
-import { useState, useEffect } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
+
+const Agenda = lazy(() => import('./pages/Agenda'));
+const Compras = lazy(() => import('./pages/Compras'));
+const Despesas = lazy(() => import('./pages/Despesas'));
+const Estoque = lazy(() => import('./pages/Estoque'));
+const Familia = lazy(() => import('./pages/Familia'));
+const Integracoes = lazy(() => import('./pages/Integracoes'));
+const Login = lazy(() => import('./pages/Login'));
+const NotFound = lazy(() => import('./pages/NotFound'));
+const Register = lazy(() => import('./pages/Register'));
+const Saude = lazy(() => import('./pages/Saude'));
+const Timeline = lazy(() => import('./pages/Timeline'));
+
+function RouteFallback() {
+  return (
+    <div role="status" className="page-container space-y-4" aria-label="Carregando página">
+      <div className="h-3 w-24 animate-pulse rounded bg-[var(--color-aurora-primary-soft)]" />
+      <div className="h-12 w-3/4 max-w-xl animate-pulse rounded-xl bg-[var(--color-aurora-soft)]" />
+      <div className="h-64 animate-pulse rounded-2xl bg-[var(--color-aurora-surface)]" />
+    </div>
+  );
+}
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const token = useStore(state => state.token);
@@ -108,7 +120,8 @@ function App() {
 
   return (
     <BrowserRouter>
-      <Routes>
+      <Suspense fallback={<RouteFallback />}>
+        <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         
@@ -121,8 +134,10 @@ function App() {
           <Route path="familia" element={<Familia />} />
           <Route path="saude" element={<Saude />} />
           <Route path="integracoes" element={<Integracoes />} />
+          <Route path="*" element={<NotFound />} />
         </Route>
-      </Routes>
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 }

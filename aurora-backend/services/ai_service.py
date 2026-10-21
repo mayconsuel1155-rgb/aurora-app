@@ -85,7 +85,7 @@ def gerar_insight_llm(produtos):
     resumo_produtos = []
     for p in produtos:
         status = "Repor" if p.quantidade <= p.quantidade_minima else "OK"
-        resumo_produtos.append(f"- {p.nome} ({p.categoria}): {p.quantidade} un (mínimo: {p.quantidade_minima}) [{status}]")
+        resumo_produtos.append(f"- {p.nome} ({p.categoria}): {p.quantidade} {p.unidade or 'un'} (mínimo: {p.quantidade_minima}) [{status}]")
     
     lista_texto = "\n".join(resumo_produtos)
     
@@ -152,7 +152,7 @@ def conversar_com_aurora(db: Session, casa_id: int, mensagem_usuario: str, histo
     for p in produtos:
         status = "CRÍTICO/REPOR" if p.quantidade <= p.quantidade_minima else "OK"
         loc = f" no ambiente {p.ambiente.nome}" if p.ambiente else ""
-        resumo_produtos.append(f"- {p.nome} ({p.categoria}){loc}: {p.quantidade} un (Estoque Mínimo: {p.quantidade_minima}) [{status}]")
+        resumo_produtos.append(f"- {p.nome} ({p.categoria}){loc}: {p.quantidade} {p.unidade or 'un'} (Estoque Mínimo: {p.quantidade_minima}) [{status}]")
     
     lista_texto = "\n".join(resumo_produtos) if resumo_produtos else "Nenhum produto cadastrado no momento."
     

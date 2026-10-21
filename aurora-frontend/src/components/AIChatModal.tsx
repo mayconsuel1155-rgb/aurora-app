@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Sparkles, Send, X, Bot, User, RefreshCw, MessageSquare, Clock } from 'lucide-react';
-import { sendChatMessage, type ChatMessage } from '../api/client';
+import { getApiErrorMessage, sendChatMessage, type ChatMessage } from '../api/client';
 
 
 interface AIChatModalProps {
@@ -26,6 +26,7 @@ export default function AIChatModal({ isOpen, onClose }: AIChatModalProps) {
   const [loading, setLoading] = useState(false);
   const [isDelayed, setIsDelayed] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -34,8 +35,18 @@ export default function AIChatModal({ isOpen, onClose }: AIChatModalProps) {
   useEffect(() => {
     if (isOpen) {
       scrollToBottom();
+      inputRef.current?.focus();
     }
   }, [messages, isOpen, isDelayed]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -62,14 +73,14 @@ export default function AIChatModal({ isOpen, onClose }: AIChatModalProps) {
       const resposta = await sendChatMessage(text, historicoRelevante);
 
       setMessages(prev => [...prev, { role: 'assistant', content: resposta }]);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(error);
-      const motivo = error?.response?.data?.detail || error?.message || 'Oscilação de conexão ou instabilidade nos servidores da OpenRouter';
+      const motivo = getApiErrorMessage(error, 'Oscilação de conexão ou instabilidade no provedor');
       setMessages(prev => [
         ...prev,
         {
           role: 'assistant',
-          content: `⚠️ A IA Aurora não está conseguindo responder no momento.\nMotivo: ${motivo}`
+          content: `A IA Aurora não está conseguindo responder no momento.\nMotivo: ${motivo}`
         }
       ]);
     } finally {
@@ -96,7 +107,7 @@ export default function AIChatModal({ isOpen, onClose }: AIChatModalProps) {
   };
 
   return (
-    <section role="dialog" aria-modal="true" aria-labelledby="ai-chat-title" className="fixed inset-0 z-[70] flex flex-col overflow-hidden border border-[var(--color-aurora-border)] bg-[var(--color-aurora-surface)] shadow-[var(--shadow-float)] sm:inset-auto sm:bottom-6 sm:right-6 sm:h-[600px] sm:w-[420px] sm:rounded-2xl">
+    <section role="dialog" aria-modal="true" aria-labelledby="ai-chat-title" className="fixed inset-0 z-[70] flex flex-col overflow-hidden border border-[var(--color-aurora-border)] bg-[var(--color-aurora-surface)] shadow-[var(--shadow-float)] sm:inset-auto sm:bottom-6 sm:right-6 sm:h-[min(600px,calc(100dvh-3rem))] sm:w-[420px] sm:rounded-2xl">
       {/* Header */}
       <div className="flex shrink-0 items-center justify-between bg-[var(--color-aurora-primary)] p-4 text-white md:p-5">
         <div className="flex items-center space-x-3">
@@ -132,7 +143,7 @@ export default function AIChatModal({ isOpen, onClose }: AIChatModalProps) {
         {messages.map((msg, index) => (
           <div
             key={index}
-            className={`flex items-start space-x-3 ${msg.role === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}
+            className={`render-item flex items-start space-x-3 ${msg.role === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}
           >
             <div
               className={`p-2 rounded-2xl shrink-0 ${
@@ -148,7 +159,7 @@ export default function AIChatModal({ isOpen, onClose }: AIChatModalProps) {
               className={`p-3.5 rounded-2xl max-w-[82%] text-sm leading-relaxed ${
                 msg.role === 'user'
                   ? 'bg-[var(--color-aurora-primary)] text-white rounded-tr-none shadow-sm'
-                  : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-100 dark:border-slate-700 shadow-sm rounded-tl-none'
+                  : 'rounded-tl-none border border-[var(--color-aurora-border)] bg-[var(--color-aurora-surface)] text-[var(--color-aurora-text)] shadow-sm'
               }`}
             >
               <div className="whitespace-pre-wrap">{msg.content}</div>
@@ -162,7 +173,7 @@ export default function AIChatModal({ isOpen, onClose }: AIChatModalProps) {
               <div className="surface-primary-soft shrink-0 rounded-xl p-2">
                 <Bot size={16} />
               </div>
-              <div className="p-4 bg-white dark:bg-slate-800 rounded-2xl rounded-tl-none border border-slate-100 dark:border-slate-700 shadow-sm flex items-center space-x-2">
+              <div className="flex items-center space-x-2 rounded-2xl rounded-tl-none border border-[var(--color-aurora-border)] bg-[var(--color-aurora-surface)] p-4 shadow-sm">
                 <div className="h-2 w-2 animate-bounce rounded-full bg-[var(--color-aurora-primary)]" style={{ animationDelay: '0ms' }} />
                 <div className="h-2 w-2 animate-bounce rounded-full bg-[var(--color-aurora-primary)]" style={{ animationDelay: '150ms' }} />
                 <div className="h-2 w-2 animate-bounce rounded-full bg-[var(--color-aurora-primary)]" style={{ animationDelay: '300ms' }} />
@@ -170,7 +181,7 @@ export default function AIChatModal({ isOpen, onClose }: AIChatModalProps) {
             </div>
 
             {isDelayed && (
-              <div className="flex items-start space-x-2.5 text-xs bg-amber-50/90 text-amber-900 border border-amber-200/90 p-3 rounded-2xl shadow-xs animate-in fade-in slide-in-from-top-1 duration-300">
+              <div className="status-warning flex items-start space-x-2.5 rounded-xl border border-current/15 p-3 text-xs">
                 <Clock size={16} className="text-amber-600 shrink-0 mt-0.5 animate-spin" />
                 <div className="leading-snug">
                   <span className="font-semibold block text-amber-950 mb-0.5">A resposta está demorando</span>
@@ -186,9 +197,9 @@ export default function AIChatModal({ isOpen, onClose }: AIChatModalProps) {
 
       {/* Quick Suggestions */}
       {messages.length <= 2 && !loading && (
-        <div className="px-4 py-2 bg-slate-50 dark:bg-slate-900/50/80 border-t border-slate-100 dark:border-slate-700 shrink-0">
-          <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1">
-            <MessageSquare size={12} /> Sugestões de perguntas:
+        <div className="shrink-0 border-t border-[var(--color-aurora-border)] bg-[var(--color-aurora-soft)] px-4 py-2">
+          <p className="mb-2 flex items-center gap-1 text-[11px] font-semibold text-[var(--color-aurora-text-muted)]">
+            <MessageSquare aria-hidden="true" size={12} /> Sugestões de perguntas
           </p>
           <div className="flex flex-wrap gap-1.5">
             {SUGESTOES_INICIAIS.map((sugestao, idx) => (
@@ -205,8 +216,9 @@ export default function AIChatModal({ isOpen, onClose }: AIChatModalProps) {
       )}
 
       {/* Input Form */}
-      <div className="p-3 bg-white dark:bg-slate-800 border-t border-slate-100 dark:border-slate-700 flex items-center space-x-2 shrink-0">
+      <div className="flex shrink-0 items-center space-x-2 border-t border-[var(--color-aurora-border)] bg-[var(--color-aurora-surface)] p-3">
         <input
+          ref={inputRef}
           id="ai-message"
           name="mensagem"
           aria-label="Mensagem para a IA Aurora"
