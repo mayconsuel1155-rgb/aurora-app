@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useStore } from '../store/useStore';
-import { Check, Sparkles, Trash2, X, DollarSign, Package } from 'lucide-react';
+import { Check, Sparkles, Trash2, X, DollarSign, Package, QrCode } from 'lucide-react';
 import type { Produto } from '../api/client';
 import PageHeader from '../components/PageHeader';
 import ConfirmDialog from '../components/ConfirmDialog';
+import NfceImportDialog from '../components/NfceImportDialog';
 
 export default function Compras() {
   const { produtos, loading, fetchProdutos, marcarComoComprado, removerProduto } = useStore();
@@ -12,6 +13,7 @@ export default function Compras() {
   const [qtdForm, setQtdForm] = useState<string>('1');
   const [precoForm, setPrecoForm] = useState<string>('');
   const [produtoParaExcluir, setProdutoParaExcluir] = useState<Produto | null>(null);
+  const [isNfceDialogOpen, setIsNfceDialogOpen] = useState(false);
 
   useEffect(() => {
     fetchProdutos();
@@ -45,6 +47,12 @@ export default function Compras() {
         eyebrow="Reposição"
         title="Lista de compras"
         description="Itens que chegaram ao limite mínimo e precisam voltar para a casa."
+        action={(
+          <button type="button" onClick={() => setIsNfceDialogOpen(true)} className="btn-primary flex items-center gap-2 px-4 py-3">
+            <QrCode size={19} aria-hidden="true" />
+            Escanear nota
+          </button>
+        )}
       />
 
       {loading ? (
@@ -81,7 +89,7 @@ export default function Compras() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
                     <div className="space-y-1.5">
                       <label htmlFor={`quantidade-${produto.id}`} className="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center">
-                        <Package size={14} className="mr-1.5" /> Quantidade (un, kg, L)
+                        <Package size={14} className="mr-1.5" /> Quantidade ({produto.unidade || 'un'})
                       </label>
                       <input 
                         id={`quantidade-${produto.id}`}
@@ -126,7 +134,7 @@ export default function Compras() {
                   <div>
                     <h3 className="text-lg font-semibold text-[var(--color-aurora-text)]">{produto.nome}</h3>
                     <p className="mt-1 text-sm text-[var(--color-aurora-text-muted)]">
-                      Estoque atual: {produto.quantidade} <span className="mx-1">•</span> Mínimo: {produto.quantidade_minima}
+                      Estoque atual: {produto.quantidade} {produto.unidade || 'un'} <span className="mx-1">•</span> Mínimo: {produto.quantidade_minima} {produto.unidade || 'un'}
                     </p>
                   </div>
                   <div className="flex gap-2">
@@ -160,6 +168,7 @@ export default function Compras() {
         onConfirm={handleExcluir}
         onCancel={() => setProdutoParaExcluir(null)}
       />
+      <NfceImportDialog isOpen={isNfceDialogOpen} onClose={() => setIsNfceDialogOpen(false)} />
     </div>
   );
 }

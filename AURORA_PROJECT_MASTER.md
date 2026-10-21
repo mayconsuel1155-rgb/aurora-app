@@ -199,6 +199,19 @@ Objetivo: Fechar o escopo do MVP, tornando o Aurora utilizável por múltiplas p
 
 ---
 
+# 17.2. IMPORTAÇÃO DE COMPRAS POR NFC-e (Sprint 03)
+
+Objetivo: reduzir o trabalho manual depois de uma compra presencial.
+
+- **Leitura flexível:** câmera do celular, foto do QR Code, colagem do link ou pesquisa pela chave de acesso com 44 dígitos.
+- **Cobertura nacional:** aceita links oficiais `.gov.br` e identifica a UF pela chave de acesso do documento modelo 65.
+- **Revisão humana:** nenhum item altera o estoque antes da confirmação; nome, quantidade, unidade, preço, categoria e produto de destino podem ser corrigidos.
+- **Unidades reais:** produtos passam a preservar `un`, `kg`, `g`, `L`, `ml`, `pacote` e outras unidades recebidas da nota.
+- **Importação segura:** produtos existentes são incrementados e produtos novos são criados em uma única transação; a mesma chave não pode ser importada duas vezes na mesma casa.
+- **Histórico pesquisável:** notas novas preservam emitente, UF, data, valor e todos os itens; uma chave já importada abre os detalhes em modo somente leitura.
+- **Privacidade e segurança:** a Aurora consulta somente portais governamentais públicos, bloqueia endereços internos e não guarda a página completa da nota.
+- **Limitação externa:** cada SEFAZ controla seu próprio portal. CAPTCHA, indisponibilidade ou mudança de HTML podem impedir a leitura automática; nesses casos, o aplicativo informa o problema sem alterar o estoque.
+
 # 18. MÉTRICAS IMPORTANTES
 
 Medir: usuários ativos, casas criadas, produtos cadastrados, listas utilizadas, retorno após 30 dias, percepção de tranquilidade.

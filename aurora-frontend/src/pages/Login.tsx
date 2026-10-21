@@ -13,11 +13,20 @@ export default function Login() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const setAuth = useStore(state => state.setAuth);
+  const [sessionMessage, setSessionMessage] = useState(() => {
+    const sessionExpired = sessionStorage.getItem('aurora-session-expired') === 'true';
+    if (sessionExpired) {
+      sessionStorage.removeItem('aurora-session-expired');
+      return 'Sua sessão expirou. Entre novamente para continuar.';
+    }
+    return '';
+  });
 
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
     setLoading(true);
     setError('');
+    setSessionMessage('');
     try {
       const data = await loginUser({ email, senha });
       setAuth(data.access_token, data.user || { id: 1, email, nome: 'Morador' });
@@ -37,6 +46,7 @@ export default function Login() {
       footer={<>Ainda não tem uma conta? <Link to="/register" className="text-action font-semibold">Criar conta</Link></>}
     >
       <form className="space-y-5" onSubmit={handleLogin}>
+        {sessionMessage && <div role="status" className="rounded-xl border border-amber-200 bg-amber-50 p-3.5 text-sm font-medium text-amber-800 dark:border-amber-500/25 dark:bg-amber-500/10 dark:text-amber-200">{sessionMessage}</div>}
         {error && <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3.5 text-sm font-medium text-red-700 dark:border-red-500/25 dark:bg-red-500/10 dark:text-red-300">{error}</div>}
         <div>
           <label htmlFor="email" className="mb-2 block text-sm font-semibold">E-mail</label>

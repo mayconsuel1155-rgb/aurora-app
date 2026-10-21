@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useStore } from '../store/useStore';
 import { CheckCircle2, AlertCircle, RefreshCw } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
-import { checkConnections } from '../api/client';
+import { API_BASE_URL, checkConnections } from '../api/client';
 import PageHeader from '../components/PageHeader';
 
 export default function Integracoes() {
@@ -56,8 +56,7 @@ export default function Integracoes() {
     setGoogleStatus('connecting');
     // Redireciona o browser inteiro para o backend FastAPI iniciar o OAuth
     // Precisamos enviar o token na URL para que o backend saiba QUEM é o usuário
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-    window.location.href = `${apiUrl}/connect/google/login?token=${token}`;
+    window.location.href = `${API_BASE_URL}/connect/google/login?token=${token}`;
   };
 
   return (

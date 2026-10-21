@@ -1,9 +1,14 @@
 import axios from 'axios';
+import type { NfceAccessKeyResult, NfceImportResult, NfcePreview, NfceRateLimit, NfceReviewItem } from '../types/nfce';
 
-// Se a variável existir (Deploy Vercel), usa ela. Se não, usa localhost (Dev Local)
+// Se a variável existir (deploy), usa ela. No desenvolvimento, o Aurora usa a porta 8001.
+export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8001';
+
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000',
+  baseURL: API_BASE_URL,
 });
+
+let isHandlingExpiredSession = false;
 
 // Interceptor para adicionar o token em todas as requisições
 api.interceptors.request.use((config) => {
@@ -13,6 +18,29 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
+
+api.interceptors.response.use(
+  response => response,
+  error => {
+    const isUnauthorized = axios.isAxiosError(error) && error.response?.status === 401;
+    const requestUrl = axios.isAxiosError(error) ? error.config?.url || '' : '';
+    const isAuthenticationRequest = requestUrl.includes('/auth/login') || requestUrl.includes('/auth/register');
+    const authenticationScheme = axios.isAxiosError(error)
+      ? String(error.response?.headers?.['www-authenticate'] || '').toLowerCase()
+      : '';
+    const isAuroraAuthenticationError = isUnauthorized && authenticationScheme.includes('bearer');
+
+    if (isAuroraAuthenticationError && !isAuthenticationRequest && !isHandlingExpiredSession) {
+      isHandlingExpiredSession = true;
+      localStorage.removeItem('aurora-token');
+      localStorage.removeItem('aurora-user');
+      sessionStorage.setItem('aurora-session-expired', 'true');
+      window.location.assign('/login');
+    }
+
+    return Promise.reject(error);
+  },
+);
 
 export interface Usuario {
   id: number;
@@ -27,6 +55,7 @@ export interface Produto {
   categoria: string;
   quantidade: number;
   quantidade_minima: number;
+  unidade: string;
   preco?: number;
   ambiente_id?: number;
   validade?: string;
@@ -84,11 +113,30 @@ export interface AuthResponse {
   user?: Usuario;
 }
 
+interface ApiErrorBody {
+  detail?: string | NfceRateLimit;
+}
+
 export function getApiErrorMessage(error: unknown, fallback: string) {
-  if (axios.isAxiosError<{ detail?: string }>(error)) {
-    return error.response?.data?.detail || error.message || fallback;
+  if (axios.isAxiosError<ApiErrorBody>(error)) {
+    const requestUrl = error.config?.url || '';
+    const isAuthenticationRequest = requestUrl.includes('/auth/login') || requestUrl.includes('/auth/register');
+    if (error.response?.status === 401 && !isAuthenticationRequest) {
+      return 'Sua sessão expirou. Entre novamente para continuar.';
+    }
+    const detail = error.response?.data?.detail;
+    if (typeof detail === 'string') return detail;
+    if (detail?.message) return detail.message;
+    return error.message || fallback;
   }
   return error instanceof Error ? error.message : fallback;
+}
+
+export function getNfceRateLimit(error: unknown): NfceRateLimit | null {
+  if (!axios.isAxiosError<ApiErrorBody>(error) || error.response?.status !== 429) return null;
+  const detail = error.response.data?.detail;
+  if (!detail || typeof detail === 'string' || !detail.message) return null;
+  return detail;
 }
 
 export const registerUser = async (data: RegisterPayload): Promise<Usuario> => {
@@ -141,9 +189,51 @@ export const deleteProduto = async (produtoId: number) => {
   }
 };
 
+export const previewNfce = async (qrCode: string): Promise<NfcePreview> => {
+  const response = await api.post<NfcePreview>('/notas-fiscais/previews', { qr_code: qrCode });
+  return response.data;
+};
+
+export const findNfceByAccessKey = async (accessKey: string): Promise<NfceAccessKeyResult> => {
+  const response = await api.get<NfceAccessKeyResult>(`/notas-fiscais/chaves/${accessKey}`);
+  return response.data;
+};
+
+export const importNfce = async (
+  preview: NfcePreview,
+  selectedItems: NfceReviewItem[],
+  allItems: NfceReviewItem[],
+): Promise<NfceImportResult> => {
+  const response = await api.post<NfceImportResult>('/notas-fiscais/imports', {
+    chave_acesso: preview.chave_acesso,
+    uf: preview.uf,
+    emitente: preview.emitente,
+    valor_total: preview.valor_total,
+    itens: selectedItems.map(item => ({
+      indice: item.indice,
+      nome: item.nome,
+      quantidade: item.quantidade,
+      unidade: item.unidade,
+      preco_unitario: item.preco_unitario,
+      produto_id: item.produto_id,
+      categoria: item.categoria,
+    })),
+    itens_nota: allItems.map(item => ({
+      indice: item.indice,
+      nome: item.nome,
+      quantidade: item.quantidade,
+      unidade: item.unidade,
+      preco_unitario: item.preco_unitario,
+      valor_total: item.valor_total,
+      produto_id: item.produto_id,
+    })),
+  });
+  return response.data;
+};
+
 export const getAmbientes = async (): Promise<Ambiente[]> => {
   try {
-    const response = await api.get<Ambiente[]>(`/ambientes`);
+    const response = await api.get<Ambiente[]>(`/ambientes/`);
     return Array.isArray(response.data) ? response.data : [];
   } catch (error) {
     console.error('Error fetching ambientes:', error);
@@ -153,7 +243,7 @@ export const getAmbientes = async (): Promise<Ambiente[]> => {
 
 export const createAmbiente = async (data: Omit<Ambiente, 'id' | 'casa_id'>) => {
   try {
-    const response = await api.post<Ambiente>(`/ambientes`, data);
+    const response = await api.post<Ambiente>(`/ambientes/`, data);
     return response.data;
   } catch (error) {
     console.error('Error creating ambiente:', error);

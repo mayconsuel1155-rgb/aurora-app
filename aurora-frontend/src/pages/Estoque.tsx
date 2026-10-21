@@ -22,6 +22,7 @@ export default function Estoque() {
     ambiente_id: 0,
     quantidade: 1,
     quantidade_minima: 1,
+    unidade: 'un',
     validade: ''
   });
 
@@ -55,6 +56,7 @@ export default function Estoque() {
       ambiente_id: ambientes.length > 0 ? ambientes[0].id : 0,
       quantidade: 1,
       quantidade_minima: 1,
+      unidade: 'un',
       validade: ''
     });
   };
@@ -320,7 +322,7 @@ export default function Estoque() {
               
               <div className="mt-8 flex items-center justify-between">
                 <span className="rounded-xl bg-[var(--color-aurora-soft)] px-4 py-2 font-medium text-[var(--color-aurora-text)]">
-                  {produto?.quantidade ?? 0} {produto?.quantidade === 1 ? 'unid' : 'unids'}
+                  {produto?.quantidade ?? 0} {produto?.unidade || 'un'}
                 </span>
                 <div className="flex space-x-1.5 rounded-2xl bg-[var(--color-aurora-soft)] p-1.5">
                   <button 
@@ -393,7 +395,7 @@ export default function Estoque() {
                 <input id="produto-nome" name="nome" required type="text" value={novoProduto.nome} onChange={e => setNovoProduto({...novoProduto, nome: e.target.value})} className="form-input p-3" placeholder="Ex.: Café em pó…" />
               </div>
               
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Categoria</label>
                   <div className="flex items-center space-x-2">
@@ -427,6 +429,17 @@ export default function Estoque() {
                 <div>
                   <label htmlFor="produto-quantidade" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Quantidade atual</label>
                   <input id="produto-quantidade" name="quantidade" required type="number" min="0" step="any" value={novoProduto.quantidade} onChange={e => setNovoProduto({...novoProduto, quantidade: Number(e.target.value)})} className="form-input p-3" />
+                </div>
+                <div>
+                  <label htmlFor="produto-unidade" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Unidade</label>
+                  <select id="produto-unidade" name="unidade" value={novoProduto.unidade} onChange={e => setNovoProduto({...novoProduto, unidade: e.target.value})} className="form-input p-3">
+                    <option value="un">un</option>
+                    <option value="kg">kg</option>
+                    <option value="g">g</option>
+                    <option value="L">L</option>
+                    <option value="ml">ml</option>
+                    <option value="pacote">pacote</option>
+                  </select>
                 </div>
                 <div>
                   <label htmlFor="produto-minimo" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Estoque mínimo</label>
