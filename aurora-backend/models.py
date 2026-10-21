@@ -9,8 +9,22 @@ class Usuario(Base):
     nome = Column(String, index=True)
     email = Column(String, unique=True, index=True)
     hash_senha = Column(String)
+    auth_version = Column(Integer, default=0, nullable=False)
     casas = relationship("Casa", back_populates="dono")
     casas_membro = relationship("MembroCasa", back_populates="usuario")
+
+
+class PasswordResetToken(Base):
+    __tablename__ = "password_reset_tokens"
+
+    id = Column(Integer, primary_key=True, index=True)
+    usuario_id = Column(Integer, ForeignKey("usuarios.id", ondelete="CASCADE"), nullable=False, index=True)
+    token_hash = Column(String(64), unique=True, nullable=False, index=True)
+    expires_at = Column(DateTime(timezone=True), nullable=False)
+    used_at = Column(DateTime(timezone=True), nullable=True)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
+
+    usuario = relationship("Usuario")
 
 class Casa(Base):
     __tablename__ = "casas"

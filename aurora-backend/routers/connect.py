@@ -82,6 +82,8 @@ async def login(provider: str, request: Request, token: str, db: Session = Depen
         user = db.query(models.Usuario).filter(models.Usuario.id == user_id).first()
         if not user:
             raise HTTPException(status_code=401, detail="Usuário não encontrado")
+        if str(payload.get("ver", 0)) != str(user.auth_version or 0):
+            raise HTTPException(status_code=401, detail="Sessão expirada")
     except Exception as e:
         raise HTTPException(status_code=401, detail="Não autorizado")
 

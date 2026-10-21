@@ -24,7 +24,7 @@ api.interceptors.response.use(
   error => {
     const isUnauthorized = axios.isAxiosError(error) && error.response?.status === 401;
     const requestUrl = axios.isAxiosError(error) ? error.config?.url || '' : '';
-    const isAuthenticationRequest = requestUrl.includes('/auth/login') || requestUrl.includes('/auth/register');
+    const isAuthenticationRequest = requestUrl.includes('/auth/login') || requestUrl.includes('/auth/register') || requestUrl.includes('/auth/password/');
     const authenticationScheme = axios.isAxiosError(error)
       ? String(error.response?.headers?.['www-authenticate'] || '').toLowerCase()
       : '';
@@ -120,7 +120,7 @@ interface ApiErrorBody {
 export function getApiErrorMessage(error: unknown, fallback: string) {
   if (axios.isAxiosError<ApiErrorBody>(error)) {
     const requestUrl = error.config?.url || '';
-    const isAuthenticationRequest = requestUrl.includes('/auth/login') || requestUrl.includes('/auth/register');
+    const isAuthenticationRequest = requestUrl.includes('/auth/login') || requestUrl.includes('/auth/register') || requestUrl.includes('/auth/password/');
     if (error.response?.status === 401 && !isAuthenticationRequest) {
       return 'Sua sessão expirou. Entre novamente para continuar.';
     }
@@ -147,6 +147,19 @@ export const registerUser = async (data: RegisterPayload): Promise<Usuario> => {
 export const loginUser = async (data: LoginPayload): Promise<AuthResponse> => {
   const response = await api.post<AuthResponse>('/auth/login', data);
   return response.data;
+};
+
+export const requestPasswordReset = async (email: string): Promise<string> => {
+  const response = await api.post<{ message: string }>('/auth/password/forgot', { email });
+  return response.data.message;
+};
+
+export const resetPassword = async (token: string, novaSenha: string): Promise<string> => {
+  const response = await api.post<{ message: string }>('/auth/password/reset', {
+    token,
+    nova_senha: novaSenha,
+  });
+  return response.data.message;
 };
 
 export const getProdutos = async (): Promise<Produto[]> => {
