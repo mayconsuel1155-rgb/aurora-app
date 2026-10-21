@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from typing import Optional, List
 from datetime import datetime
 
@@ -92,6 +92,35 @@ class Token(BaseModel):
 class LoginRequest(BaseModel):
     email: str
     senha: str
+
+PASSWORD_RESET_GENERIC_MESSAGE = (
+    "Se o e-mail estiver cadastrado, você receberá as instruções para redefinir sua senha."
+)
+
+class ForgotPasswordRequest(BaseModel):
+    email: str = Field(min_length=3, max_length=254)
+
+    @field_validator("email")
+    @classmethod
+    def normalize_email(cls, value: str) -> str:
+        normalized = value.strip().lower()
+        if "@" not in normalized or normalized.startswith("@") or normalized.endswith("@"):
+            raise ValueError("Informe um e-mail válido")
+        return normalized
+
+class ResetPasswordRequest(BaseModel):
+    token: str = Field(min_length=20, max_length=256)
+    nova_senha: str = Field(min_length=8, max_length=72)
+
+    @field_validator("nova_senha")
+    @classmethod
+    def validate_bcrypt_length(cls, value: str) -> str:
+        if len(value.encode("utf-8")) > 72:
+            raise ValueError("A senha deve ter no máximo 72 bytes")
+        return value
+
+class PasswordResetMessage(BaseModel):
+    message: str
 
 class MembroResponse(BaseModel):
     id: int

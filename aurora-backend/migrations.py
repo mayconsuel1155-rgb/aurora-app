@@ -8,6 +8,13 @@ def run_lightweight_migrations() -> None:
     tables = set(inspector.get_table_names())
 
     with engine.begin() as connection:
+        if "usuarios" in tables:
+            user_columns = {column["name"] for column in inspector.get_columns("usuarios")}
+            if "auth_version" not in user_columns:
+                connection.execute(text(
+                    "ALTER TABLE usuarios ADD COLUMN auth_version INTEGER NOT NULL DEFAULT 0"
+                ))
+
         if "produtos" in tables:
             product_columns = {column["name"] for column in inspector.get_columns("produtos")}
             if "unidade" not in product_columns:

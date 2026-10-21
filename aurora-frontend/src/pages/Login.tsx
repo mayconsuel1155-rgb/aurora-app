@@ -53,7 +53,10 @@ export default function Login() {
           <input id="email" name="email" type="email" required autoComplete="email" spellCheck={false} value={email} onChange={event => setEmail(event.target.value)} className="form-input" placeholder="nome@exemplo.com" />
         </div>
         <div>
-          <label htmlFor="senha" className="mb-2 block text-sm font-semibold">Senha</label>
+          <div className="mb-2 flex items-center justify-between gap-3">
+            <label htmlFor="senha" className="block text-sm font-semibold">Senha</label>
+            <Link to="/esqueci-senha" className="text-xs font-semibold text-action">Esqueci minha senha</Link>
+          </div>
           <div className="relative">
             <input id="senha" name="senha" type={showPassword ? 'text' : 'password'} required autoComplete="current-password" value={senha} onChange={event => setSenha(event.target.value)} className="form-input pr-12" placeholder="Digite sua senha…" />
             <button type="button" onClick={() => setShowPassword(value => !value)} aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'} className="icon-button absolute right-1 top-1/2 -translate-y-1/2">

@@ -1,4 +1,6 @@
 import jwt
+import hashlib
+import hmac
 from datetime import datetime, timedelta
 from typing import Optional
 from passlib.context import CryptContext
@@ -20,6 +22,9 @@ def verify_password(plain_password, hashed_password):
 
 def get_password_hash(password):
     return pwd_context.hash(password)
+
+def hash_password_reset_token(token: str) -> str:
+    return hashlib.sha256(token.encode("utf-8")).hexdigest()
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
@@ -48,6 +53,9 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         
     user = db.query(models.Usuario).filter(models.Usuario.id == user_id).first()
     if user is None:
+        raise credentials_exception
+    token_version = payload.get("ver", 0)
+    if not hmac.compare_digest(str(token_version), str(user.auth_version or 0)):
         raise credentials_exception
     return user
 

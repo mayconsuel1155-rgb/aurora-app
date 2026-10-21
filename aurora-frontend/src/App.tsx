@@ -9,10 +9,12 @@ const Compras = lazy(() => import('./pages/Compras'));
 const Despesas = lazy(() => import('./pages/Despesas'));
 const Estoque = lazy(() => import('./pages/Estoque'));
 const Familia = lazy(() => import('./pages/Familia'));
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
 const Integracoes = lazy(() => import('./pages/Integracoes'));
 const Login = lazy(() => import('./pages/Login'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 const Register = lazy(() => import('./pages/Register'));
+const ResetPassword = lazy(() => import('./pages/ResetPassword'));
 const Saude = lazy(() => import('./pages/Saude'));
 const Timeline = lazy(() => import('./pages/Timeline'));
 
@@ -124,6 +126,8 @@ function App() {
         <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/esqueci-senha" element={<ForgotPassword />} />
+        <Route path="/redefinir-senha" element={<ResetPassword />} />
         
         <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
           <Route index element={<Timeline />} />
